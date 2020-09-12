@@ -1,3 +1,14 @@
+const fs = require('fs')
+const path = require('path')
+
+const JWT_CERTS_PATH = process.env.JWT_CERTS_PATH || '' // RS256
+const HTTPS_CERTS_PATH = process.env.HTTPS_CERTS_PATH || ''
+
+let jwtCerts
+let httpsCerts
+
+if (!httpsCerts && HTTPS_CERTS_PATH) httpsCerts = (HTTPS_CERTS_PATH) ? { key: fs.readFileSync(`${HTTPS_CERTS_PATH}.key`), cert: fs.readFileSync(`${HTTPS_CERTS_PATH}.crt`) } : null
+if (!jwtCerts && JWT_CERTS_PATH) jwtCerts = (JWT_CERTS_PATH) ? { key: fs.readFileSync(`${JWT_CERTS_PATH}.key`), cert: fs.readFileSync(`${JWT_CERTS_PATH}.crt`) } : ''
 
 module.exports = {
 
