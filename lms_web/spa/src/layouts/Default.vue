@@ -1,12 +1,23 @@
 <template>
   <v-app>
-    <v-main>
-      <v-container class="max-container">
-        <v-overlay :value="loading">
-          <v-progress-circular indeterminate size="64"></v-progress-circular>
-        </v-overlay>
-          <router-view :key="$route.fullPath"></router-view>
-      </v-container>
+    <v-main class="max-container">
+      <v-overlay :value="loading">
+        <v-progress-circular indeterminate size="64"></v-progress-circular>
+      </v-overlay>
+      <v-layout row wrap class="navbar center-all">
+        <!-- Top bar -->
+        <a href="/">
+          <h1 class="logo">NTU - LMS</h1>
+        </a>
+        <v-spacer class="spaceWidth"></v-spacer>
+        <a href="/" class="navItems">Courses</a>
+        <a href="/" class="navItems">Categories</a>
+        <v-btn class="navBtn" small>Log in</v-btn>
+        <v-btn class="navBtn navSign" small>Sign up</v-btn>
+      </v-layout>
+      <br/>
+      <v-divider class="top-divider"></v-divider>
+      <router-view :key="$route.fullPath"></router-view>
     </v-main>
   </v-app>
 </template>
@@ -23,9 +34,9 @@ export default {
     },
     loading() {
       return this.$store.getters.loading;
-    }
+    },
   },
-  methods: {}
+  methods: {},
 };
 </script>
 
@@ -48,26 +59,34 @@ export default {
   margin: -50px auto 10px !important;
   overflow: visible !important;
 }
+.navbar {
+  margin-top:1%;
+}
+
 .logo {
-  display: flex;
-  padding-left: 13%;
+  width: 200px;
+  margin-left: 2%;
 }
-.image {
-  margin-top: 10%;
-  margin-left: 20%;
+
+.navItems {
+  font-size: 16px !important;
 }
+
+.navBtn{
+  margin-left:1%;
+}
+
+.navSign{
+  margin-right:1%;
+}
+
+.spaceWidth {
+  width: 600px;
+}
+
 .center-all {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.max-container {
-  margin-right: 0 !important;
-  margin-left: 0 !important;
-  max-width: 2500px;
-  border: 0;
-}
-.column {
-  max-width: 892.5px;
 }
 </style>
