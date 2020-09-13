@@ -19,7 +19,6 @@ const mongo = {
   open: async (config) => {
     const { MONGO_URL } = config
     if (!mongo.db && MONGO_URL) {
-      
       const { MongoClient } = require('mongodb')
       try {
         const client = new MongoClient(MONGO_URL, { // mongodb://localhost:27017/?replicaSet=rs0

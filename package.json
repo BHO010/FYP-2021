@@ -1,0 +1,50 @@
+{
+  "name": "lms_app",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "config": {
+    "env": "development",
+    "app": "lms_app",
+    "web": "lms_web"
+  },
+  "scripts": {
+    "dev": "cross-env NODE_ENV=%npm_package_config_env% nodemon %npm_package_config_app%/index.js"
+  },
+  "dependencies": {
+    "agenda": "^3.0.0",
+    "axios": "^0.19.2",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "bull": "^3.18.0",
+    "connect-history-api-fallback": "^1.6.0",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "http-proxy-middleware": "^1.0.4",
+    "jsonwebtoken": "^8.5.1",
+    "keyv": "^4.0.1",
+    "mongodb": "^3.6.2",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.2",
+    "objection": "^2.2.0",
+    "otplib": "^12.0.1",
+    "swagger-jsdoc": "^4.0.0",
+    "swagger-ui-express": "^4.1.4",
+    "ws": "^7.3.0"
+  },
+  "devDependencies": {
+    "concurrently": "^5.2.0",
+    "cross-env": "^7.0.2",
+    "eslint": "^7.3.1",
+    "eslint-plugin-promise": "^4.2.1",
+    "jest": "^26.1.0",
+    "node-mocks-http": "^1.8.1",
+    "nodemon": "^2.0.4",
+    "supertest": "^4.0.2"
+  },
+  "private": true
+}

@@ -136,7 +136,6 @@ const refresh = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-     console.log(AUTH_USER_FIELD_LOGIN, req.body)
     const user = await findUser({
       [AUTH_USER_FIELD_LOGIN]: req.body[AUTH_USER_FIELD_LOGIN] // email
     })
@@ -188,6 +187,8 @@ const otp = async (req, res) => { // need to be authentication, body { pin: '123
   } catch (e) { console.log('otp err', e.toString()) }
   return res.status(401).json({ message: 'Error token revoked' })
 }
+
+
 
 
 module.exports = { findUser, createToken, revokeToken, authUser, logout, refresh, login, otp } // getToken, setToken,

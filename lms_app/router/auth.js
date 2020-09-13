@@ -4,7 +4,7 @@ const authRoutes = express.Router()
 const bcrypt = require('bcryptjs')
 const { SALT_ROUNDS } = require('../config')
 const { authUser, authSignup } = require('../middlewares/auth')
-const { createToken, revokeToken, otp, logout, refresh, login } = require(LIB_PATH + '/auth')
+const { createToken, revokeToken, otp, logout, refresh, login, } = require(LIB_PATH + '/auth')
 
 const mongo = require(LIB_PATH + '/services/db/mongodb')
 
@@ -15,7 +15,7 @@ const getUser = async (req, res) => {
     }catch(e) {
         console.log(e.toString())
     }
-}
+  }
 
 
 

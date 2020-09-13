@@ -10,13 +10,23 @@ let httpsCerts
 if (!httpsCerts && HTTPS_CERTS_PATH) httpsCerts = (HTTPS_CERTS_PATH) ? { key: fs.readFileSync(`${HTTPS_CERTS_PATH}.key`), cert: fs.readFileSync(`${HTTPS_CERTS_PATH}.crt`) } : null
 if (!jwtCerts && JWT_CERTS_PATH) jwtCerts = (JWT_CERTS_PATH) ? { key: fs.readFileSync(`${JWT_CERTS_PATH}.key`), cert: fs.readFileSync(`${JWT_CERTS_PATH}.crt`) } : ''
 
-module.exports = {
+module.exports = {    
+
+ // CERTS
+ httpsCerts,
+ jwtCerts,    
+
+// PORTS
+API_PORT: process.env.API_PORT || 3000, // (also on FE)
+WS_PORT: process.env.WS_PORT || null, // (also on FE)
 
 SALT_ROUNDS: process.env.SALT_ROUNDS || 12,
 
 // OTP
 USE_OTP: process.env.USE_OTP || 'TEST', // GA, SMS, '' (also on FE)
 OTP_EXPIRY: process.env.OTP_EXPIRY || '1m', // allow 1 minute for user to do OTP
+
+USE_HTTPS: process.env.USE_HTTPS || false, // USE_HTTPS should be path to letsencrypt location OR false 
 
 // ## CACHING CAN USE REDIS INSTEAD
 // KEYV_CACHE=redis://localhost:6379
@@ -43,6 +53,27 @@ AUTH_USER_FIELD_LOGIN: process.env.AUTH_USER_FIELD_LOGIN || 'email',
 AUTH_USER_FIELD_PASSWORD: process.env.AUTH_USER_FIELD_PASSWORD || 'password', 
 AUTH_USER_FIELD_GAKEY: process.env.AUTH_USER_FIELD_GAKEY || 'gaKey', 
 
+// HTTPONLY COOKIES
+HTTPONLY_TOKEN: true, // true, false (also set the same on FE..., true means place token in HttpOnly cookie) - DO TAKE NOTE OF CORS
+
+PROXY_WWW_ORIGIN: '', // 'http://127.0.0.1:8080', // used by proxy middleware
+// CORS_OPTIONS: null, // if withCredentials === false at Frontend
+CORS_OPTIONS: { // set withCredentials === true at Frontend
+  // exposedHeaders: ['refresh-token'], // allow this to be sent back in response
+  // maxAge
+  // allowedHeaders
+  // credentials
+
+  // default cors settings
+  // origin: '*',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  // ALLOW CORS
+  credentials: true, // Access-Control-Allow-Credentials value to true
+  origin: process.env.CORS_ORIGINS || 'http://127.0.0.1:8080' // '*'
+},
+CORS_ORIGINS: process.env.CORS_ORIGINS || '*', // http://127.0.0.1:8080
 
 }
 

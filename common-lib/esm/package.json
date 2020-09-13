@@ -1,10 +1,8 @@
 {
   "author": {
-    "name": "Aaron Gong",
-    "email": "aaronjxz@gmail.com"
+    "name": ""
   },
   "bugs": {
-    "url": "https://github.com/ais-one/vue-crud-x/issues"
   },
   "bundleDependencies": [],
   "dependencies": {},
@@ -14,7 +12,7 @@
     "@vue/cli-service": "^4.2.3",
     "vue-template-compiler": "^2.6.11"
   },
-  "homepage": "https://github.com/ais-one/vue-crud-x#readme",
+  "homepage": "",
   "license": "MIT",
   "main": "index.js",
   "name": "common",
