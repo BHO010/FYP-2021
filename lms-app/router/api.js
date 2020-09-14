@@ -13,6 +13,20 @@ apiRoutes
   res.status(200).json({ message: 'OK LMS AUTH' })
 })
 
+.post('/userObj', async (req, res) => {
+  try {
+    const user = await mongo.db.collection('user').findOne({ email: req.body.email })
+    // console.log("333", user.active)
+    if (user) { // remove password
+      return res.status(200).json({ user })
+    }
+    return res.status(200).json({ user: null })
+
+  } catch (e) {
+    return res.status(500).json({ e: e.toString() })
+  }
+})
+
 // check email
 .post('/signup/email', async (req, res) => {
   try {

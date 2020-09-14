@@ -14,6 +14,9 @@ export default {
     return {};
   },
   created() {},
+  mounted() {
+    this.$store.commit("setLayout", "layout-navbar");
+  },
   computed: {
     user() {
       return this.$store.state.user;
@@ -26,7 +29,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .max-container {
   margin-right: 0 !important;
   margin-left: 0 !important;

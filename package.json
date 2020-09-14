@@ -1,13 +1,13 @@
 {
-  "name": "lms_app",
+  "name": "lms-app",
   "version": "1.0.0",
   "description": "",
   "author": "",
   "license": "ISC",
   "config": {
     "env": "development",
-    "app": "lms_app",
-    "web": "lms_web"
+    "app": "lms-app",
+    "web": "lms-web"
   },
   "scripts": {
     "dev": "cross-env NODE_ENV=%npm_package_config_env% nodemon %npm_package_config_app%/index.js"

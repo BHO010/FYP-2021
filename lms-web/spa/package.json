@@ -1,9 +1,9 @@
 {
-  "name": "viow-web-app",
+  "name": "lms-web-app",
   "version": "0.0.0",
   "private": true,
-  "description": "Web Application For Viow",
-  "author": "Aaron Gong <aaronjxz@gmail.com>",
+  "description": "Web Application For ",
+  "author": "Bing Hui",
   "scripts": {
     "serve": "vue-cli-service serve --port 8080",
     "build": "vue-cli-service build",

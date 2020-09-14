@@ -10,7 +10,8 @@ export default new Router({
     // route level code splitting, components are lazy loaded using import
     { path: '/home', name:'Home', component: () => import('@/pages/Home') },
     { path: '/login', name:'LoginIn', component: () => import('@/pages/Login') },
-    { path: '*', redirect: '/home' }
+    { path: '/signup', name:'Signup', component: () => import('@/pages/Signup') },
+    { path: '*', redirect: '/login' }
 
   ],
 

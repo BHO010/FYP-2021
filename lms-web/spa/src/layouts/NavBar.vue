@@ -40,7 +40,7 @@ export default {
 };
 </script>
 
-<style scooped>
+<style scoped>
 @media screen and (max-width: 850px) {
   .logo {
     display: flex !important;

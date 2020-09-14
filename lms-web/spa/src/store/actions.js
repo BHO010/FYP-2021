@@ -8,29 +8,22 @@ export default {
     commit("setLoading", true);
     commit("setError", null);
     let rv = null;
-    const { email, password, role, paypalEmail, subscriptionPlan, refererCode } = payload;
+    const { email, password, name } = payload;
     try {
       rv = await http.post("/api/auth/signup", {
+        name,
         email,
         password,
-        role,
-        paypalEmail,
-        subscriptionPlan,
-        refererCode
+        role: 'user'
       });
-      await router.push("/").catch(err => { });
     } catch (e) { }
     commit("setLoading", false);
     if (rv) {
       const newUser = {
         id: payload.uid,
         email: payload.email,
-        role: payload.role,
-        paypalEmail: payload.paypalEmail,
-        subscriptionPlan: payload.subscriptionPlan,
-        refererCode: payload.refererCode
-      }; // Firebase Use-Case
-      //commit("setUser", newUser);
+        role: "user",
+      };
       commit("setError", { message: "User Registered" });
     } else {
       commit("setError", { message: "Error Signup" });
@@ -52,7 +45,7 @@ export default {
       //checking if role is admin, if it is, show error.
       if ((userObj.data.user.role == "admin")) {
         await dispatch('autoSignIn', userObj_data) // token
-        commit('setError', { message: 'Invalid Login. Please login via https://uat-admin.viow.co/login' })
+        commit('setError', { message: 'Invalid Login.' })
         await router.push("/login").catch(err => { });
       } else {
         await dispatch('autoSignIn', data) // token

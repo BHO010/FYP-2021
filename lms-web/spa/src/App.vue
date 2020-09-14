@@ -6,10 +6,12 @@
 
 <script>
 import LayoutDefault from "./layouts/Default";
+import LayoutNavBar from "./layouts/NavBar";
 
 export default {
   components: {
     "layout-default": LayoutDefault,
+    "layout-navbar": LayoutNavBar,
   },
   computed: {
     layout() {
@@ -30,6 +32,10 @@ export default {
     margin-top: 10px;
     margin-bottom: 10px;
   }
+}
+
+.v-input__slot {
+  max-height: 35px 
 }
 
 </style>
