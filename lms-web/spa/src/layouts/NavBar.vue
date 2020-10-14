@@ -1,48 +1,87 @@
 <template>
   <v-app>
-    <v-main class="max-container">
-      <v-overlay :value="loading">
-        <v-progress-circular indeterminate size="64"></v-progress-circular>
-      </v-overlay>
-      <v-layout row wrap class="navbar center-all">
-        <!-- Top bar -->
-        <a href="/">
-          <h1 class="logo">NTU - LMS</h1>
-        </a>
-        <v-spacer class="spaceWidth"></v-spacer>
-        <a href="/" class="navItems">Courses</a>
-        <a href="/" class="navItems">Categories</a>
-        <v-btn class="navBtn" small>Log in</v-btn>
-        <v-btn class="navBtn navSign" small>Sign up</v-btn>
-      </v-layout>
-      <br/>
-      <v-divider class="top-divider"></v-divider>
-      <router-view :key="$route.fullPath"></router-view>
-    </v-main>
+    <v-overlay :value="loading">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
+
+    <div class="topBar">
+      <v-app-bar height="74" elevation="1">
+        <v-menu offset-y>
+          <v-list class="hidden-md-and-up">
+            <v-list-item v-for="item in menu" :key="item.icon">
+              <v-list-item-content>
+                <v-list-item-title>{{ item.title }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
+        <v-toolbar-title class="color logo">NTU-LMS</v-toolbar-title>
+
+        <v-text-field
+          class="searchInput"
+          type="text"
+          label="Search"
+          dense
+          outlined
+          prepend-inner-icon="mdi-magnify"
+        ></v-text-field>
+
+        <v-spacer></v-spacer>
+
+        <v-toolbar-items class="hidden-sm-and-down">
+          <v-btn v-for="(item, i) in menu" :key="i" :to="item.route" text>{{
+            item.title
+          }}</v-btn>
+        </v-toolbar-items>
+
+        <v-btn class="navBtn" to="/login" outlined medium>Log in</v-btn>
+        <v-btn class="navBtn navSign" color="#FF733C" to="/signup" medium
+          >Sign up</v-btn
+        >
+      </v-app-bar>
+    </div>
+
+    <div class="body">
+      <v-main>
+        <router-view :key="$route.fullPath"></router-view>
+      </v-main>
+    </div>
   </v-app>
 </template>
-
+ 
 <script  scoped >
 export default {
   data() {
-    return {};
+    return {
+      menu: [
+        { title: "Browse", route: "/" },
+        { title: "Category", route: "/" },
+        { title: "About Us", route: "/" },
+        { title: "Help", route: "/" },
+      ],
+    }
   },
   created() {},
   computed: {
     user() {
-      return this.$store.state.user;
+      return this.$store.state.user
     },
     loading() {
-      return this.$store.getters.loading;
+      return this.$store.getters.loading
     },
   },
-  methods: {},
-};
+  methods: {
+    menuItems() {
+      return this.menu
+    },
+  },
+}
 </script>
 
 <style scoped>
 @media screen and (max-width: 850px) {
-  .logo {
+  .logo2 {
     display: flex !important;
     justify-content: center !important;
     align-content: center !important;
@@ -50,34 +89,71 @@ export default {
     padding: 0 !important;
   }
 }
-.top-divider {
-  border: none !important;
-  height: 50px !important;
-  max-height: 50px !important;
-  border-bottom: 2px solid #e3e3e3 !important;
-  box-shadow: 0 20px 15px -15px #e3e3e3 !important;
-  margin: -50px auto 10px !important;
-  overflow: visible !important;
+
+.body {
+  display: flex;
+  background-color: bisque;
 }
+
+.topBar {
+  height: 74px;
+  width: 100%;
+}
+
+.main {
+  width: 85%;
+}
+
+.bgColor {
+  background-color: #f5f6f7;
+}
+
+.header {
+  color: white;
+  font-size: 30px;
+  margin-left: 2%;
+}
+
+.color {
+  color: black !important;
+}
+
 .navbar {
-  margin-top:1%;
+  margin-top: 1%;
+}
+
+.theme--light.v-btn--active::before {
+  opacity: 0;
+}
+
+.sideBar {
+  height: 100%;
 }
 
 .logo {
-  width: 200px;
+  width: 150px;
   margin-left: 2%;
+}
+
+.searchInput {
+  height: 40px;
+  width: 220px;
 }
 
 .navItems {
   font-size: 16px !important;
+  margin-left: 1%;
+  text-decoration: none;
 }
 
-.navBtn{
-  margin-left:1%;
+.navBtn {
+  margin-left: 1%;
+  text-transform: none;
+  color: black !important;
 }
 
-.navSign{
-  margin-right:1%;
+.navSign {
+  margin-right: 1%;
 }
 
 .spaceWidth {
@@ -88,5 +164,11 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.mainContainer {
+  align-items: inherit !important;
+  margin: 0;
+  padding: 0;
 }
 </style>

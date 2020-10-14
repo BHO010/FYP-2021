@@ -6,12 +6,14 @@
 
 <script>
 import LayoutDefault from "./layouts/Default";
-import LayoutNavBar from "./layouts/NavBar";
+import LayoutNavBar from "./layouts/NavBar"; 
+import LayoutPrivate from "./layouts/Private"; 
 
 export default {
   components: {
     "layout-default": LayoutDefault,
     "layout-navbar": LayoutNavBar,
+    "layout-private": LayoutPrivate,
   },
   computed: {
     layout() {

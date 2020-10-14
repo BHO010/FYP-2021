@@ -1,20 +1,21 @@
 <template>
-  <v-main class="center-all bgColor">
+  <div class="center">
     <v-row xs12 class="center-all logo">
-      <h1>Logo</h1>
+      <h1><a href="/">Logo</a></h1>
     </v-row>
 
     <v-card flat class="loginCard">
       <v-form>
-        <div style="border-bottom: 1px solid #f0f1f2;">
+        <div style="border-bottom: 1px solid #b8bdc2">
           <v-row xs12 class="center-all size23">Login</v-row>
-          <v-row xs12 class="center-all size11 margin color2">Access Your Account</v-row>
+          <v-row xs12 class="center-all size11 margin color2"
+            >Access Your Account</v-row
+          >
         </div>
 
         <div class="inputBox">
           <div class="size14 color2 margin-btm">YOUR EMAIL ADDRESS:</div>
           <v-text-field
-            class="text-input"
             type="email"
             v-model="email"
             dense
@@ -24,7 +25,6 @@
           ></v-text-field>
           <div class="size14 color2 margin-btm">YOUR PASSWORD:</div>
           <v-text-field
-            class="text-input"
             type="password"
             v-model="password"
             dense
@@ -33,7 +33,7 @@
             prepend-inner-icon="mdi-lock-outline"
           ></v-text-field>
           <div class="errorColor" v-if="!!error">{{ error.message }}</div>
-          <v-btn type="button" @click.prevent="onSignin" block>Login</v-btn>
+          <v-btn type="button" color="#ff733c" @click.prevent="onSignin" block>Login</v-btn>
           <br />
           <v-row class="center-all forgotPW">
             <a>Forgot password?</a>
@@ -51,7 +51,7 @@
         </div>
       </v-form>
     </v-card>
-  </v-main>
+  </div>
 </template>
 
 <script>
@@ -59,7 +59,6 @@ import { mapState } from "vuex"
 import { http } from "@/axios"
 //import { APP_VERSION } from '@/config'
 export default {
-  //components: { VueRecaptcha }, // recaptcha
   data() {
     return {
       email: "",
@@ -71,13 +70,6 @@ export default {
     }
   },
   created() {
-    // console.log('comment out line below to test Google Recaptcha on localhost')
-    // if (
-    //   window.location.hostname === "127.0.0.1" ||
-    //   window.location.hostname === "localhost" ||
-    //   this.sitekey === ""
-    // )
-    //   this.recaptchaUnverified = false;
   },
   mounted() {
     this.$store.commit("setLayout", "layout-default")
@@ -87,13 +79,13 @@ export default {
   },
   methods: {
     async onSignin() {
-        this.$store.dispatch("clearError");
-        this.$store
-          .dispatch("signUserIn", {
-            email: this.email,
-            password: this.password
-          })
-          .catch(err => {});
+      this.$store.dispatch("clearError")
+      this.$store
+        .dispatch("signUserIn", {
+          email: this.email,
+          password: this.password,
+        })
+        .catch((err) => {})
     }
   },
 }
@@ -114,6 +106,13 @@ export default {
   background-color: #f5f6f7;
 }
 
+.center {
+  margin: auto;
+  margin-top: 8%;
+  width: 50%;
+  padding: 10px;
+}
+
 .center-all {
   display: flex;
   align-items: center;
@@ -131,7 +130,7 @@ export default {
 .loginCard {
   margin: auto;
   max-width: 550px;
-  border: 1px solid #f0f1f2;
+  border: 1px solid #b8bdc2;
   border-radius: 0.1875rem;
 }
 
@@ -164,7 +163,7 @@ hr {
   margin-bottom: 10px;
   border-bottom-left-radius: revert !important;
   height: 1px;
-  background-color: #f0f1f2;
+  background-color: #b8bdc2;
   border: none;
 }
 

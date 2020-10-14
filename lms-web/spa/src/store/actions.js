@@ -50,9 +50,9 @@ export default {
       } else {
         await dispatch('autoSignIn', data) // token
       }
-
+      console.log(USE_OTP)
       if (!USE_OTP) {
-        //  await router.push('/dashboard')
+        console.log("YES")
         await router.push('/home')
       }
     } catch (e) { }
@@ -113,7 +113,6 @@ export default {
   // Common Logout
   async logout({ commit }, payload) {
     commit("setLoading", true);
-    // console.log("SS", payload)
     if (payload.forced) {
       // auth failure detected
     } else {

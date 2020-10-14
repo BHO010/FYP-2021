@@ -16,6 +16,10 @@
       </v-carousel>
     </v-container>
 
+    <div class="tempBox">
+
+    </div>
+
   </v-container>
 </template>
 
@@ -35,7 +39,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.$store.commit("setLayout", "layout-navbar")
+    this.$store.commit("setLayout", "layout-private")
   },
   computed: {
     user() {
@@ -50,9 +54,6 @@ export default {
 </script>
 
 <style scoped>
-.bannerContainer {
-  
-}
 
 a {
   text-decoration: none;
@@ -82,4 +83,10 @@ a {
   align-items: center;
   justify-content: center;
 }
+
+.tempBox {
+  border: 1px solid black;
+  height: 700px;
+}
+
 </style>

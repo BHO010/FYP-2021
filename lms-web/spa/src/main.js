@@ -11,6 +11,7 @@ import VueCrudX from 'ext-lib/webpacked/VueCrudX.vue' // Vuetify
 import TimePicker from 'ext-lib/webpacked/TimePicker.vue'
 import DatePicker from 'ext-lib/webpacked/DatePicker.vue'
 import FileUpload from 'ext-lib/webpacked/FileUpload.vue'
+import ReviewSection from './components/ReviewSection.vue'
 
 Vue.config.productionTip = false
 
@@ -33,6 +34,7 @@ Vue.component('app-date-picker', DatePicker)
 Vue.component('app-time-picker', TimePicker)
 Vue.component('app-file-upload', FileUpload)
 Vue.component('vue-crud-x', VueCrudX)
+Vue.component('review-section', ReviewSection)
 
 /* eslint-disable no-new */
 export const app = new Vue({

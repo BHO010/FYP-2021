@@ -2,12 +2,12 @@ import { store } from '@/store'
 
 const permissions = {
   'all': ['/test'],
-  'rest': [],
+  'rest': ['/home','/profile'],
 
 }
 
 export default (to, from, next) => {
-  // console.log('route', to.matched[0].path, store.state.user)
+   //console.log('route', to.matched[0].path, store.state.user)
   if (store.state.user && store.state.user.verified) { // has user && otp is verified
     const { loginType } = store.state.user
     let idx = -1
@@ -15,7 +15,7 @@ export default (to, from, next) => {
     if (idx === -1) idx = permissions['all'].indexOf(to.matched[0].path) // try again
     if (idx === -1) { // Forbidden
       alert('Forbidden... Check Page Permissions')
-      next('/')
+      //next('/')
     } else {
       next()
     }
