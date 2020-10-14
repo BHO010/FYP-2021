@@ -10,4 +10,4 @@ if (!process.env.NODE_ENV) { // we cannot use process.argv due to jest not passi
   const path = require('path')
   global.LIB_PATH = path.join(process.cwd(), 'common-lib') // Set Common Path || TBD use node modules
   global.APP_PATH = path.join(process.cwd(), APP_NAME) 
-  
+  console.log(APP_PATH)

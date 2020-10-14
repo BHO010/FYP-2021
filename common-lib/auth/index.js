@@ -148,7 +148,8 @@ const login = async (req, res) => {
     const id = user[AUTH_USER_FIELD_ID_FOR_JWT] || ''
     const groups = user[AUTH_USER_FIELD_GROUPS_FOR_JWT] || ''
     if (!id) return res.status(401).json({ message: 'Authorization Format Error' })
-    if (USE_OTP) {
+    console.log("FF",USE_OTP, groups)
+    if (USE_OTP =="GA") {
       verified = false
       // if (USE_OTP === 'SMS') {
       //   // Generate PIN
@@ -157,8 +158,9 @@ const login = async (req, res) => {
       //   // update pin where ts > ?
       //   // set user SMS & send it
       // }
-    }
-    const tokens = await createToken({ id, verified, groups }, { expiresIn: USE_OTP ? OTP_EXPIRY : JWT_EXPIRY }) // 5 minute expire for login
+      const tokens = await createToken({ id, verified, groups }, { expiresIn: USE_OTP ? OTP_EXPIRY : JWT_EXPIRY }) // 5 minute expire for login
+    }else { verified = true }
+    const tokens = await createToken({ id, verified: true, groups }, {expiresIn: JWT_EXPIRY})
     if (HTTPONLY_TOKEN) res.setHeader('Set-Cookie', [`token=${tokens.token}; HttpOnly; Path=/;`]); // may need to restart browser, TBD set Max-Age,  ALTERNATE use res.cookie, Signed?, Secure?, SameSite=true?
     return res.status(200).json(tokens)
   } catch (e) {

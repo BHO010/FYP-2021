@@ -19,7 +19,6 @@ client.connect(async err => {
       const user = require('./seed-user')
       await db.collection('user').deleteMany({})
       await db.collection('user').createIndex({ email: 1 }, { unique: true })
-      await db.collection('user').createIndex({ myReferalCode: 1 }, { unique: true })
       await db.collection('user').createIndex({ active: 1 })
       await db.collection('user').insertMany(user)
 
