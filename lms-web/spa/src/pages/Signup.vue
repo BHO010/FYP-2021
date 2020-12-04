@@ -57,7 +57,7 @@
                 outlined
                 prepend-inner-icon="mdi-email-outline"
               ></v-text-field>
-              <v-btn class="button" @click="onEmail()" block>Continue</v-btn>
+              <v-btn class="button" color="#ff733c" @click="onEmail()" block>Continue</v-btn>
 
               <br />
               <hr />
@@ -282,7 +282,7 @@
               <div class="errorColor" v-if="!!error">
                 {{ error.message }}
               </div>
-              <v-btn type="button" @click.prevent="onSignup" block
+              <v-btn type="button" color="#ff733c" @click.prevent="onSignup" block
                 >Sign up</v-btn
               >
               <br />
@@ -349,6 +349,10 @@ export default {
   //components: { VueRecaptcha }, // recaptcha
   data() {
     return {
+      snackbarColor: "success",
+      snackbarShow: false,
+      snackbarText: "",
+      snackbarTimeout: 5000,
       step: 1,
       validToken: "",
       profileImg: "",
@@ -362,10 +366,6 @@ export default {
       termsNcondition: false,
       checkbox: false,
       valid: true,
-      snackbarColor: "success",
-      snackbarShow: false,
-      snackbarText: "",
-      snackbarTimeout: 5000,
       requiredRules: [(v) => !!v || "This is required"],
       emailRules: [
         (v) => !!v || "Email Address is required",

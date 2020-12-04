@@ -50,10 +50,6 @@ export default {
 </script>
 
 <style scoped>
-.bannerContainer {
-  
-}
-
 a {
   text-decoration: none;
   color: grey !important;

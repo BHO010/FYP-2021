@@ -1,0 +1,467 @@
+<template>
+  <v-container fluid>
+    <v-stepper v-model="step">
+      <v-stepper-header>
+        <v-stepper-step :complete="step > 1" step="1" @click="nextStep(1)">
+          Course Information
+        </v-stepper-step>
+
+        <v-divider></v-divider>
+
+        <v-stepper-step :complete="step > 2" step="2" @click="nextStep(2)">
+          Trainers Information
+        </v-stepper-step>
+
+        <v-divider></v-divider>
+
+        <v-stepper-step :complete="step > 3" step="3" @click="nextStep(3)">
+          Fees and Funding
+        </v-stepper-step>
+      </v-stepper-header>
+      <br />
+      <div class="formContent">
+        <v-stepper-content step="1" style="height: 100%">
+          <h2 id="Title">Course Title</h2>
+          <v-text-field
+            v-model="title"
+            label="Title"
+            outlined
+            dense
+          ></v-text-field>
+
+          <h2 id="Description">Course Description</h2>
+          <v-textarea
+            v-model="description"
+            rows="5"
+            row-height="40"
+            no-resize
+            outlined
+          ></v-textarea>
+
+          <h2 id="Category">Course Category</h2>
+          <v-select
+            v-model="category"
+            :items="tags"
+            label="Category"
+            outlined
+            dense
+          ></v-select>
+
+          <h2>Course Level</h2>
+          <v-select
+            v-model="level"
+            :items="levels"
+            label="Level"
+            outlined
+            dense
+          ></v-select>
+
+          <h2>Course Type</h2>
+          <v-select
+            v-model="type"
+            :items="types"
+            label="Type"
+            outlined
+            dense
+          ></v-select>
+
+          <h2 id="Venue">Course Venue</h2>
+          <v-text-field
+            v-model="venue"
+            label="Venue"
+            outlined
+            dense
+          ></v-text-field>
+
+          <h2 id="Timing">
+            Timing
+            <span style="font-weight: regular; font-size: 18px"
+              >(Eg: 24 March 2020 - 24 June 2020 Mon-Fri 7pm)</span
+            >
+          </h2>
+          <v-text-field
+            v-model="time"
+            label="Time"
+            outlined
+            dense
+          ></v-text-field>
+
+          <h2 id="Objectives">Course Objectives</h2>
+          <v-sheet class="preview" outlined>
+            <div class="margin-left">
+              <h3>By the end of this course, students should be able to:</h3>
+              <div id="objectivePreview"></div>
+            </div>
+          </v-sheet>
+          <v-text-field
+            v-model="objectivePoint"
+            label="Course Objective"
+            outlined
+            dense
+          ></v-text-field>
+          <v-btn class="formBtn" color="secondary" @click="addObjective()"
+            >Add</v-btn
+          >
+          <v-btn class="formBtn" color="secondary" @click="deleteObjective()"
+            >Delete</v-btn
+          >
+
+          <h2 id="Outlines">Course Outline</h2>
+          <v-sheet class="preview" outlined>
+            <div class="margin-left">
+              <h3>Topics that will be covered through the course:</h3>
+              <div id="outlinePreview"></div>
+            </div>
+          </v-sheet>
+          <v-text-field
+            v-model="outlinePoint"
+            label="Course Outline"
+            outlined
+            dense
+          ></v-text-field>
+          <v-btn class="formBtn" color="secondary" @click="addPoint()"
+            >Add</v-btn
+          >
+          <v-btn class="formBtn" color="secondary" @click="deletePoint()"
+            >Delete</v-btn
+          >
+
+          <h2>Who Should Attend?</h2>
+          <v-sheet class="preview" outlined>
+            <div class="margin-left">
+              <h3>Who should attend this course:</h3>
+              <div id="attendPreview"></div>
+            </div>
+          </v-sheet>
+          <v-text-field
+            v-model="attendPoint"
+            label="Who Should Attend?"
+            outlined
+            dense
+          ></v-text-field>
+          <v-btn class="formBtn" color="secondary" @click="addAttend()"
+            >Add</v-btn
+          >
+          <v-btn class="formBtn" color="secondary" @click="deleteAttend()"
+            >Delete</v-btn
+          >
+
+          <v-btn class="button" color="#FF733C" @click="nextStep(2)" block>Continue</v-btn>
+        </v-stepper-content>
+
+        <v-stepper-content step="2" style="height: 100%">
+          <h2>Trainers</h2>
+          <v-sheet class="preview" outlined>
+            <div class="margin-left">
+              <h3>Who will be teaching the course:</h3>
+              <table class="trainerTable">
+                <thead>
+                  <tr>
+                    <td class="tableBorder">Trainer Name</td>
+                    <td class="tableBorder">Biography</td>
+                  </tr>
+                </thead>
+                <tbody id="trainerPreview" class="tableBorder"></tbody>
+              </table>
+            </div>
+          </v-sheet>
+
+          <h2>Trainer Name</h2>
+          <v-text-field
+            v-model="trainer"
+            label="Trainer Name"
+            outlined
+            dense
+          ></v-text-field>
+          <h2>Trainer Description</h2>
+          <v-textarea
+            v-model="trainerDescription"
+            rows="3"
+            row-height="30"
+            no-resize
+            outlined
+          ></v-textarea>
+          <v-btn class="formBtn" color="secondary" @click="addTrainer()"
+            >Add</v-btn
+          >
+          <v-btn class="formBtn" color="secondary" @click="deleteTrainer()"
+            >Delete</v-btn
+          >
+          
+          <v-btn class="button" color="#FF733C" @click="nextStep(3)" block>Continue</v-btn>
+        </v-stepper-content>
+
+        <v-stepper-content step="3" style="height: 100%">
+          <h3>Fees and Funding</h3>
+          <v-row justify="end">
+            <v-btn  class="button" color="#FF733C" @click="addCourse()" block>Create Course</v-btn
+            >
+          </v-row>
+        </v-stepper-content>
+      </div>
+    </v-stepper>
+    <!-- <v-spacer></v-spacer>
+       <v-navigation-drawer clipped right class="toc">
+          <v-list nav dense>
+            <v-list-item
+              v-for="item in contents"
+              :key="item.header"
+              :to="item.route"
+            >
+              <v-list-item-content>
+                <v-list-item-title>{{ item.header }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+      </v-navigation-drawer> -->
+    <!--  </v-row> -->
+  </v-container>
+</template>
+
+<script>
+import { http } from "@/axios"
+import { mapState } from "vuex"
+
+export default {
+  data() {
+    return {
+      snackbarColor: "success",
+      snackbarShow: false,
+      snackbarText: "",
+      snackbarTimeout: 5000,
+      step: 1,
+      title: "",
+      description: "",
+      category: "",
+      level: "",
+      type: "",
+      venue: "",
+      time: "",
+      objectivePoints: [],
+      outlinePoints: [],
+      trainers: [],
+      attendPoints: [],
+      objectivePoint: "",
+      outlinePoint: "",
+      trainer: "",
+      trainerDescription: "",
+      attendPoint: "",
+      types: ["Full-Time", "Part-Time"],
+      contents: [
+        { header: "Title", route: "./course-create#Title" },
+        { header: "Description", route: "#Description" },
+        { header: "Category", route: "./#Category" },
+        { header: "Type", route: "#Type" },
+        { header: "Venue", route: "#Venue" },
+        { header: "Timing", route: "#Timing" },
+        { header: "Objectives", route: "#Objectives" },
+        { header: "Outlines", route: "#Outlines" },
+        { header: "Attends?", route: "#Attends" },
+        { header: "Trainers", route: "./course-create#Trainers" },
+      ],
+      tags: [
+        "Business",
+        "Leadership and Management",
+        "Marketing",
+        "Accounting",
+        "Business Strategy",
+        "Arts",
+        "Shopping",
+        "Art",
+        "Finance",
+        "Information Technology",
+        "Economics",
+        "Mechanical Engineering",
+        "Chemistry",
+        "Physics",
+        "Electrical Engineering",
+        "Biology",
+        "Programming",
+        "Computer Science",
+        "Math",
+      ],
+      levels: [
+        'Basic',
+        'Intermediate',
+        'Advance'
+      ]
+    }
+  },
+  created() {},
+  mounted() {},
+  computed: {
+    user() {
+      return this.$store.state.user
+    },
+    loading() {
+      return this.$store.getters.loading
+    },
+  },
+  methods: {
+    addPoint() {
+      this.outlinePoints.push(this.outlinePoint)
+      this.outlinePoint = ""
+      this.updateOutline()
+    },
+    deletePoint() {
+      this.outlinePoints.pop()
+      this.updateOutline()
+    },
+    updateOutline() {
+      let d = document.getElementById("outlinePreview")
+      let x = "<ul>"
+      for (var item of this.outlinePoints) {
+        x = x + `<li>${item}</li>`
+      }
+      d.innerHTML = x
+    },
+    addTrainer() {
+      let template = {
+        name: "",
+        description: "",
+      }
+      template.name = this.trainer
+      template.description = this.trainerDescription
+      this.trainer = ""
+      this.trainerDescription = ""
+      this.trainers.push(template)
+      this.updateTrainers()
+    },
+    deleteTrainer() {
+      this.trainers.pop()
+      this.updateTrainers()
+    },
+    updateTrainers() {
+      let d = document.getElementById("trainerPreview")
+      let x = "<tbody>"
+      for (var item of this.trainers) {
+        x = x + `<tr>`
+        x = x + `<td class"tableBorder">${item.name}</td>`
+        x = x + `<td>${item.description}</td>`
+        x = x + `</tr>`
+      }
+      x = x + "</tbody>"
+      d.innerHTML = x
+    },
+    addAttend() {
+      this.attendPoints.push(this.attendPoint)
+      this.attendPoint = ""
+      this.updateAttend()
+    },
+    deleteAttend() {
+      this.attendPoints.pop()
+      this.updateAttend()
+    },
+    updateAttend() {
+      let d = document.getElementById("attendPreview")
+      let x = "<ul>"
+      for (var item of this.attendPoints) {
+        x = x + `<li>${item}</li>`
+      }
+      d.innerHTML = x
+    },
+    addObjective() {
+      this.objectivePoints.push(this.objectivePoint)
+      this.objectivePoint = ""
+      this.updateObjective()
+    },
+    deleteObjective() {
+      this.objectivePoints.pop()
+      this.updateObjective()
+    },
+    updateObjective() {
+      let d = document.getElementById("objectivePreview")
+      let x = "<ol>"
+      for (var item of this.objectivePoints) {
+        x = x + `<li>${item}</li>`
+      }
+      x = x + "</ol>"
+      d.innerHTML = x
+    },
+    nextStep(i) {
+      this.step = i
+      console.log(this.step)
+    },
+    async addCourse() {
+      let rv = await http.post("/api/me/addCourse", {
+        title: this.title,
+        description: this.description,
+        category: this.category,
+        level: this.level,
+        type: this.type,
+        venue: this.venue,
+        time: this.time,
+        objectives: this.objectivePoints,
+        outlines: this.outlinePoints,
+        trainers: this.trainers,
+        attends: this.attendPoints,
+      })
+      if (rv) {
+        this.snackbarColor = "success"
+        this.snackbarText = "Course Created"
+        this.snackbarShow = true
+        setTimeout(() => {
+          this.$router.push("/profile")
+        }, 3000)
+      }
+    },
+  },
+}
+</script>
+
+
+<style scoped>
+.v-stepper__header,
+.theme--light.v-stepper {
+  box-shadow: none;
+  background: bisque !important;
+}
+
+.button {
+  border-radius: 10px;
+  text-transform: none;
+}
+
+.formRow {
+  padding: 1%;
+}
+
+.formContent {
+  width: 70%;
+  margin: auto;
+}
+
+.formBtn {
+  text-transform: none;
+  width: auto;
+  margin-right: 1%;
+  margin-bottom: 2%;
+}
+
+.preview {
+  height: 300px;
+  width: 100%;
+  margin-bottom: 2%;
+  background-color: transparent;
+  overflow-y: auto;
+}
+
+.margin-left {
+  margin-left: 2%;
+}
+
+.trainerTable {
+  width: 80%;
+}
+
+.tableBorder {
+  text-align: left;
+  padding: 8px;
+  border: 1px solid grey;
+}
+
+.toc {
+  position: sticky;
+  padding-top: 74px;
+}
+</style>

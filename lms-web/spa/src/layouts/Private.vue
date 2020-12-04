@@ -3,6 +3,7 @@
     <v-overlay :value="loading">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
+
     <div class="topBar">
       <v-app-bar height="74" fixed>
         <v-app-bar-nav-icon @click="toggle"></v-app-bar-nav-icon>
@@ -30,23 +31,19 @@
         <v-spacer></v-spacer>
 
         <v-toolbar-items class="hidden-sm-and-down">
-          <v-btn
-            v-for="(item, i) in menu"
-            :key="i"
-            :to="item.route"
-            text
-            >{{ item.title }}</v-btn
-          >
+          <v-btn v-for="(item, i) in menu" :key="i" :to="item.route" text>{{
+            item.title
+          }}</v-btn>
         </v-toolbar-items>
 
         <!-- user icon + notification bell -->
-        <v-icon large color="green darken-2" class="notification"> mdi-bell </v-icon>
+        <v-icon large color="green darken-2" class="notification">
+          mdi-bell
+        </v-icon>
         <v-menu :nudge-width="200" offset-y>
           <template v-slot:activator="{ on, attrs }">
-            <v-btn dark icon v-bind="attrs" v-on="on"  class="avatar">
-              <v-avatar size="48" id="icomImg">
-                
-              </v-avatar>
+            <v-btn dark icon v-bind="attrs" v-on="on" class="avatar">
+              <v-avatar size="48" id="icomImg"> </v-avatar>
             </v-btn>
           </template>
 
@@ -64,56 +61,58 @@
     </div>
 
     <div class="body">
-      <div class="sidebar">
-        <v-navigation-drawer v-model="drawer" clipped >
+      <div v-if="isUser">
+        <v-navigation-drawer class="sideBar" v-model="drawer"  fixed clipped style="padding-top:74px">
           <v-list nav dense>
-            <v-list-item-group
-              active-class="deep-purple--text text--accent-4"
-            >
-              <v-list-item>
-                <v-list-item-title>Foo</v-list-item-title>
+             <v-list-item-group active-class="deep-purple--text text--accent-4">
+              <h3 class="listTitle">Account</h3>
+              <v-list-item
+                v-for="actItem in instructorAccountItems"
+                :key="actItem.title"
+                :to="actItem.route"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ actItem.title }}</v-list-item-title>
+                </v-list-item-content>
               </v-list-item>
+              <h3 class="listTitle">Course</h3>
+              <v-list-item
+                v-for="courseItem in instructorCourseItems"
+                :key="courseItem.title"
+                :to="courseItem.route"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ courseItem.title }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+        </v-navigation-drawer>
+      </div>
 
-              <v-list-item>
-                <v-list-item-title>Bar</v-list-item-title>
+      <div v-else>
+        <v-navigation-drawer class="sideBar"  style="padding-top:74px" v-model="drawer" fixed clipped>
+          <v-list nav dense>
+            <v-list-item-group active-class="deep-purple--text text--accent-4">
+              <h3>Account</h3>
+              <v-list-item
+                v-for="actItem in instructorAccountItems"
+                :key="actItem.title"
+                :to="actItem.route"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ actItem.title }}</v-list-item-title>
+                </v-list-item-content>
               </v-list-item>
-
-              <v-list-item>
-                <v-list-item-title>Fizz</v-list-item-title>
-              </v-list-item>
-
-              <v-list-item>
-                <v-list-item-title>Buzz</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title>Foo</v-list-item-title>
-              </v-list-item>
-
-              <v-list-item>
-                <v-list-item-title>Bar</v-list-item-title>
-              </v-list-item>
-
-              <v-list-item>
-                <v-list-item-title>Fizz</v-list-item-title>
-              </v-list-item>
-
-              <v-list-item>
-                <v-list-item-title>Buzz</v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title>Foo</v-list-item-title>
-              </v-list-item>
-
-              <v-list-item>
-                <v-list-item-title>Bar</v-list-item-title>
-              </v-list-item>
-
-              <v-list-item>
-                <v-list-item-title>Fizz</v-list-item-title>
-              </v-list-item>
-
-              <v-list-item>
-                <v-list-item-title>Buzz</v-list-item-title>
+              <h3>Course</h3>
+              <v-list-item
+                v-for="courseItem in instructorCourseItems"
+                :key="courseItem.title"
+                :to="courseItem.route"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ courseItem.title }}</v-list-item-title>
+                </v-list-item-content>
               </v-list-item>
             </v-list-item-group>
           </v-list>
@@ -125,6 +124,8 @@
           <router-view :key="$route.fullPath"></router-view>
         </v-main>
       </div>
+
+
     </div>
   </v-app>
 </template>
@@ -133,12 +134,12 @@
 import { http } from "@/axios"
 import { mapState } from "vuex"
 
-
 export default {
   data() {
     return {
-      userDetails: '',
-      profileImage: '',
+      userDetails: "",
+      profileImage: "",
+      isUser: true,
       menu: [
         { title: "Browse", route: "/home" },
         { title: "Category", route: "/home" },
@@ -146,10 +147,22 @@ export default {
         { title: "Help", route: "/home" },
       ],
       items: [
-        { title: "Profile", route: "/profile"  },
-        { title: "Settings", route: "/home"  },
+        { title: "Profile", route: "/profile" },
+        { title: "Settings", route: "/home" },
       ],
-      drawer: false,
+      instructorAccountItems: [
+        { title: "Profile", route: "/profile" },
+        { title: "Achievement", route: "/profile" },
+        { title: "Statistics", route: "/profile" },
+        { title: "Settings", route: "/home" },
+      ],
+      instructorCourseItems: [
+        { title: "Browse", route: "/profile" },
+        { title: "Course Taken", route: "/home" },
+        { title: "Your Course", route: "/home" },
+        { title: "Course Creation", route: "/course-create" },
+      ],
+      drawer: true,
     }
   },
   created() {},
@@ -157,11 +170,12 @@ export default {
     try {
       const rv = await http.get("/api/me")
       this.userDetails = rv.data
+      if (this.userDetails.role != "user") {
+        this.isUser = false
+      }
       this.profileImage = this.userDetails.profileImage
       this.insertIcon()
-    }catch(e) {
-      
-    }
+    } catch (e) {}
   },
   computed: {
     user() {
@@ -187,14 +201,13 @@ export default {
       }
     },
     onLogout() {
-       this.$store.dispatch("logout", { user: this.$store.state.user });
+      this.$store.dispatch("logout", { user: this.$store.state.user })
     },
     insertIcon() {
       let d = document.getElementById("icomImg")
       d.innerHTML = ""
       d.innerHTML = this.profileImage
-
-    }
+    },
   },
 }
 </script>
@@ -202,8 +215,8 @@ export default {
 
 <style>
 #icomImg svg {
-  width:60px;
-  height:60px;
+  width: 60px;
+  height: 60px;
 }
 </style>
 <style scoped>
@@ -217,16 +230,14 @@ export default {
   }
 }
 
-.app {
-}
-
 .body {
+  position: relative;
   display: flex;
   background-color: bisque;
 }
 
 .theme--light.v-btn--active::before {
-  opacity: 0 ;
+  opacity: 0;
 }
 
 .header {
@@ -235,12 +246,14 @@ export default {
   margin-left: 2%;
 }
 
-
 .main {
-  width: 100%;
-  transform: translate3d(-100px, 0px, 0px);
+  transform: translate3d(0px, 0px, 0px);
   transition-duration: 300ms;
   background-color: bisque;
+  z-index: 0;
+  order: 1;
+  flex: 1 1 0%;
+  padding-left: 260px;
 }
 
 .color {
@@ -262,8 +275,7 @@ export default {
 }
 
 .sideBar {
-  width: 15%;
-  background-color: palegreen;
+  padding-top: 74px !important;
 }
 
 .logo {
@@ -300,5 +312,13 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.sideBar {
+  background-color: white !important;
+}
+
+.v-list-item__content, .listTitle {
+  color: black !important
 }
 </style>

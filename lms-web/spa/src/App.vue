@@ -36,8 +36,6 @@ export default {
   }
 }
 
-.v-input__slot {
-  max-height: 35px 
-}
+
 
 </style>

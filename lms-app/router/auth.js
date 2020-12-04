@@ -67,7 +67,6 @@ const signupEmail = async (req, res) => { // get email, verification send code
     } else {
       await mongo.db.collection('user').insertOne({
         email,
-        //verificationCode,
         role,
       })
 

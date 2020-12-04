@@ -29,7 +29,6 @@ meRoutes
 
   .get('/reviews', async (req, res) => {
     let {email, pageSize, currentPage } = req.query
-    console.log(req.query)
     try {
       
       const total = await mongo.db.collection('reviews').find({instructor: email}).count()
@@ -44,6 +43,44 @@ meRoutes
         return res.status(200).json({ reviews,total })
     } catch (e) {
       return res.status(400).json({e})
+    }
+  })
+
+  .get('/courses', async (req, res) => {
+    let {email, role } = req.query
+    try {
+      const total = await mongo.db.collection('courses').find({createdBy: email}).count()
+      const courses = await mongo.db.collection('courses').find({createdBy: email}).sort({"_id": -1}).skip(0).limit(4).toArray()
+        return res.status(200).json({ courses,total })
+    } catch (e) {
+      return res.status(400).json({e})
+    }
+  })
+
+  .post('/addCourse', authUser, async (req, res) => {
+    let {title, description, category, level, type, venue, time, objectives, outlines, trainers, attends} = req.body
+    let user = null
+    try {
+       user = await findUser({ id: req.decoded.id })
+      if(user) {
+        const course = await mongo.db.collection('courses').insertOne({
+          createdBy: user.email,
+          title, 
+          description, 
+          category,
+          level,
+          type,
+          venue, 
+          time, 
+          objectives, 
+          outlines, 
+          trainers, 
+          attends
+        })
+      }
+      return res.status(200).json()
+    }catch(e) {
+      return res.status(500).json({ e: e.toString() })
     }
   })
 

@@ -17,7 +17,7 @@
     </v-container>
 
     <div class="tempBox">
-
+ 
     </div>
 
   </v-container>
@@ -54,7 +54,6 @@ export default {
 </script>
 
 <style scoped>
-
 a {
   text-decoration: none;
   color: grey !important;

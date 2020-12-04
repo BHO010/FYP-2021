@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid v-if="user">
+  <v-container fluid v-if="user" class="profileContainer">
     <v-row>
       <!-- avatar -->
       <v-col cols="12" xs="12" md="5">
@@ -66,11 +66,11 @@
     </div>
   </v-container>
 
-  <v-container fluid v-else>
+  <v-container fluid v-else class="profileContainer">
     <v-row>
       <!-- avatar -->
       <v-col cols="12" xs="12" md="5">
-        <div class="profileImg">Hello</div>
+        <div class="profileImg"></div>
       </v-col>
       <!-- Stats -->
       <v-col cols="12" xs="12" md="7">
@@ -123,8 +123,15 @@
     </v-row>
 
     <div class="courseContainer">
-      <h1>Your Courses</h1>
-      <div>course</div>
+      <h1 style="margin-left:1%;">Your Courses</h1>
+      <div class="courseRow">
+         <course-card
+          v-for="course in courses"
+          :key="course._id"
+          :course="course"
+          >
+         </course-card>
+      </div>
     </div>
 
     <div class="achievementContainer">
@@ -143,8 +150,8 @@
       </div>
       <div class="text-center">
         <v-pagination
-          v-model="currentPage"
-          :length="this.totalPages"
+          v-model="reviewsCurrentPage"
+          :length="this.reviewsTotalPages"
           :total-visible="7"
           circle
           @input="getReviews()"
@@ -166,10 +173,12 @@ export default {
       profileImage: "",
       progressValue: 30,
       reviews: [],
-      currentPage: 1,
-      pageCount: 0,
-      pageSize: 5,
-      totalPages: 0,
+      reviewsCurrentPage: 1,
+      reviewsPageCount: 0,
+      reviewsPageSize: 5,
+      reviewsTotalPages: 0,
+      courses: [],
+      totalCourse: ''
     }
   },
   created() {},
@@ -188,6 +197,7 @@ export default {
         this.getReviews()
       }
       this.insertImage()
+      this.getCourses()
     } catch (e) {}
   },
   methods: {
@@ -201,17 +211,27 @@ export default {
         const { data } = await http.get("/api/me/reviews", {
           params: {
               email: this.userDetails.email,
-              currentPage: this.currentPage,
-              pageSize: this.pageSize,
+              currentPage: this.reviewsCurrentPage,
+              pageSize: this.reviewsPageSize,
           }
         })
         this.reviews = data.reviews
-        this.totalPages = Math.ceil(data.total / this.pageSize)
-        console.log("AA", this.totalPages)
+        this.reviewsTotalPages = Math.ceil(data.total / this.reviewsPageSize)
       } catch (e) {
         console.log(e)
       }
     },
+    async getCourses() {
+      const { data } = await http.get("/api/me/courses", {
+          params: {
+              email: this.userDetails.email,
+              role: this.userDetails.role,
+          }
+      })
+      this.courses = data.courses
+      this.totalCourse = data.total
+      console.log(data)
+    }
   },
 }
 </script>
@@ -222,6 +242,9 @@ export default {
 }
 </style>
 <style scoped>
+.profileContainer {
+}
+
 .border {
   border: 1px solid black;
 }
@@ -277,5 +300,11 @@ export default {
 .reviewContainer {
   height: auto;
   margin-top: 4%;
+}
+
+.courseRow {
+  display:flex;
+  flex-direction: row;
+  float: left;
 }
 </style>

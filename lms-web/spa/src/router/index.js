@@ -14,6 +14,8 @@ export default new Router({
     { path: '/signup', name:'Signup', component: () => import('@/pages/Signup') },
     { path: '/home', name:'PrivateHome', component: () => import('@/pages/PrivateHome'),  beforeEnter: AuthGuard},
     { path: '/profile', name:'UserProfile', component: () => import('@/pages/UserProfile'),  beforeEnter: AuthGuard},
+    { path: '/course-create', name:'CourseCreate', component: () => import('@/pages/CourseCreation'),  beforeEnter: AuthGuard},
+    { path: '/course', name:'Course', component: () => import('@/pages/Course'),  beforeEnter: AuthGuard},
     { path: '*', redirect: '/' }
 
   ],

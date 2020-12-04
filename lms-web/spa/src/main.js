@@ -12,6 +12,7 @@ import TimePicker from 'ext-lib/webpacked/TimePicker.vue'
 import DatePicker from 'ext-lib/webpacked/DatePicker.vue'
 import FileUpload from 'ext-lib/webpacked/FileUpload.vue'
 import ReviewSection from './components/ReviewSection.vue'
+import CourseCard from './components/CourseCard.vue'
 
 Vue.config.productionTip = false
 
@@ -35,6 +36,7 @@ Vue.component('app-time-picker', TimePicker)
 Vue.component('app-file-upload', FileUpload)
 Vue.component('vue-crud-x', VueCrudX)
 Vue.component('review-section', ReviewSection)
+Vue.component('course-card', CourseCard)
 
 /* eslint-disable no-new */
 export const app = new Vue({
