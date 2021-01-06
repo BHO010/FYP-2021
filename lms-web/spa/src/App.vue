@@ -36,6 +36,24 @@ export default {
   }
 }
 
+@font-face {
+  font-family: "Allstar";
+  src: url("../public/fonts/AllStar.ttf");
+}
+
+@font-face {
+  font-family: "DMSans-Bold";
+  src: url("../public/fonts/DMSans-Bold.ttf");
+}
+
+@font-face {
+  font-family: "DarkerGrotesque-Medium";
+  src: url("../public/fonts/DarkerGrotesque-Medium.ttf");
+}
+
+.v-application--wrap {
+  background-color: #E1F5FE
+}
 
 
 </style>

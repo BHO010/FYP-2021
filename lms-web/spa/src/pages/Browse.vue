@@ -1,12 +1,8 @@
 <template>
-    <h1>title</h1>
+    <div>Browse</div>
 </template>
 
 <script>
-export default {
-
-}
-
 </script>
 
 <style scoped>

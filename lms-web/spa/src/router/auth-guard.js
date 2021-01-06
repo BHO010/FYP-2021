@@ -2,7 +2,7 @@ import { store } from '@/store'
 
 const permissions = {
   'all': ['/test'],
-  'rest': ['/home','/profile', '/course-create', '/course'],
+  'rest': ['/home','/profile', '/course/create', '/course/:title', '/course/edit', '/courses-taken', '/courses-created', '/survey', '/survey/create', '/survey/edit', '/browse'],
 
 }
 

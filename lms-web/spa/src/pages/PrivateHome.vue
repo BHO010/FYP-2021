@@ -1,25 +1,25 @@
 <template>
-  <v-container fluid>
+  <v-container fluid class="mainBody">
     <v-overlay :value="loading">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
     <!-- Banner -->
     <v-container class="bannerContainer">
-      <v-carousel cycle height="500" hide-delimiter-background show-arrows-on-hover>
-        <v-carousel-item v-for="(slide, i) in slides" :key="i">
-          <v-sheet :color="background[i]" height="100%">
-            <v-row class="fill-height" align="center" justify="center">
-              <div class="display-3">{{ slide }} Slide</div>
-            </v-row>
-          </v-sheet>
-        </v-carousel-item>
+      <v-carousel
+        cycle
+        height="400"
+        hide-delimiter-background
+        show-arrows-on-hover
+      >
+        <v-carousel-item
+          v-for="(item, i) in slides"
+          :key="i"
+          :src="item.src"
+        ></v-carousel-item>
       </v-carousel>
     </v-container>
 
-    <div class="tempBox">
- 
-    </div>
-
+    <div class="tempBox"></div>
   </v-container>
 </template>
 
@@ -27,14 +27,20 @@
 export default {
   data() {
     return {
-      background: [
-        "indigo",
-        "warning",
-        "pink darken-2",
-        "red lighten-1",
-        "deep-purple accent-4",
-      ],
-      slides: ["First", "Second", "Third", "Fourth", "Fifth"],
+      slides: [
+          {
+            src: '/img/carousell-1.png',
+          },
+          {
+            src: '/img/carousell-2.png',
+          },
+          {
+            src: '/img/carousell-3.png',
+          },
+          {
+            src: '/img/carousell-4.png',
+          },
+        ],
     }
   },
   created() {},
@@ -54,6 +60,10 @@ export default {
 </script>
 
 <style scoped>
+.mainBody {
+  width: 90%;
+  margin: auto;
+}
 a {
   text-decoration: none;
   color: grey !important;
@@ -87,5 +97,4 @@ a {
   border: 1px solid black;
   height: 700px;
 }
-
 </style>

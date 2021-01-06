@@ -5,7 +5,7 @@
     </v-overlay>
 
     <div class="topBar">
-      <v-app-bar height="74" fixed>
+      <v-app-bar height="74" fixed color="blue darken-4">
         <v-app-bar-nav-icon @click="toggle"></v-app-bar-nav-icon>
         <v-menu offset-y>
           <v-list class="hidden-md-and-up">
@@ -23,6 +23,7 @@
           class="searchInput"
           type="text"
           label="Search"
+          background-color="blue accent-2"
           dense
           outlined
           prepend-inner-icon="mdi-magnify"
@@ -62,9 +63,9 @@
 
     <div class="body">
       <div v-if="isUser">
-        <v-navigation-drawer class="sideBar" v-model="drawer"  fixed clipped style="padding-top:74px">
+        <v-navigation-drawer class="sideBar" v-model="drawer" color="#ededed"  fixed clipped style="padding-top:74px">
           <v-list nav dense>
-             <v-list-item-group active-class="deep-purple--text text--accent-4">
+             <v-list-item-group active-class="red lighten-5--text text--accent-4">
               <h3 class="listTitle">Account</h3>
               <v-list-item
                 v-for="actItem in instructorAccountItems"
@@ -91,10 +92,10 @@
       </div>
 
       <div v-else>
-        <v-navigation-drawer class="sideBar"  style="padding-top:74px" v-model="drawer" fixed clipped>
+        <v-navigation-drawer class="sideBar" color="#ededed"  style="padding-top:74px" v-model="drawer" fixed clipped>
           <v-list nav dense>
-            <v-list-item-group active-class="deep-purple--text text--accent-4">
-              <h3>Account</h3>
+            <v-list-item-group active-class="red lighten-5--text text--accent-4">
+              <h3 class="listTitle">Account</h3>
               <v-list-item
                 v-for="actItem in instructorAccountItems"
                 :key="actItem.title"
@@ -104,7 +105,7 @@
                   <v-list-item-title>{{ actItem.title }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <h3>Course</h3>
+              <h3 class="listTitle">Course</h3>
               <v-list-item
                 v-for="courseItem in instructorCourseItems"
                 :key="courseItem.title"
@@ -141,8 +142,7 @@ export default {
       profileImage: "",
       isUser: true,
       menu: [
-        { title: "Browse", route: "/home" },
-        { title: "Category", route: "/home" },
+        { title: "Browse", route: "/browse" },
         { title: "About Us", route: "/home" },
         { title: "Help", route: "/home" },
       ],
@@ -157,10 +157,10 @@ export default {
         { title: "Settings", route: "/home" },
       ],
       instructorCourseItems: [
-        { title: "Browse", route: "/profile" },
-        { title: "Course Taken", route: "/home" },
-        { title: "Your Course", route: "/home" },
-        { title: "Course Creation", route: "/course-create" },
+        { title: "Browse", route: "/browse" },
+        { title: "Course Taken", route: "/courses-taken" },
+        { title: "Your Course", route: "/courses-created" },
+        { title: "Course Creation", route: "/course/create" },
       ],
       drawer: true,
     }
@@ -214,11 +214,13 @@ export default {
 
 
 <style>
+
 #icomImg svg {
   width: 60px;
   height: 60px;
 }
 </style>
+
 <style scoped>
 @media screen and (max-width: 850px) {
   .logo2 {
@@ -230,10 +232,24 @@ export default {
   }
 }
 
+@font-face {
+  font-family: "DMSans-Bold";
+  src: url("../../public/fonts/DMSans-Bold.ttf");
+}
+
+@font-face {
+  font-family: "DarkerGrotesque-Medium";
+  src: url("../../public/fonts/DarkerGrotesque-Medium.ttf");
+}
+
+input:-internal-autofill-selected  {
+  background-color: transparent !important;
+}
+
 .body {
   position: relative;
   display: flex;
-  background-color: bisque;
+  background-color: #E1F5FE;
 }
 
 .theme--light.v-btn--active::before {
@@ -249,7 +265,7 @@ export default {
 .main {
   transform: translate3d(0px, 0px, 0px);
   transition-duration: 300ms;
-  background-color: bisque;
+  background-color:#E1F5FE;
   z-index: 0;
   order: 1;
   flex: 1 1 0%;
@@ -257,12 +273,21 @@ export default {
 }
 
 .color {
-  color: black !important;
+  color: white !important;
 }
 
 .topBar {
   height: 74px;
   width: 100%;
+}
+
+.topBar .v-btn,
+.topBar .v-text-field {
+  color: white
+}
+
+.topBar .theme--light.v-input input, .theme--light.v-input textarea {
+  color: white !important;
 }
 
 .notification {
@@ -274,18 +299,16 @@ export default {
   margin-right: 1% !important;
 }
 
-.sideBar {
-  padding-top: 74px !important;
-}
-
 .logo {
   width: 150px;
   margin-left: 2%;
+  color: white;
 }
 
 .searchInput {
   height: 40px;
   width: 220px;
+  color: white;
 }
 
 .navItems {
@@ -315,10 +338,22 @@ export default {
 }
 
 .sideBar {
-  background-color: white !important;
+  padding-left: 1%;
+  padding-right: 1%;
+  background: #ededed;
+  padding-top: 74px !important;
+  border: 2px solid black
 }
 
-.v-list-item__content, .listTitle {
-  color: black !important
+.sideBar .v-list-item__title {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 20px;
+  line-height: 1.5rem;
+}
+
+.sideBar .listTitle {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 32px;
+  color: #0D47A1;
 }
 </style>

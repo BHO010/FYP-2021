@@ -123,7 +123,11 @@
     </v-row>
 
     <div class="courseContainer">
-      <h1 style="margin-left:1%;">Your Courses</h1>
+      <div class="topRow">
+        <h1>Your Courses</h1>
+        <v-btn class="btn" color="#E1F5FE" @click="coursesAll()">See All</v-btn>
+      </div>
+      
       <div class="courseRow">
          <course-card
           v-for="course in courses"
@@ -135,12 +139,17 @@
     </div>
 
     <div class="achievementContainer">
-      <h1>Your Achievement</h1>
+      <div class="topRow">
+        <h1>Your Achievement</h1>
+        <v-btn class="btn" color="#E1F5FE" @click="achieveAll()">See All</v-btn>
+      </div>
+      
       <div>...</div>
     </div>
 
     <div class="reviewContainer">
-      <h1 style="margin-bottom: 2%">Reviews</h1>
+         <h1 style="margin-bottom: 2%">Reviews</h1>
+     
       <div>
         <review-section
           v-for="review in reviews"
@@ -198,6 +207,7 @@ export default {
       }
       this.insertImage()
       this.getCourses()
+      console.log("Done")
     } catch (e) {}
   },
   methods: {
@@ -230,12 +240,25 @@ export default {
       })
       this.courses = data.courses
       this.totalCourse = data.total
-      console.log(data)
     }
   },
 }
 </script>
 <style>
+.topRow h1 {
+  float: left;
+}
+
+.topRow .btn {
+  text-transform: none;
+  text-decoration: underline;
+  float: right;
+  color: #0d47a1;
+}
+
+.topRow .v-btn--contained {
+  box-shadow: none;
+}
 .profileImg svg {
   width: 600px;
   height: 380px;
@@ -243,6 +266,8 @@ export default {
 </style>
 <style scoped>
 .profileContainer {
+  width: 90%;
+  margin: auto
 }
 
 .border {
@@ -258,6 +283,7 @@ export default {
 }
 
 .stats {
+  font-family: "DarkerGrotesque-Medium";
   border: 1px solid black;
   margin: auto;
   height: 400px;
@@ -292,8 +318,6 @@ export default {
 
 .courseContainer,
 .achievementContainer {
-  border: 1px solid black;
-  height: 450px;
   margin-top: 4%;
 }
 
@@ -302,9 +326,19 @@ export default {
   margin-top: 4%;
 }
 
+.courseContainer h1,
+.achievementContainer h1,
+.reviewContainer h1 {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 46px;
+  color: #0d47a1;
+  margin-left: 1%;
+}
+
 .courseRow {
   display:flex;
   flex-direction: row;
-  float: left;
+  width: 90%;
+  margin: auto;
 }
 </style>
