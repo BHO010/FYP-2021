@@ -15,7 +15,12 @@ export default new Router({
     { path: '/home', name:'PrivateHome', component: () => import('@/pages/PrivateHome'),  beforeEnter: AuthGuard},
     { path: '/profile', name:'UserProfile', component: () => import('@/pages/UserProfile'),  beforeEnter: AuthGuard},
     { path: '/browse', name:'Browse', component: () => import('@/pages/Browse'),  beforeEnter: AuthGuard},
+    { path: '/discussion', name:'Discussion', component: () => import('@/pages/Discussion'),  beforeEnter: AuthGuard},
+    { path: '/settings', name:'Settings', component: () => import('@/pages/Settings'),  beforeEnter: AuthGuard},
+    { path: '/statistics', name:'Statistics', component: () => import('@/pages/Statistics'),  beforeEnter: AuthGuard},
+    { path: '/achievements', name:'Achievements', component: () => import('@/pages/Achievements'),  beforeEnter: AuthGuard},
     { path: '/course/create', name:'CourseCreate', component: () => import('@/pages/course/CourseCreation'),  beforeEnter: AuthGuard},
+    //{ path: '/course/survey', name:'CourseSurvey', component: () => import('@/pages/course/CoursesSurvey'),  beforeEnter: AuthGuard},
     { path: '/course/edit', name:'CourseEdit', component: () => import('@/pages/course/CourseEdit'),  beforeEnter: AuthGuard},
     { path: '/course/:title', name:'Course', component: () => import('@/pages/course/Course'),  beforeEnter: AuthGuard},
     { path: '/courses-taken', name:'CoursesTaken', component: () => import('@/pages/course/CoursesTaken'),  beforeEnter: AuthGuard},
@@ -23,6 +28,7 @@ export default new Router({
     { path: '/survey', name:'Survey', component: () => import('@/pages/survey/Survey'),  beforeEnter: AuthGuard},
     { path: '/survey/create', name:'SurveyCreate', component: () => import('@/pages/survey/SurveyCreate'),  beforeEnter: AuthGuard},
     { path: '/survey/edit', name:'SurveyEdit', component: () => import('@/pages/survey/SurveyEdit'),  beforeEnter: AuthGuard},
+    { path: '/survey/result', name:'SurveyResult', component: () => import('@/pages/survey/SurveyResults'),  beforeEnter: AuthGuard},
     { path: '*', redirect: '/' }
 
   ],

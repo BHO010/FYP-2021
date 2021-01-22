@@ -19,7 +19,7 @@
 
         <v-toolbar-title class="color logo">NTU-LMS</v-toolbar-title>
 
-        <v-text-field
+        <!-- <v-text-field
           class="searchInput"
           type="text"
           label="Search"
@@ -27,7 +27,7 @@
           dense
           outlined
           prepend-inner-icon="mdi-magnify"
-        ></v-text-field>
+        ></v-text-field> -->
 
         <v-spacer></v-spacer>
 
@@ -63,12 +63,21 @@
 
     <div class="body">
       <div v-if="isUser">
-        <v-navigation-drawer class="sideBar" v-model="drawer" color="#ededed"  fixed clipped style="padding-top:74px">
+        <v-navigation-drawer
+          class="sideBar"
+          v-model="drawer"
+          color="#ededed"
+          fixed
+          clipped
+          style="padding-top: 74px"
+        >
           <v-list nav dense>
-             <v-list-item-group active-class="red lighten-5--text text--accent-4">
+            <v-list-item-group
+              active-class="red lighten-5--text text--accent-4"
+            >
               <h3 class="listTitle">Account</h3>
               <v-list-item
-                v-for="actItem in instructorAccountItems"
+                v-for="actItem in accountItems"
                 :key="actItem.title"
                 :to="actItem.route"
               >
@@ -78,12 +87,22 @@
               </v-list-item>
               <h3 class="listTitle">Course</h3>
               <v-list-item
-                v-for="courseItem in instructorCourseItems"
+                v-for="courseItem in userCourseItems"
                 :key="courseItem.title"
                 :to="courseItem.route"
               >
                 <v-list-item-content>
                   <v-list-item-title>{{ courseItem.title }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <h3 class="listTitle">Community</h3>
+              <v-list-item
+                v-for="item in communityItems"
+                :key="item.title"
+                :to="item.route"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ item.title }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list-item-group>
@@ -92,12 +111,21 @@
       </div>
 
       <div v-else>
-        <v-navigation-drawer class="sideBar" color="#ededed"  style="padding-top:74px" v-model="drawer" fixed clipped>
+        <v-navigation-drawer
+          class="sideBar"
+          color="#ededed"
+          style="padding-top: 74px"
+          v-model="drawer"
+          fixed
+          clipped
+        >
           <v-list nav dense>
-            <v-list-item-group active-class="red lighten-5--text text--accent-4">
+            <v-list-item-group
+              active-class="red lighten-5--text text--accent-4"
+            >
               <h3 class="listTitle">Account</h3>
               <v-list-item
-                v-for="actItem in instructorAccountItems"
+                v-for="actItem in accountItems"
                 :key="actItem.title"
                 :to="actItem.route"
               >
@@ -113,6 +141,16 @@
               >
                 <v-list-item-content>
                   <v-list-item-title>{{ courseItem.title }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <h3 class="listTitle">Community</h3>
+              <v-list-item
+                v-for="item in communityItems"
+                :key="item.title"
+                :to="item.route"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ item.title }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </v-list-item-group>
@@ -125,8 +163,6 @@
           <router-view :key="$route.fullPath"></router-view>
         </v-main>
       </div>
-
-
     </div>
   </v-app>
 </template>
@@ -148,13 +184,13 @@ export default {
       ],
       items: [
         { title: "Profile", route: "/profile" },
-        { title: "Settings", route: "/home" },
+        { title: "Settings", route: "/settings" },
       ],
-      instructorAccountItems: [
+      accountItems: [
         { title: "Profile", route: "/profile" },
-        { title: "Achievement", route: "/profile" },
-        { title: "Statistics", route: "/profile" },
-        { title: "Settings", route: "/home" },
+        { title: "Achievement", route: "/achievements" },
+        { title: "Statistics", route: "/statistics" },
+        { title: "Settings", route: "/settings" },
       ],
       instructorCourseItems: [
         { title: "Browse", route: "/browse" },
@@ -162,6 +198,11 @@ export default {
         { title: "Your Course", route: "/courses-created" },
         { title: "Course Creation", route: "/course/create" },
       ],
+      userCourseItems: [
+        { title: "Browse", route: "/browse" },
+        { title: "Course Taken", route: "/courses-taken" },
+      ],
+      communityItems: [{ title: "Discussion", route: "/discussion" }],
       drawer: true,
     }
   },
@@ -214,7 +255,6 @@ export default {
 
 
 <style>
-
 #icomImg svg {
   width: 60px;
   height: 60px;
@@ -242,14 +282,14 @@ export default {
   src: url("../../public/fonts/DarkerGrotesque-Medium.ttf");
 }
 
-input:-internal-autofill-selected  {
+input:-internal-autofill-selected {
   background-color: transparent !important;
 }
 
 .body {
   position: relative;
   display: flex;
-  background-color: #E1F5FE;
+  background-color: #e1f5fe;
 }
 
 .theme--light.v-btn--active::before {
@@ -265,7 +305,7 @@ input:-internal-autofill-selected  {
 .main {
   transform: translate3d(0px, 0px, 0px);
   transition-duration: 300ms;
-  background-color:#E1F5FE;
+  background-color: #e1f5fe;
   z-index: 0;
   order: 1;
   flex: 1 1 0%;
@@ -283,10 +323,11 @@ input:-internal-autofill-selected  {
 
 .topBar .v-btn,
 .topBar .v-text-field {
-  color: white
+  color: white;
 }
 
-.topBar .theme--light.v-input input, .theme--light.v-input textarea {
+.topBar .theme--light.v-input input,
+.theme--light.v-input textarea {
   color: white !important;
 }
 
@@ -342,7 +383,7 @@ input:-internal-autofill-selected  {
   padding-right: 1%;
   background: #ededed;
   padding-top: 74px !important;
-  border: 2px solid black
+  border: 2px solid black;
 }
 
 .sideBar .v-list-item__title {
@@ -354,6 +395,6 @@ input:-internal-autofill-selected  {
 .sideBar .listTitle {
   font-family: "DarkerGrotesque-Medium";
   font-size: 32px;
-  color: #0D47A1;
+  color: #0d47a1;
 }
 </style>

@@ -140,7 +140,6 @@ const login = async (req, res) => {
       [AUTH_USER_FIELD_LOGIN]: req.body[AUTH_USER_FIELD_LOGIN] // email
     })
     const password = req.body[AUTH_USER_FIELD_PASSWORD]
-
     if (!user) return res.status(401).json({ message: 'Incorrect credentials...' })
     if (!bcrypt.compareSync(password, user[AUTH_USER_FIELD_PASSWORD])) return res.status(401).json({ message: 'Incorrect credentials' })
     if (user.revoked) return res.status(401).json({ message: 'Authorization Revoked' })
@@ -148,7 +147,6 @@ const login = async (req, res) => {
     const id = user[AUTH_USER_FIELD_ID_FOR_JWT] || ''
     const groups = user[AUTH_USER_FIELD_GROUPS_FOR_JWT] || ''
     if (!id) return res.status(401).json({ message: 'Authorization Format Error' })
-    console.log("FF",USE_OTP, groups)
     if (USE_OTP =="GA") {
       verified = false
       // if (USE_OTP === 'SMS') {

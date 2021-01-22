@@ -52,7 +52,6 @@ export default {
 }
 
 #body {
-  border: 1px sodivd black;
   min-height: 200px;
 }
 

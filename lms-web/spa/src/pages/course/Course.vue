@@ -3,6 +3,10 @@
     <section class="header">
       <div id="imgCol">
         <img class="imgDiv" :src="this.imageURL" />
+        <div id="ratingRow">
+          <div>Rating: {{this.rating}}/5</div>
+          <div>Number Of Views: {{this.course.clicks +1}}</div>
+        </div>
       </div>
       <div id="titleCol">
         <div id="title">
@@ -236,6 +240,7 @@ export default {
       category: "",
       imageURL: "",
       fee: 0,
+      rating: 0,
       objectives: [],
       outlines: [],
       trainers: [],
@@ -260,9 +265,10 @@ export default {
     this.category = this.splited[0]
     this.imageURL = "/img/" + this.category + ".svg"
     this.fee = Number(this.course.fee)
-    console.log(this.course.objectives)
+    this.rating = this.course.ratingScore / this.course.ratingCount
   },
-  methods: {},
+  methods: {
+  },
 }
 </script>
 
@@ -304,8 +310,16 @@ section p {
 }
 
 .header {
+  position: relative;
   display: flex;
   border: 5px solid #1e88e5;
+}
+
+#ratingRow {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 26px;
+  position: absolute; 
+  bottom: 5px; 
 }
 
 #overview #content {

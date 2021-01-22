@@ -47,17 +47,21 @@ import "survey-creator/survey-creator.css"
 SurveyCreator.StylesManager.applyTheme("winter")
 export default {
   name: "survey-creator",
+  props: {
+    Json: String,
+    type: String,
+  },
   data() {
     return {
-      reference: ""
+      reference: "",
     }
   },
   mounted() {
-    let params = (new URL(document.location)).searchParams;
-    let reference = params.get("reference");
-    let options = { 
+    let params = new URL(document.location).searchParams
+    let reference = params.get("reference")
+    let options = {
       showEmbededSurveyTab: false,
-      questionTypes: ["text", "checkbox", "radiogroup","rating","comment"],
+      questionTypes: ["text", "checkbox", "radiogroup", "rating", "comment"],
       showLogicTab: false,
       showJSONEditorTab: false,
     }
@@ -65,28 +69,42 @@ export default {
       "surveyCreatorContainer",
       options
     )
-    this.surveyCreator.saveSurveyFunc = async function () {
-      let surveyJson = JSON.stringify(this.text)
-      let rv = await http.post("/api/me/survey/create", {
-        reference,
-        surveyJson,
-      })
+    if (this.Json) {
+      this.surveyCreator.text = this.Json
+    }
 
-      if(rv) {
-        window.location.href = '/profile'
+    if (this.type == "Edit") {
+      this.surveyCreator.saveSurveyFunc = async function () {
+        let surveyJson = JSON.stringify(this.text)
+        let rv = await http.post("/api/me/survey/update", {
+          reference,
+          surveyJson,
+        })
+        if (rv) {
+          window.location.href = "/profile"
+        }
+      }
+    } else {
+      this.surveyCreator.saveSurveyFunc = async function () {
+        let surveyJson = JSON.stringify(this.text)
+        let rv = await http.post("/api/me/survey/create", {
+          reference,
+          surveyJson,
+        })
+        if (rv) {
+          window.location.href = "/profile"
+        }
       }
     }
   },
   methods: {
     saveSurvey(value) {
       console.log(this.text)
-      
     },
   },
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .svd-tabs {
   display: flex;
@@ -96,7 +114,7 @@ export default {
   list-style-type: none;
 }
 
-.svd_commercial_text {
-  display: none;
+.svd_commercial_container {
+  display: none !important;
 }
 </style>

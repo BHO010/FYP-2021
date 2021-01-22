@@ -51,8 +51,19 @@ export default {
   src: url("../public/fonts/DarkerGrotesque-Medium.ttf");
 }
 
+@font-face {
+  font-family: "DarkerGrotesque-Bold";
+  src: url("../public/fonts/DarkerGrotesque-Bold.ttf");
+}
+
 .v-application--wrap {
   background-color: #E1F5FE
+}
+
+.v-data-table > .v-data-table__wrapper > table > thead > tr > th {
+  font-family: "DarkerGrotesque-Bold" !important;
+  font-size: 30px !important;
+  color: #0d47a1;
 }
 
 

@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mt-5 mx-4 card" max-width="344">
+  <v-card class="mt-5 mx-4 card justify-space-around" max-width="344">
     <v-img
       src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg" 
       height="200px"
@@ -13,20 +13,23 @@
       </v-card-actions>
   </v-card>
 </template>
-http://127.0.0.1:8080/survey/create?reference=4fbac54a-b0ab-4257-8043-2378d6035ae4
+
 <script>
+import { http } from "@/axios"
+import { mapState } from "vuex"
+
 export default {
   name: "CourseCard",
   props: {
     course: Object,
   },
   mounted() {
-    console.log("courseCard",this.course)
   },
   methods: {
       viewCourse() {
+        this.updateClicks()
         this.$router
-        .push({ path: `/course/${this.course.title}`})
+        .push({ path: `/course/${this.course.reference}`})
         .catch(err => {});
       },
       editCourse() {
@@ -38,6 +41,14 @@ export default {
         this.$router
         .push({ path: "/survey", query: { reference: this.course.reference } })
         .catch(err => {});
+      },
+      async updateClicks() {
+        try {
+          let rv = await http.post("/api/me/clicks", {
+            reference: this.course.reference,
+            clicks: this.course.clicks
+          })
+        }catch(e) {}
       }
   }
 }

@@ -1,0 +1,36 @@
+.questionDiv {
+    border: 1px solid black;
+    width: 90%;
+    margin-left: 5%;
+    margin-bottom: 2%;
+    padding: 2%;
+    padding-top: 0;
+    font-size: 24px;
+  }
+  
+.questionDiv input {
+    border: 1px solid black;
+    border-radius: 10px;
+    width: 50%;
+}
+
+.questionDiv .header {
+    margin-top: 1%;
+    margin-bottom: 1%;
+    display: flex;
+}
+
+.questionDiv .btn {
+    border: 1px solid black; 
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.questionDiv .btn:hover {
+    background-color: RoyalBlue;
+}
+
+.header .rightDiv {
+    margin-left: 1%;
+}

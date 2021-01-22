@@ -1,20 +1,22 @@
 <template>
-    <v-container fluid>
-        <div class="main">
-            <h3>Course Survey Creation</h3>
-            <p>
-                A survey creation plugin. Drag and drop the question from the toolbox on the left to the center area.<br> 
-                Edit the question on the properties column on the right. <br>
+  <v-container fluid>
+    <div class="main">
+      <h3>Course Survey Creation</h3>
+      <p>
+        Create your own survey to collect information from the students after the course!
+        <br />
+        Click on the type of question you want from the tool box. <br />
 
-                You can create a new page using the "Add new page" button. <br>
+        You will see it pop out under "Survey Template" <br />
 
-                You can click on "Test Survey" to preview the survey. <br>
+        Type in your question in the input field. You can also delete the question by clicking on the delete icon. <br />
 
-                Once completed, remember to click "Save Survey" button. <br>
-            </p>
-            <survey-creator></survey-creator>
-        </div>
-    </v-container>
+        Once completed, remember to click "Save Survey" button under the tool box. <br />
+      </p>
+      <br>
+      <survey-builder></survey-builder>
+    </div>
+  </v-container>
 </template>
 
 <script>
@@ -22,34 +24,31 @@ import { http } from "@/axios"
 import { mapState } from "vuex"
 
 export default {
-    data() {
-        return {
-        }
-    },
-    mounted() {
-    },
-    computed: {},
-    methods: {}
+  data() {
+    return {}
+  },
+  mounted() {},
+  computed: {},
+  methods: {},
 }
 </script>
 
 <style scoped>
-
 .main {
-    width: 80%;
-    margin:auto;
+  width: 80%;
+  margin: auto;
 }
 
 .main h3 {
-    font-family: "DarkerGrotesque-Medium";
-    font-size: 42px;
-    margin-bottom: 1%;
-    color: #0d47a1;
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 42px;
+  margin-bottom: 1%;
+  color: #0d47a1;
 }
 
 .main p {
-    font-family: "DarkerGrotesque-Medium";
-    font-size: 22px;
-    margin-left: 0.5%;
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 22px;
+  margin-left: 0.5%;
 }
 </style>

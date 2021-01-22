@@ -43,11 +43,9 @@ export default {
   },
   async mounted() {
     let reference = this.$route.query.reference
-    console.log(typeof this.reference)
     this.survey
     .onComplete
     .add(async function (result) {
-        console.log(result)
         let data = result.data
         let rv = await http.post("/api/me/survey/completed", {
             reference,

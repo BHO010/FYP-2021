@@ -22,7 +22,7 @@
             <v-col cols="3" class="expContainer">
               <v-row>
                 <div class="center">
-                  <v-icon size="64" color="orange"
+                  <v-icon size="64" color="#FF1100"
                     >mdi-book-open-variant</v-icon
                   >
                 </div>
@@ -36,16 +36,14 @@
           <v-row>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Accounting</v-row>
-                <v-row class="statsItem">Accounting</v-row>
+                <v-row class="statsItem">Courses: 2</v-row>
                 <v-row class="statsItem">Accounting</v-row>
                 <v-row class="statsItem">Accounting</v-row>
               </div>
             </v-col>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Accounting</v-row>
-                <v-row class="statsItem">Accounting</v-row>
+                <v-row class="statsItem">Comments: 20</v-row>
                 <v-row class="statsItem">Accounting</v-row>
                 <v-row class="statsItem">Accounting</v-row>
               </div>
@@ -78,7 +76,7 @@
           <v-row>
             <v-col cols="9">
               <div class="statsContent">
-                <h1>Instructor Level 1</h1>
+                <h1>{{userDetails.rank}} Instructor Level {{ userDetails.level }}</h1>
                 <div>
                   <v-progress-linear
                     v-model="progressValue"
@@ -89,12 +87,12 @@
             <v-col cols="3" class="expContainer">
               <v-row>
                 <div class="center">
-                  <v-icon size="64" color="orange"
+                  <v-icon size="64" color="#FF1100"
                     >mdi-book-open-variant</v-icon
                   >
                 </div>
                 <div class="exp">
-                  <h1>200</h1>
+                  <h1>{{this.userDetails.knowledgePoints}}</h1>
                 </div>
               </v-row>
             </v-col>
@@ -103,20 +101,21 @@
           <v-row>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Accounting</v-row>
-                <v-row class="statsItem">Accounting</v-row>
-                <v-row class="statsItem">Accounting</v-row>
+                <v-row class="statsItem">Students: {{this.stats.studentsCount}}</v-row>
+                <v-row class="statsItem">Courses: {{this.stats.courseTaken}}</v-row>
                 <v-row class="statsItem">Accounting</v-row>
               </div>
             </v-col>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Accounting</v-row>
-                <v-row class="statsItem">Accounting</v-row>
-                <v-row class="statsItem">Accounting</v-row>
+                <v-row class="statsItem">Rating: 4.5/5</v-row>
+                <v-row class="statsItem">Comments: {{this.stats.discussionPoints}}</v-row>
                 <v-row class="statsItem">Accounting</v-row>
               </div>
             </v-col>
+          </v-row>
+          <v-row class="statsBtmRow">
+               <v-btn class="btn" @click="achievements()">Achievements</v-btn>
           </v-row>
         </div>
       </v-col>
@@ -178,9 +177,11 @@ export default {
   data() {
     return {
       userDetails: "",
+      stats: "",
+      achievements: "",
       user: true,
       profileImage: "",
-      progressValue: 30,
+      progressValue: 0,
       reviews: [],
       reviewsCurrentPage: 1,
       reviewsPageCount: 0,
@@ -207,7 +208,8 @@ export default {
       }
       this.insertImage()
       this.getCourses()
-      console.log("Done")
+      this.getExp()
+      this.getStats()
     } catch (e) {}
   },
   methods: {
@@ -240,25 +242,25 @@ export default {
       })
       this.courses = data.courses
       this.totalCourse = data.total
+    },
+    async getStats() {
+      const rv2 = await http.get("/api/me/stats")
+      const rv3 = await http.get("/api/me/achievements")
+      this.stats = rv2.data
+      this.achievements = rv3.data
+    },
+    getExp() {
+      let maxExp = 100
+      if(this.userDetails.level != 1) {
+        maxExp *= (this.user.userDetails.level) * 1.5
+      }
+      this.progressValue = (this.userDetails.knowledgePoints / maxExp) * 100
+      
     }
   },
 }
 </script>
 <style>
-.topRow h1 {
-  float: left;
-}
-
-.topRow .btn {
-  text-transform: none;
-  text-decoration: underline;
-  float: right;
-  color: #0d47a1;
-}
-
-.topRow .v-btn--contained {
-  box-shadow: none;
-}
 .profileImg svg {
   width: 600px;
   height: 380px;
@@ -316,6 +318,14 @@ export default {
   margin-left: 1%;
 }
 
+.statsBtmRow {
+  margin:2%;
+}
+
+.statsBtnRow .btn .v-btn__content {
+  text-transform: none;
+}
+
 .courseContainer,
 .achievementContainer {
   margin-top: 4%;
@@ -340,5 +350,20 @@ export default {
   flex-direction: row;
   width: 90%;
   margin: auto;
+}
+
+.topRow h1 {
+  float: left;
+}
+
+.topRow .btn {
+  text-transform: none;
+  text-decoration: underline;
+  float: right;
+  color: #0d47a1;
+}
+
+.topRow .v-btn--contained {
+  box-shadow: none;
 }
 </style>

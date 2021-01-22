@@ -2,28 +2,34 @@ const express = require('express')
 const authRoutes = express.Router()
 
 const bcrypt = require('bcryptjs')
+
 const { SALT_ROUNDS } = require('../config')
 const { authUser, authSignup } = require('../middlewares/auth')
 const { createToken, revokeToken, otp, logout, refresh, login, } = require(LIB_PATH + '/auth')
 const { dateISO, timeISO } = require(LIB_PATH + '/esm/datetime')
+const { getStatsTemplate, getAchievementTemplate } = require('../middlewares/achievement.js')
 const mongo = require(LIB_PATH + '/services/db/mongodb')
 const { ObjectID } = require('mongodb')
 
-const getUser = async (req, res) => { 
-    try {
-         const user = await mongo.db.collection('user').findOne({email: 'user'})
-         return res.status(200).json({user})
-    }catch(e) {
-        console.log(e.toString())
-    }
+const getUser = async (req, res) => {
+  try {
+    const user = await mongo.db.collection('user').findOne({ email: 'user' })
+    return res.status(200).json({ user })
+  } catch (e) {
+    console.log(e.toString())
   }
+}
 
 const signup = async (req, res) => {
   let errMsg = ''
   try {
-    const {  name, password,activeTags,role,image } = req.body
+    const { name, password, activeTags, role, image } = req.body
     let encryptedPassword = bcrypt.hashSync(password, SALT_ROUNDS)
     let date = new Date()
+    let statsTemplate = getStatsTemplate()
+    let achievementTemplate = getAchievementTemplate()
+    statsTemplate.email = req.decoded.id
+    achievementTemplate.email = req.decoded.id
     if (role !== 'user' && role !== 'instructor') return res.status(500).json({ e: 'invalid role' })
     // if (!email) return res.status(500).json({ e: 'empty email' })
 
@@ -34,7 +40,10 @@ const signup = async (req, res) => {
       profileImage: image,
       active: true,
       contactNumber: '',
-      signupDate: dateISO(new Date()) + " " + timeISO(new Date())
+      signupDate: dateISO(new Date()) + " " + timeISO(new Date()),
+      knowledgePoints: 0,
+      level: 0
+
     }
 
     const rv = await mongo.db.collection('user').findOneAndUpdate(
@@ -43,17 +52,27 @@ const signup = async (req, res) => {
       { returnNewDocument: true }
     )
 
+    const rv2 = await mongo.db.collection('statistics').findOneAndUpdate(
+      { email: req.decoded.id },
+      { $set: statsTemplate }
+    )
+
+    const rv3 = await mongo.db.collection('achievements').findOneAndUpdate(
+      { email: req.decoded.id },
+      { $set: achievementTemplate }
+    )
+
     if (!rv) {
       return res.status(404).json({ e: 'not found' })
     } else {
       return res.status(200).json(rv) // success
     }
 
-  }catch(e) {
+  } catch (e) {
     errMsg = e.toString()
   }
   return res.status(500).json({ e: errMsg })
-}  
+}
 
 const signupEmail = async (req, res) => { // get email, verification send code
   const { email, role } = req.body
@@ -69,6 +88,14 @@ const signupEmail = async (req, res) => { // get email, verification send code
         email,
         role,
       })
+      await mongo.db.collection('statistics').insertOne({
+        email,
+        role,
+      })
+      await mongo.db.collection('achievements').insertOne({
+        email,
+        role,
+      })
 
       return res.status(201).json({ token, user: null })
     }
@@ -81,13 +108,13 @@ const signupEmail = async (req, res) => { // get email, verification send code
 
 
 authRoutes
-.post('/login', login)
-.get('/logout', authUser, logout)
-.post('/refresh', authUser, refresh)
-.post('/otp', authUser, otp)
-.post('/signup', authSignup, signup)
-.post('/signup-email', signupEmail)
-.get('/users', getUser)
+  .post('/login', login)
+  .get('/logout', authUser, logout)
+  .post('/refresh', authUser, refresh)
+  .post('/otp', authUser, otp)
+  .post('/signup', authSignup, signup)
+  .post('/signup-email', signupEmail)
+  .get('/users', getUser)
 
 
 

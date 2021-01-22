@@ -15,6 +15,8 @@ import ReviewSection from './components/ReviewSection.vue'
 import CourseCard from './components/CourseCard.vue'
 import SurveyCreator from './components/SurveyCreator.vue'
 import SurveyDisplay from './components/SurveyDisplay.vue'
+import SurveyAnalysis from './components/SurveyAnalysis.vue'
+import SurveyBuilder from './components/SurveyBuilder.vue'
 
 Vue.config.productionTip = false
 
@@ -41,6 +43,8 @@ Vue.component('review-section', ReviewSection)
 Vue.component('course-card', CourseCard)
 Vue.component('survey-creator', SurveyCreator)
 Vue.component('survey-display', SurveyDisplay)
+Vue.component('survey-analytics', SurveyAnalysis)
+Vue.component('survey-builder', SurveyBuilder)
 
 /* eslint-disable no-new */
 export const app = new Vue({

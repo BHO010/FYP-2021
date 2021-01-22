@@ -33,7 +33,7 @@
             prepend-inner-icon="mdi-lock-outline"
           ></v-text-field>
           <div class="errorColor" v-if="!!error">{{ error.message }}</div>
-          <v-btn type="button" color="#ff733c" @click.prevent="onSignin" block>Login</v-btn>
+          <v-btn type="button" color="#FF5252" @click.prevent="onSignin" block>Login</v-btn>
           <br />
           <v-row class="center-all forgotPW">
             <a>Forgot password?</a>

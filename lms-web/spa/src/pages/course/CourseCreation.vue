@@ -449,6 +449,7 @@ export default {
         outlines: this.outlinePoints,
         trainers: this.trainers,
         attends: this.attendPoints,
+        fee: this.fee
       })
       if (rv) {
         console.log(rv.data)

@@ -18,14 +18,14 @@
 
         <v-toolbar-title class="color logo">NTU-LMS</v-toolbar-title>
 
-        <v-text-field
+       <!--  <v-text-field
           class="searchInput"
           type="text"
           label="Search"
           dense
           outlined
           prepend-inner-icon="mdi-magnify"
-        ></v-text-field>
+        ></v-text-field> -->
 
         <v-spacer></v-spacer>
 
