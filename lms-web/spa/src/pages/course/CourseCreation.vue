@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <div class="main">
+    <div v-if="auth" class="main">
       <v-stepper v-model="step">
         <v-stepper-header>
           <v-stepper-step :complete="step > 1" step="1" @click="nextStep(1)">
@@ -265,6 +265,10 @@
       </v-navigation-drawer> -->
       <!--  </v-row> -->
     </div>
+
+    <div v-else class="main">
+      <h3>You are not authorized to access this page.</h3>
+    </div>
   </v-container>
 </template>
 
@@ -279,6 +283,7 @@ export default {
       snackbarShow: false,
       snackbarText: "",
       snackbarTimeout: 5000,
+      auth: false,
       step: 1,
       surveyJson: "",
       title: "",
@@ -336,7 +341,15 @@ export default {
     }
   },
   created() {},
-  mounted() {},
+  async mounted() {
+    try {
+      const rv2 = await http.get("/api/me")
+      this.userDetails = rv2.data
+      if (this.userDetails.role == "instructor") {
+        this.auth = true
+      }
+    } catch (e) {}
+  },
   computed: {
     user() {
       return this.$store.state.user

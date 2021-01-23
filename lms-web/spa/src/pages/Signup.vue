@@ -57,7 +57,7 @@
                 outlined
                 prepend-inner-icon="mdi-email-outline"
               ></v-text-field>
-              <v-btn class="button" color="#FF5252" @click="onEmail()" block>Continue</v-btn>
+              <v-btn class="button" color="#69F0AE" @click="onEmail()" block>Continue</v-btn>
 
               <br />
               <hr />
@@ -109,7 +109,7 @@
               </v-sheet>
 
               <v-row class="float-right nextBtn">
-                <v-btn color="#FF5252" @click="nextStep(3)">Next</v-btn>
+                <v-btn color="#69F0AE" @click="nextStep(3)">Next</v-btn>
               </v-row>
             </v-col>
           </v-row>
@@ -214,8 +214,8 @@
             <div style="height: 700px">
               <div class="avatarImg" id="avatarImg"></div>
               <v-row style="align-content:space-between">
-                 <v-btn color="#FF5252" @click="generate()">Generate</v-btn>
-                  <v-btn color="#FF5252" @click="nextStep(4)">Continue</v-btn>
+                 <v-btn class="margin-right" color="#69F0AE" @click="generate()">Generate</v-btn>
+                  <v-btn color="#69F0AE" @click="nextStep(4)">Continue</v-btn>
               </v-row>
              
             </div>
@@ -282,7 +282,7 @@
               <div class="errorColor" v-if="!!error">
                 {{ error.message }}
               </div>
-              <v-btn type="button" color="#FF5252" @click.prevent="onSignup" block
+              <v-btn type="button" color="#69F0AE" @click.prevent="onSignup" block
                 >Sign up</v-btn
               >
               <br />
@@ -326,7 +326,7 @@
                 <br />
                 <v-card-actions>
                   <v-row justify="center">
-                    <v-btn color="#FF5252" class="card-btn" rounded @click="close">Close</v-btn>
+                    <v-btn color="#69F0AE" class="card-btn" rounded @click="close">Close</v-btn>
                   </v-row>
                 </v-card-actions>
               </v-container>
@@ -644,6 +644,10 @@ export default {
 
 .bgColor {
   background-color: #f5f6f7;
+}
+
+.margin-right {
+    margin-right: 4%;
 }
 
 .center {

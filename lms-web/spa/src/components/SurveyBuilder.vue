@@ -50,7 +50,95 @@
         </div>
       </div>
     </div>
-    <div id="rightCol">
+
+    <!-- If Editing Survey -->
+    <div v-if="type == 'Edit'" id="rightCol">
+      <div id="surveyContent">
+        <h3>Survey Template</h3>
+        <div
+          class="questionDiv"
+          v-for="(question, index) in survey"
+          :key="question.id"
+        >
+          <!-- Text question -->
+          <div v-if="question.type == 'text'">
+            <div class="header">
+              <h2>Text Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+
+            <label :for="question.id"> Question: </label>
+            <input v-model="question.title" />
+          </div>
+          <!-- CheckBox question -->
+          <div v-if="question.type == 'check'">
+            <div class="header">
+              <h2>CheckBox Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+
+            <div class="properties"></div>
+            <label :for="question.id">Question: </label>
+            <input v-model="question.title" /><br />
+            <div
+              class="multi"
+              v-for="option in question.options"
+              :key="option.id"
+            >
+              <label :for="option.id">{{ option.label }}: </label>
+              <input v-model="option.title" /><br />
+            </div>
+            <v-row class="optionRow">
+              <v-btn @click="addOption(index)">Add Option</v-btn>
+              <v-btn @click="deleteOption(index)">Delete Option</v-btn>
+            </v-row>
+          </div>
+          <!-- RadioGroup question -->
+          <div v-if="question.type == 'radio'">
+            <div class="header">
+              <h2>RadioGroup Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+            <div class="properties"></div>
+            <label :for="question.id">Question: </label>
+            <input v-model="question.title" /><br />
+            <div
+              class="multi"
+              v-for="option in question.options"
+              :key="option.id"
+            >
+              <label :for="option.id">{{ option.label }}: </label>
+              <input v-model="option.title" /><br />
+            </div>
+            <v-row class="optionRow">
+              <v-btn @click="addOption(index)">Add Option</v-btn>
+              <v-btn @click="deleteOption(index)">Delete Option</v-btn>
+            </v-row>
+          </div>
+          <!-- Rating question -->
+          <div v-if="question.type == 'rate'">
+            <div class="header">
+              <h2>Rating Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+
+            <div class="properties"></div>
+            <label :for="question.id">Question: </label>
+            <input v-model="question.title" /><br />
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- If Creating Survey -->
+    <div v-else id="rightCol">
       <div id="surveyContent">
         <h3>Survey Template</h3>
         <div
@@ -153,6 +241,10 @@ import { mapState } from "vuex"
 
 export default {
   name: "survey-builder",
+  props: {
+    survey: Array,
+    type: String,
+  },
   data() {
     return {
       QNumber: 1,
@@ -161,8 +253,11 @@ export default {
     }
   },
   mounted() {
-      let params = new URL(document.location).searchParams
-      this.reference = params.get("reference")
+    let params = new URL(document.location).searchParams
+    this.reference = params.get("reference")
+    if(this.type=="Edit") {
+      this.QNumber = this.survey.length +1
+    }
   },
   methods: {
     onText() {
@@ -170,10 +265,17 @@ export default {
         id: this.QNumber,
         type: "text",
         title: "",
+        answer: "",
+      }
+      if(this.type=="Edit") {
+        this.survey.push(question)
+        this.QNumber++
+      }else {
+        this.questions.push(question)
+        this.QNumber++
       }
 
-      this.questions.push(question)
-      this.QNumber++
+      
     },
     onCheckBox() {
       let question = {
@@ -181,13 +283,18 @@ export default {
         type: "check",
         title: "",
         options: [
-          { id: 1, title: "", label: "Option 1" },
-          { id: 2, title: "", label: "Option 2" },
+          { id: 1, title: "", label: "Option 1", checked: false },
+          { id: 2, title: "", label: "Option 2", checked: false },
         ],
       }
 
-      this.questions.push(question)
-      this.QNumber++
+      if(this.type=="Edit") {
+        this.survey.push(question)
+        this.QNumber++
+      }else {
+        this.questions.push(question)
+        this.QNumber++
+      }
     },
     onRadio() {
       let question = {
@@ -195,50 +302,84 @@ export default {
         type: "radio",
         title: "",
         options: [
-          { id: 1, title: "", label: "Option 1" },
-          { id: 2, title: "", label: "Option 2" },
+          { id: 1, title: "", label: "Option 1", checked: false },
+          { id: 2, title: "", label: "Option 2", checked: false },
         ],
       }
 
-      this.questions.push(question)
-      this.QNumber++
+      if(this.type=="Edit") {
+        this.survey.push(question)
+        this.QNumber++
+      }else {
+        this.questions.push(question)
+        this.QNumber++
+      }
     },
     onRating() {
       let question = {
         id: this.QNumber,
         type: "rate",
         title: "",
+        rating: 0,
       }
 
-      this.questions.push(question)
-      this.QNumber++
+      if(this.type=="Edit") {
+        this.survey.push(question)
+        this.QNumber++
+      }else {
+        this.questions.push(question)
+        this.QNumber++
+      }
     },
     async onSaved() {
+      if (this.type == "Edit") {
+        alert("edit")
+      } else {
         let rv = await http.post("/api/me/survey/create", {
           reference: this.reference,
           survey: this.questions,
-        }) 
-         if (rv) {
+        })
+        if (rv) {
           window.location.href = "/profile"
         }
+      }
     },
     addOption(index) {
-      let length = this.questions[index].options.length
       let option = {
         id: length + 1,
         title: "",
         label: `Option ${length + 1}`,
       }
-      this.questions[index].options.push(option)
+      let length = 0
+      if(this.type=="Edit") {
+        length = this.survey[index].options.length
+        this.survey[index].options.push(option)
+      }else {
+        length = this.questions[index].options.length
+        this.questions[index].options.push(option)
+      }
+      
     },
     deleteOption(index) {
-      let length = this.questions[index].options.length
-      if (length > 2) {
-        this.questions[index].options.pop()
+      if(this.type=="Edit") {
+        let length = this.survey[index].options.length
+        if (length > 2) {
+          this.survey[index].options.pop()
+        }
+      }else {
+        let length = this.questions[index].options.length
+        if (length > 2) {
+          this.questions[index].options.pop()
+        }
       }
+      
     },
     deleteQuestion(index) {
-        this.questions.splice(index,1)
+      if(this.type=="Edit") {
+        this.survey.splice(index, 1) 
+      }else {
+        this.questions.splice(index, 1)
+      }
     },
   },
 }
@@ -316,7 +457,7 @@ export default {
 }
 
 .questionDiv {
-  border: 1px solid grey;
+  border: 5px solid lightgrey;
   border-top-right-radius: 50px;
   border-bottom-right-radius: 50px;
   width: 90%;
@@ -357,7 +498,7 @@ export default {
 }
 
 .header {
-    display: flex;
+  display: flex;
 }
 
 .header h2 {

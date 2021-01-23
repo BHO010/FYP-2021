@@ -1,10 +1,14 @@
 <template>
-  <div id="main">
-    <survey-analytics
+  <div v-if="auth" id="main">
+    <!-- <survey-analytics
       :key="Json.page"
       :Json="this.Json"
       :results="this.results"
-    ></survey-analytics>
+    ></survey-analytics> -->
+  </div>
+
+  <div v-else class="main">
+    <h3>You are not authorized to access this page.</h3>
   </div>
 </template>
 
@@ -15,19 +19,23 @@ import { mapState } from "vuex"
 export default {
   data() {
     return {
-        Json: null,
-        results: null,
-        reference: ""
+      results: null,
+      reference: "",
+      userDetails: null,
+      auth: false,
     }
   },
   async mounted() {
     try {
       this.reference = this.$route.query.reference
       let rv = await http.get(`/api/me/survey/${this.reference}`)
+      let user = await http.get("/api/me")
       let rv2 = await http.get(`/api/me/survey/results/${this.reference}`)
-      this.surveyJson = JSON.parse(rv.data.surveyJson)
-      this.Json = this.surveyJson
-      this.results = rv2.data
+
+      this.userDetails = user.data
+      if (this.userDetails.role == "instructor") {
+        this.auth = true
+      }
     } catch (e) {}
   },
 }

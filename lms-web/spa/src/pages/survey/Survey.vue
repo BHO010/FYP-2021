@@ -3,14 +3,13 @@
     <div class="main">
       <h3>Course Survey</h3>
       <p>
-        This is the course completion survey. <br>
+        Kindly fill up the survey regarding the course. <br>
+        We will like to hear your feedback and help the instructor improve on their delivery of the course. <br>
 
         Once completed, remember to click "Complete" button to submit the survey. <br />
+        Thank You.
       </p>
-      <!-- <survey-display 
-          :key="Json.page"
-          :Json="Json"></survey-display>
-          <survey-builder></survey-builder> -->
+          <survey-viewer :survey="this.survey" :reference="this.reference" ></survey-viewer>
     </div>
   </v-container>
 </template>
@@ -18,11 +17,12 @@
 <script>
 import { http } from "@/axios"
 import { mapState } from "vuex"
+
 export default {
   data() {
     return {
-      surveyJson: null,
-      Json: null,
+      survey: null,
+      reference: ""
     }
   },
   computed: {
@@ -33,9 +33,10 @@ export default {
   async mounted() {
     try {
       this.reference = this.$route.query.reference
-     // let rv = await http.get(`/api/me/survey/${this.reference}`)
-     // this.surveyJson = JSON.parse(rv.data.surveyJson)
-     // this.Json = this.surveyJson
+      let rv = await http.get(`/api/me/survey/${this.reference}`)
+      this.survey = rv.data.survey
+        console.log("A", this.survey)
+        console.log("B", this.reference)
     } catch (e) {}
   },
   methods: {},
@@ -55,7 +56,7 @@ export default {
 }
 .main p {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 22px;
+  font-size: 28px;
   margin-left: 0.5%;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <div class="main">
+    <div v-if="auth" class="main">
       <h3>Course Survey Edit</h3>
       <p>
         A survey creation plugin. Drag and drop the question from the toolbox on
@@ -13,7 +13,11 @@
 
         Once completed, remember to click "Save Survey" button. <br />
       </p>
-      <survey-creator :key="Json" :Json="this.Json" :type="type"></survey-creator>
+      <survey-builder :survey="this.survey" :type="this.type"></survey-builder>
+    </div>
+
+    <div v-else class="main">
+      <h3>You are not authorized to access this page.</h3>
     </div>
   </v-container>
 </template>
@@ -25,18 +29,23 @@ import { mapState } from "vuex"
 export default {
   data() {
     return {
-      Json: null,
-      surveyJson: "",
+      survey: null,
       reference: "",
-      type: "Edit"
+      type: "Edit",
+      auth: false,
     }
   },
   async mounted() {
-    this.reference = this.$route.query.reference
-
-    let rv = await http.get(`/api/me/survey/${this.reference}`)
-    this.Json = rv.data.surveyJson
-    console.log("YY", this.Json)
+    try {
+      this.reference = this.$route.query.reference
+      const rv2 = await http.get("/api/me")
+      const rv = await http.get(`/api/me/survey/${this.reference}`)
+      this.survey = rv.data.survey
+      this.userDetails = rv2.data
+      if (this.userDetails.role == "instructor") {
+        this.auth = true
+      }
+    } catch (e) {}
   },
   computed: {},
   methods: {},

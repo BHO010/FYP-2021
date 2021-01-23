@@ -256,7 +256,7 @@ meRoutes
   })
 
   .post('/survey/completed', authUser, async (req, res) => {
-    let { reference, data } = req.body
+    let { reference, survey } = req.body
     let user = null
     try {
       user = await findUser({ id: req.decoded.id })
@@ -265,7 +265,7 @@ meRoutes
           completedBy: user.email,
           completedOn: new Date().toISOString(),
           reference,
-          result: data,
+          result: survey,
         })
       }
       return res.status(200).json()
