@@ -1,8 +1,15 @@
 <template>
   <div id="main">
+    <v-snackbar
+      v-model="snackbarShow"
+      :timeout="snackbarTimeout"
+      :color="snackbarColor"
+      top
+      >{{ snackbarText }}</v-snackbar
+    >
     <h1>Update Your profile and settings</h1>
     <v-tabs v-model="tab" background-color="transparent" grow>
-      <v-tab v-for="item in tabs" :key="item.name" @click="select(item.id)">
+      <v-tab v-for="item in tabs" :key="item.id" @click="select(item.id)">
         {{ item.name }}
       </v-tab>
     </v-tabs>
@@ -10,64 +17,73 @@
     <div v-if="changeProfile" class="content">
       <div class="body">
         <div class="header">Change Profile</div>
-         <v-form
-            ref="form"
-            v-model="valid"
-            lazy-validation
-            @submit.prevent="onUpdate"
-            class="editForm"
-          >
+        <v-form
+          ref="form"
+          v-model="valid"
+          lazy-validation
+          @submit.prevent="onUpdateUser"
+        >
           <!-- Change Name -->
-            <div class="inputRow">
-              <h3 class="size-18">Name:</h3>
-              <v-text-field v-model="name" type="text" outlined dense></v-text-field>
-            </div>
+          <div class="inputRow">
+            <h3 class="size-18">Name:</h3>
+            <v-text-field
+              v-model="userDetails.name"
+              type="text"
+              outlined
+              dense
+            ></v-text-field>
+          </div>
           <!-- Change Email -->
-            <div class="inputRow">
-              <h3 class="size-18">Email:</h3>
-              <v-text-field v-model="name" type="email" outlined dense></v-text-field>
-            </div>  
+          <div class="inputRow">
+            <h3 class="size-18">Email:</h3>
+            <v-text-field
+              v-model="userDetails.email"
+              type="email"
+              outlined
+              dense
+            ></v-text-field>
+          </div>
           <!-- Change Contact Number -->
-            <div class="inputRow">
-              <h3 class="size-18">Contact Number:</h3>
-              <v-text-field
-                v-model="contactNumber"
-                :rules="contactNumberRules"
-                type="text"
-                outlined
-                dense
-              ></v-text-field>
-            </div>  
+          <div class="inputRow">
+            <h3 class="size-18">Contact Number:</h3>
+            <v-text-field
+              v-model="userDetails.contactNumber"
+              :rules="contactNumberRules"
+              type="text"
+              outlined
+              dense
+            ></v-text-field>
+          </div>
           <!-- Change Active Tags -->
-            <div class="inputRow">
-              <h3>Interested Categories:</h3>
-              <div class="chipSheet">
-                <v-chip-group column multiple active-class="#FED8B1">
-                  <v-chip
-                    v-for="tag in tags"
-                    :key="tag"
-                    large
-                    filter
-                    outlined
-                    @click="addTags(tag)"
-                  >
-                    {{ tag }}
-                  </v-chip>
-                </v-chip-group>
-              </div>
+          <div class="inputRow">
+            <h3>Interested Categories:</h3>
+            <div class="chipSheet">
+              <v-chip-group
+                v-model="userDetails.activeTags"
+                column
+                multiple
+                active-class="red"
+              >
+                <v-chip v-for="tag in tags" :key="tag" large filter outlined>
+                  {{ tag }}
+                </v-chip>
+              </v-chip-group>
             </div>
+          </div>
 
-          <!-- Button Row --> 
-            <v-row class="btnRow" align="end">
-              <v-spacer></v-spacer>
-              <v-btn
-                  class="button"
-                  type="button"
-                  @click="onUpdateUser"
-                  color="#69F0AE"
-                >Update</v-btn>
-            </v-row>   
-         </v-form>
+          <!-- Button Row -->
+          <v-row class="btnRow" align="end">
+            <v-spacer></v-spacer>
+            <v-btn
+              class="button"
+              type="button"
+              @click="onUpdateUser('profile')"
+              color="#69F0AE"
+              :loading="loading"
+              >Update</v-btn
+            >
+          </v-row>
+        </v-form>
       </div>
     </div>
 
@@ -78,7 +94,13 @@
           <v-col cols="6">
             <div>
               <div class="avatarSelect">
-                <v-select :items="top" v-model="options.top[0]" outlined dense label="Top"></v-select>
+                <v-select
+                  :items="top"
+                  v-model="options.top[0]"
+                  outlined
+                  dense
+                  label="Top"
+                ></v-select>
 
                 <v-select
                   :items="hatColor"
@@ -137,7 +159,13 @@
                   label="Clothes Color"
                 ></v-select>
 
-                <v-select :items="eyes" outlined dense label="Eyes" v-model="options.eyes[0]"></v-select>
+                <v-select
+                  :items="eyes"
+                  outlined
+                  dense
+                  label="Eyes"
+                  v-model="options.eyes[0]"
+                ></v-select>
 
                 <v-select
                   :items="eyebrow"
@@ -168,10 +196,20 @@
           <v-col cols="6">
             <div style="height: 700px">
               <div class="avatarImg" id="avatarImg"></div>
-               <v-row align="center">
-                 <v-btn class="button margin-right" color="#69F0AE" @click="generate()">Generate</v-btn>
-                 
-                 <v-btn class="button" color="#69F0AE" @click="onUpdateUser()">Update</v-btn>
+              <v-row align="center">
+                <v-btn
+                  class="button margin-right"
+                  color="#69F0AE"
+                  @click="generate()"
+                  >Generate</v-btn
+                >
+
+                <v-btn
+                  class="button"
+                  color="#69F0AE"
+                  @click="onUpdateUser('avatar')"
+                  >Update</v-btn
+                >
               </v-row>
             </div>
           </v-col>
@@ -182,6 +220,58 @@
     <div v-if="changePassword" class="content">
       <div class="body">
         <div class="header">Change Password</div>
+        <v-form
+          ref="form2"
+          v-model="valid"
+          lazy-validation
+          @submit.prevent="onUpdateUser"
+        >
+          <!-- Old Password -->
+          <div class="inputRow">
+            <h3 class="size-18">Old Password:</h3>
+            <v-text-field
+              v-model="oldPassword"
+              type="password"
+              outlined
+              dense
+            ></v-text-field>
+          </div>
+          <!-- New Password -->
+          <div class="inputRow">
+            <h3 class="size-18">New Password:</h3>
+            <v-text-field
+              v-model="password"
+              :rules="passwordRules"
+              type="password"
+              outlined
+              dense
+            ></v-text-field>
+          </div>
+          <!-- Confirm New Password -->
+          <div class="inputRow">
+            <h3 class="size-18">Confirm Password:</h3>
+            <v-text-field
+              v-model="confirmPassword"
+              :rules="confirmPasswordRules"
+              type="password"
+              outlined
+              dense
+            ></v-text-field>
+          </div>
+
+          <!-- Button Row -->
+          <v-row class="btnRow" align="end">
+            <v-spacer></v-spacer>
+            <v-btn
+              class="button"
+              :loading="loading"
+              type="button"
+              @click="onUpdateUser('password')"
+              color="#69F0AE"
+              >Update</v-btn
+            >
+          </v-row>
+        </v-form>
       </div>
     </div>
   </div>
@@ -190,20 +280,26 @@
 <script>
 import { mapState } from "vuex"
 import { http } from "@/axios"
-import Avatars from '@dicebear/avatars';
-import sprites from '@dicebear/avatars-avataaars-sprites';
+import Avatars from "@dicebear/avatars"
+import sprites from "@dicebear/avatars-avataaars-sprites"
 
 export default {
   data() {
     return {
+      snackbarColor: "success",
+      snackbarShow: false,
+      snackbarText: "",
+      snackbarTimeout: 5000,
+      userDetails: null,
+      activeTags: null,
       changeProfile: true,
       changePassword: false,
       changeImage: false,
       valid: true,
-      activeTags: [],
       profileImg: "",
-      name: "",
-      contactNumber: "",
+      oldPassword: "",
+      password: "",
+      confirmPassword: "",
       tab: "Profile",
       requiredRules: [(v) => !!v || "This is required"],
       emailRules: [
@@ -220,10 +316,14 @@ export default {
           ) ||
           "Password must contain at least 8 character with 1 special character, number, lower and uppercase letter",
       ],
+      confirmPasswordRules: [
+        (v) => !!v || "Confirm Password is required",
+        (v) => !v || v == this.password || "Passwords do not match",
+      ],
       contactNumberRules: [
-        v => !v || /^(0|[1-9][0-9]*)$/.test(v) || "Numbers Only",
-        v =>
-          !v || (v && v.length == 8) || "Contact Number must be 8 digits (SG)"
+        (v) => !v || /^(0|[1-9][0-9]*)$/.test(v) || "Numbers Only",
+        (v) =>
+          !v || (v && v.length == 8) || "Contact Number must be 8 digits (SG)",
       ],
       tabs: [
         { id: 1, name: "Profile" },
@@ -251,13 +351,7 @@ export default {
         "Computer Science",
         "Math",
       ],
-      top: [
-        "longHair",
-        "shortHair",
-        "hat",
-        "hijab",
-        "turban"
-      ],
+      top: ["longHair", "shortHair", "hat", "hijab", "turban"],
       hatColor: [
         "black",
         "blue",
@@ -266,7 +360,7 @@ export default {
         "pastel",
         "pink",
         "red",
-        "white"
+        "white",
       ],
       hairColor: [
         "auburn",
@@ -276,7 +370,7 @@ export default {
         "pastel",
         "platinum",
         "red",
-        "gray"
+        "gray",
       ],
       accessories: [
         "none",
@@ -285,31 +379,18 @@ export default {
         "prescription02",
         "round",
         "sunglasses",
-        "wayfarers"
+        "wayfarers",
       ],
-      facialHair: [
-        "none",
-        "medium",
-        "light",
-        "majestic",
-        "fancy",
-        "magnum"
-      ],
+      facialHair: ["none", "medium", "light", "majestic", "fancy", "magnum"],
       facialHairColor: [
         "auburn",
         "black",
         "blonde",
         "brown",
         "platinum",
-        "red"
+        "red",
       ],
-      clothes: [
-        "blazer",
-        "sweater",
-        "shirt",
-        "hoodie",
-        "overall"
-      ],
+      clothes: ["blazer", "sweater", "shirt", "hoodie", "overall"],
       clothesColor: [
         "black",
         "blue",
@@ -318,85 +399,169 @@ export default {
         "pastel",
         "pink",
         "red",
-        "white"
+        "white",
       ],
       eyes: [
-        "close", 
-        "cry", 
-        "default", 
-        "dizzy", 
-        "roll", 
-        "happy", 
-        "hearts", 
-        "side", 
-        "squint", 
-        "surprised", 
-        "wink", 
-        "winkWacky"
+        "close",
+        "cry",
+        "default",
+        "dizzy",
+        "roll",
+        "happy",
+        "hearts",
+        "side",
+        "squint",
+        "surprised",
+        "wink",
+        "winkWacky",
       ],
-      eyebrow: [
-        "angry", "default", "flat", "raised", "sad", "unibrow", "up"
-      ],
+      eyebrow: ["angry", "default", "flat", "raised", "sad", "unibrow", "up"],
       mouth: [
-        "concerned", "default", "disbelief", "eating", "grimace", "sad", "scream", "serious", "smile", "tongue", "twinkle", "vomit"
+        "concerned",
+        "default",
+        "disbelief",
+        "eating",
+        "grimace",
+        "sad",
+        "scream",
+        "serious",
+        "smile",
+        "tongue",
+        "twinkle",
+        "vomit",
       ],
       skin: [
-        "tanned", "yellow", "pale", "light", "brown", "darkBrown", "black"
+        "tanned",
+        "yellow",
+        "pale",
+        "light",
+        "brown",
+        "darkBrown",
+        "black",
       ],
       options: {
-        width: '650px',
-        height: '450px',
-        style: 'circle',
-        top: ['longHair'],
-        hatColor: ['black'],
-        hairColor: ['auburn'],
-        accessories: ['none'],
-        facialHair: ['none'],
-        facialHairColor: ['auburn'],
-        clothes: ['blazer'],
-        clothesColor: ['black'],
-        eyes: ['default'],
-        eyebrow:['default'],
-        mouth: ['default'],
-        skin: ['tanned'],
-        background: '#EFEFEF',
+        width: "650px",
+        height: "450px",
+        style: "circle",
+        top: ["longHair"],
+        hatColor: ["black"],
+        hairColor: ["auburn"],
+        accessories: ["none"],
+        facialHair: ["none"],
+        facialHairColor: ["auburn"],
+        clothes: ["blazer"],
+        clothesColor: ["black"],
+        eyes: ["default"],
+        eyebrow: ["default"],
+        mouth: ["default"],
+        skin: ["tanned"],
+        background: "#EFEFEF",
         accessoriesChance: 100,
-        facialHairChance: 100
-      }
+        facialHairChance: 100,
+      },
     }
   },
-  mounted() {},
+  computed: {
+    comparePasswords() {
+      return this.newPassword !== this.confirmPassword
+        ? "Passwords do not match"
+        : ""
+    },
+    ...mapState(["error", "loading"]),
+  },
+  async mounted() {
+    try {
+      const rv = await http.get("/api/me")
+      this.userDetails = rv.data
+    } catch (e) {}
+  },
   methods: {
     generate() {
-      let avatars = new Avatars(sprites, this.options);
-      let svg = avatars.create();
-      let d= document.getElementById('avatarImg')
-      d.innerHTML = ''
+      let avatars = new Avatars(sprites, this.options)
+      let svg = avatars.create()
+      let d = document.getElementById("avatarImg")
+      d.innerHTML = ""
       d.innerHTML = svg
       this.profileImg = svg
     },
     select(id) {
       if (id == 1) {
-        this.changeProfile = true,
-        this.changeImage = false,
+        this.changeProfile = true
+        this.changeImage = false
         this.changePassword = false
       } else if (id == 2) {
-        this.changeProfile = false,
-        this.changeImage = true,
+        this.changeProfile = false
+        this.changeImage = true
         this.changePassword = false
-        setTimeout(function() {
-            this.generate()
-        },500)
-        
+        setTimeout(function () {
+          this.generate()
+        }, 500)
       } else {
-        this.changeProfile = false,
-        this.changeImage = false,
+        this.changeProfile = false
+        this.changeImage = false
         this.changePassword = true
       }
     },
-    onUpdateUser() {
+    async onUpdateUser(type) {
+      try {
+        let rv = null
+        if (type == "profile") {
+          try {
+            this.$store.commit("setLoading", true)
+            rv = await http.post("/api/me/settings/update", {
+              type: type,
+              name: this.userDetails.name,
+              email: this.userDetails.email,
+              contactNumber: this.userDetails.contactNumber,
+              activeTags: this.userDetails.activeTags,
+            })
+          } catch (e) {
+            this.snackbarColor = "error"
+            this.snackbarText = e.response.data.e
+            this.snackbarShow = true
+            this.$store.commit("setLoading", false)
+          }
+        } else if (type == "avatar") {
+          try {
+            this.$store.commit("setLoading", true)
+            rv = await http.post("/api/me/settings/update", {
+              profileImg: this.profileImg,
+              type: type,
+            })
+          } catch (e) {
+            this.snackbarColor = "error"
+            this.snackbarText = e.response.data.e
+            this.snackbarShow = true
+            this.$store.commit("setLoading", false)
+          }
+        } else {
+          if (this.$refs.form2.validate()) {
+            try {
+              this.$store.commit("setLoading", true)
+              rv = await http.post("/api/me/settings/update", {
+                oldPassword: this.oldPassword,
+                password: this.password,
+              })
+            } catch (e) {
+              if (e.response.data.e) {
+                this.snackbarColor = "error"
+                this.snackbarText = e.response.data.e
+                this.snackbarShow = true
+                this.$store.commit("setLoading", false)
+              }
+            }
+          }
+        }
 
-    }
+        if (rv) {
+          setTimeout(() => {
+            this.$store.commit("setLoading", false)
+            this.$router.push("/profile").catch((err) => {})
+          },1000)
+
+        }
+      } catch (e) {}
+    },
   },
 }
 </script>
@@ -411,6 +576,7 @@ export default {
 <style scoped>
 #main {
   width: 80%;
+  min-height: 100%;
   margin: auto;
 }
 
@@ -423,7 +589,7 @@ export default {
 }
 
 .margin-right {
-    margin-right: 4%;
+  margin-right: 4%;
 }
 
 .content {
@@ -446,12 +612,12 @@ export default {
 }
 
 .inputRow h3 {
-    font-family: "DarkerGrotesque-Medium";
-    font-size: 28px;
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 28px;
 }
 
 .chipSheet {
-    width: 50%;
+  width: 50%;
 }
 
 .btnRow {

@@ -1,26 +1,47 @@
 <template>
   <div id="main">
     <div id="body">
-      <h1>Discussion Board</h1>
-      <p>Connect and discuss with peers that took the same course as you.</p>
+      <h1>Ongoing Classes</h1>
+      <p>Information and quiz conducted for your ongoing courses.</p>
       <div v-if="user">
         <div id="content">
           <div v-if="type == 'block'">
-            <div id="imptContent">
-              <discussion-card :type="type"></discussion-card>
+            <div>
+              <h1>Ongoing Courses</h1>
+              <div id="imptContent">
+                <div v-if="classes">
+                  <!-- component here -->
+                </div>
+                <div v-else>
+                  <h3>You do not have an ongoing classes</h3>
+                </div>
+              </div>
             </div>
           </div>
           <div v-else>
+            <!-- Thread -->
             <v-row>
               <h1>Notice</h1>
               <v-spacer></v-spacer>
-              <v-btn class="Btn">New Thread</v-btn>
             </v-row>
 
             <div id="imptContent">
-              <discussion-card :type="type"></discussion-card>
+              <!-- component here -->
             </div>
-            <h1>Discussion</h1>
+            <h1>Quiz</h1>
+            <div id="discussionContent"></div>
+            <div class="row">
+              <h1>Question</h1>
+              <v-spacer></v-spacer>
+              <v-btn
+                v-if="!user"
+                class="Btn"
+                text
+                outlined
+                @click="newQuestion()"
+                >New Question</v-btn
+              >
+            </div>
             <div id="discussionContent"></div>
           </div>
         </div>
@@ -29,23 +50,24 @@
         <div id="content">
           <div v-if="type == 'block'">
             <div>
-              <h1>Your Courses</h1>
+              <h1>Your Classes</h1>
               <div id="imptContent">
-                <discussion-card
-                  v-for="course in courses"
-                  :key="course._id"
-                  :block="course"
-                  :type="type"
-                ></discussion-card>
+                <div v-if="classes">
+                  <!-- component here -->
+                </div>
+                <div v-else>
+                  <h3>You do not have an ongoing classes</h3>
+                </div>
               </div>
-              <h1>Courses Registered</h1>
+              <h1>Classes Registered</h1>
               <div id="imptContent">
-                <discussion-card
-                  v-for="course in regCourses"
-                  :key="course._id"
-                  :block="course"
-                  :type="type"
-                ></discussion-card>
+                <div v-if="regClasses">
+                  <!-- component here -->
+                </div>
+
+                <div v-else>
+                  <h3>You do not have an ongoing classes</h3>
+                </div>
               </div>
             </div>
           </div>
@@ -53,43 +75,40 @@
             <div class="row">
               <h1>Notice</h1>
               <v-spacer></v-spacer>
-              <v-btn v-if="!user" class="Btn" text outlined @click="newThread('notice')"
+              <v-btn
+                v-if="!user"
+                class="Btn"
+                text
+                outlined
+                @click="newThread('notice')"
                 >New Thread</v-btn
               >
             </div>
             <div id="imptContent">
-              <discussion-card
-                v-for="thread in imptThreads"
-                :block="thread"
-                :key="thread._id"
-                :type="type"
-              ></discussion-card>
+              <!-- component here, notice -->
             </div>
             <div class="row">
-              <h1>Discussion</h1>
+              <h1>Quiz</h1>
               <v-spacer></v-spacer>
-              <v-btn class="Btn" text outlined @click="newThread('discussion')"
-                >New Thread</v-btn
+              <v-btn class="Btn" text outlined @click="newQuiz()"
+                >Create Quiz</v-btn
               >
             </div>
             <div id="discussionContent">
-              <discussion-card
-                v-for="thread in threads"
-                :block="thread"
-                :key="thread._id"
-                :type="type"
-              ></discussion-card>
+              <!-- component here, quiz -->
+            </div>
+            <div class="row">
+              <h1>Questions</h1>
+              <v-spacer></v-spacer>
+              <v-btn class="Btn" text outlined @click="newQuestion()"
+                >New Question</v-btn
+              >
             </div>
           </div>
         </div>
       </div>
       <!-- Dialogue-->
-      <v-dialog
-        v-model="create"
-        persistent
-        scrollable
-        width="50%"
-      >
+      <v-dialog v-model="create" persistent scrollable width="50%">
         <v-card tile>
           <v-toolbar flat dark color="primary">
             <v-btn icon dark @click="create = false">
@@ -110,11 +129,7 @@
                 </div>
                 <div class="inputRow">
                   <h3 class="size-18">Message:</h3>
-                  <v-textarea
-                    v-model="tMsg"
-                    outlined
-                    rows="4"
-                  ></v-textarea>
+                  <v-textarea v-model="tMsg" outlined rows="4"></v-textarea>
                 </div>
                 <v-btn text outlined @click="postThread">Submit</v-btn>
               </v-form>
@@ -137,13 +152,13 @@ export default {
       title: "",
       tMsg: "",
       ref: null,
-      courses: [],
-      regCourses: [],
+      classes: null,
+      regClasses: null,
       threads: [],
       imptThreads: [],
       type: "block",
       create: false,
-      createType: null
+      createType: null,
     }
   },
   async mounted() {
@@ -153,9 +168,8 @@ export default {
     }
 
     this.ref = this.$route.query.ref
-    console.log("LL", this.ref)
 
-    if (this.ref) {
+    /* if (this.ref) {
       this.type = "thread"
       let rv = await http.get("/api/me/discussion", {
         params: {
@@ -172,7 +186,7 @@ export default {
         this.courses = rv.data.courses
         this.regCourses = rv.data.regCourses
       }
-    }
+    } */
   },
   methods: {
     async newThread(type) {
@@ -180,17 +194,17 @@ export default {
       this.createType = type
     },
     async postThread() {
-      let rv = await http.post('/api/me/discussion/post/thread', {
+      let rv = await http.post("/api/me/discussion/post/thread", {
         createType: this.createType,
         tMsg: this.tMsg,
         title: this.title,
-        courseRef: this.ref
+        courseRef: this.ref,
       })
 
-      if(rv) {
+      if (rv) {
         this.$router.go()
       }
-    }
+    },
   },
 }
 </script>
@@ -241,7 +255,6 @@ export default {
   font-family: "DarkerGrotesque-Bold";
   text-transform: none;
 }
-
 
 #dialogBody {
   width: 80%;

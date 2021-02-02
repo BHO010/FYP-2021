@@ -2,28 +2,27 @@
   <div id="main">
     <div id="body">
       <h1>Course Created List</h1>
-      <v-data-table
-        :headers="headers"
-        :items="courses"
-        class="elevation-1 dataTable"
-      >
+      <v-data-table :headers="headers" :items="courses" class="table">
         <template v-slot:item="row">
-          <tr id="tableRow" @click="onCourseView(row.item.reference)">
+          <tr class="tableRow" @click="onCourseView(row.item.reference)">
             <td>{{ row.item.title }}</td>
             <td>{{ row.item.category }}</td>
-            <td>{{ row.item.reference }}</td>
-            <td>{{ row.item.clicks }}</td>
+            <td>{{ row.item.views }}</td>
             <td>
               <v-btn
                 class="mx-2 btn"
-                color="#FF5252"
+                text
+                outlined
+                color="blue"
                 @click.stop="onSurveyResults(row.item.reference)"
               >
                 Results
               </v-btn>
               <v-btn
                 class="mx-2 btn"
-                color="#FF5252"
+                text
+                outlined
+                color="blue"
                 @click.stop="onSurveyEdit(row.item.reference)"
               >
                 Edit
@@ -57,11 +56,11 @@ export default {
           sortable: false,
           class: "header",
         },
-        {
+        /* {
           text: "Reference ID",
           sortable: false,
           class: "header",
-        },
+        }, */
         {
           text: "Views",
           sortable: false,
@@ -140,8 +139,34 @@ export default {
 
 .btn {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 22px;
-  color: white;
+  font-size: 24px;
   text-transform: none;
+}
+
+.table {
+  background-color: transparent;
+  border: 5px solid lightgrey;
+  border-radius: 50px;
+  padding: 1%;
+}
+
+.table >>> .header {
+  font-family: "DarkerGrotesque-Bold";
+  font-size: 30px !important;
+  color: #0d47a1 !important;
+}
+
+.table >>> td{
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 22px !important; 
+  border-right: 1px solid lightgrey;
+}
+
+.table >>> td:last-child{
+  border-right: 0;
+}
+
+.table >>> .tableRow:hover{
+  background-color: none !important;
 }
 </style>

@@ -1,5 +1,12 @@
 <template>
   <v-container fluid>
+    <v-snackbar
+      v-model="snackbarShow"
+      :timeout="snackbarTimeout"
+      :color="snackbarColor"
+      top
+      >{{ snackbarText }}</v-snackbar
+    >
     <div v-if="auth" class="main">
       <v-stepper v-model="step">
         <v-stepper-header>
@@ -13,15 +20,15 @@
             Trainers Information
           </v-stepper-step>
 
-          <!-- <v-divider></v-divider>
+          <v-divider></v-divider>
 
           <v-stepper-step :complete="step > 3" step="3" @click="nextStep(3)">
-            Fees and Funding
+            Registration Info
           </v-stepper-step>
 
-          <v-divider></v-divider> -->
+          <!--   <v-divider></v-divider>
 
-         <!--  <v-stepper-step :complete="step > 3" step="4" @click="nextStep(4)">
+          <v-stepper-step :complete="step > 3" step="4" @click="nextStep(4)">
             Course Survey Creation
           </v-stepper-step> -->
         </v-stepper-header>
@@ -63,14 +70,14 @@
               dense
             ></v-select>
 
-            <h2>Course Type</h2>
+            <!-- <h2>Course Type</h2>
             <v-select
               v-model="type"
               :items="types"
               label="Type"
               outlined
               dense
-            ></v-select>
+            ></v-select> -->
 
             <h2 id="Venue">Course Venue</h2>
             <v-text-field
@@ -80,20 +87,33 @@
               dense
             ></v-text-field>
 
-            <h2 id="Timing">
-              Timing
-              <span style="font-weight: regular; font-size: 18px"
-                >(Eg: 24 March 2020 - 24 June 2020 Mon-Fri 7pm)</span
-              >
+            <h2>Course Start Date</h2>
+            <v-date-picker
+                class="calendar"
+                v-model="startDate"
+                width="100%"
+              ></v-date-picker>
+              <v-text-field
+                v-model="startDateText"
+                label="Start Date"
+                prepend-inner-icon="mdi-calendar"
+                readonly
+                outlined
+                dense
+              ></v-text-field>
+
+            <h2 id="Duration">
+              Duration
             </h2>
             <v-text-field
-              v-model="time"
-              label="Time"
+              v-model.number="duration"
+              label="Duration"
               outlined
               dense
             ></v-text-field>
 
-            <h2 id="Fee">Course Fee 
+            <h2 id="Fee">
+              Course Fee
               <span style="font-weight: regular; font-size: 18px"
                 >(Incl. GST, Numbers Only)</span
               >
@@ -209,31 +229,49 @@
               >Delete</v-btn
             >
 
-           <v-row justify="end"> 
-               <v-btn class="button" color="#F44336" @click="addCourse()" block
-                >Create Course</v-btn
+            <v-row justify="end">
+              <v-btn class="button" color="#F44336" @click="nextStep(3)" block
+                >Continue</v-btn
               >
             </v-row>
           </v-stepper-content>
 
-          <!-- <v-stepper-content step="3" style="height: 100%">
-            <h2 id="Fee">Course Fee 
-              <span style="font-weight: regular; font-size: 18px"
-                >(Incl. GST)</span
+          <v-stepper-content step="3" style="height: 100%">
+            <v-form ref="form" v-model="valid" @submit.prevent="addCourse">
+              <h2>Batch Id</h2>
+              <v-text-field
+                v-model="batchID"
+                label="Batch ID"
+                readonly
+                outlined
+                dense
               >
-            </h2>
-            <v-text-field
-              v-model="fee"
-              label="Fee"
-              outlined
-              dense
-            ></v-text-field>
-            <v-row justify="end"> 
-               <v-btn class="button" color="#FF733C" @click="addCourse()" block
-                >Create Course</v-btn
-              >
-            </v-row>
-          </v-stepper-content> -->
+              </v-text-field>
+
+              <h2 id="regPeriod">Registration Period</h2>
+              <v-date-picker
+                class="calendar"
+                v-model="regDates"
+                width="100%"
+                range
+              ></v-date-picker>
+              <v-text-field
+                v-model="dateRangeText"
+                label="Date range"
+                prepend-inner-icon="mdi-calendar"
+                :rules="requiredRule"
+                readonly
+                outlined
+                dense
+              ></v-text-field>
+
+              <v-row justify="end">
+                <v-btn class="button" color="#F44336" @click="addCourse()" block
+                  >Create Course</v-btn
+                >
+              </v-row>
+            </v-form>
+          </v-stepper-content>
 
           <!-- <v-stepper-content step="4" style="height: 100%">
             <h3>Course Survey Creation</h3>
@@ -283,17 +321,21 @@ export default {
       snackbarShow: false,
       snackbarText: "",
       snackbarTimeout: 5000,
+      valid: false,
       auth: false,
       step: 1,
-      surveyJson: "",
       title: "",
       description: "",
       category: "",
       level: "",
       type: "",
       venue: "",
-      time: "",
+      duration: "",
       fee: "",
+      batchID: "Batch-1",
+      regDates: [],
+      startDate: "",
+      regDatesCheck: false,
       objectivePoints: [],
       outlinePoints: [],
       trainers: [],
@@ -338,9 +380,9 @@ export default {
         "Math",
       ],
       levels: ["Basic", "Intermediate", "Advance"],
+      requiredRule: [(v) => !!v || "This is required"],
     }
   },
-  created() {},
   async mounted() {
     try {
       const rv2 = await http.get("/api/me")
@@ -357,6 +399,12 @@ export default {
     loading() {
       return this.$store.getters.loading
     },
+    dateRangeText() {
+      return this.regDates.join(" ~ ")
+    },
+    startDateText() {
+      return this.startDate
+    }
   },
   methods: {
     addPoint() {
@@ -450,28 +498,31 @@ export default {
       console.log(this.step)
     },
     async addCourse() {
-      let rv = await http.post("/api/me/addCourse", {
-        title: this.title,
-        description: this.description,
-        category: this.category,
-        level: this.level,
-        type: this.type,
-        venue: this.venue,
-        time: this.time,
-        objectives: this.objectivePoints,
-        outlines: this.outlinePoints,
-        trainers: this.trainers,
-        attends: this.attendPoints,
-        fee: this.fee
-      })
-      if (rv) {
-        console.log(rv.data)
-        this.snackbarColor = "success"
-        this.snackbarText = "Course Created"
-        this.snackbarShow = true
-        setTimeout(() => {
-          this.$router.push({path: "/survey/create", query: {reference: rv.data.reference}})
-        }, 2000)
+      if (this.$refs.form.validate()) {
+        let rv = await http.post("/api/me/addCourse", {
+          title: this.title,
+          description: this.description,
+          category: this.category,
+          level: this.level,
+          venue: this.venue,
+          startDate: this.startDate,
+          duration: this.duration,
+          objectives: this.objectivePoints,
+          outlines: this.outlinePoints,
+          trainers: this.trainers,
+          attends: this.attendPoints,
+          fee: this.fee,
+          regDates: this.regDates,
+          batchID: this.batchID,
+        })
+        if (rv) {
+          setTimeout(() => {
+            this.$router.push({
+              path: "/survey/create",
+              query: { reference: rv.data.reference },
+            })
+          }, 2000)
+        }
       }
     },
   },
@@ -483,7 +534,7 @@ export default {
 .v-stepper__header,
 .theme--light.v-stepper {
   box-shadow: none;
-  background: #E1F5FE !important;
+  background: #e1f5fe !important;
 }
 
 h2 {
@@ -508,6 +559,9 @@ h2 {
 }
 
 .formContent {
+  border: 8px solid lightgrey;
+  border-radius: 50px;
+  padding: 2%;
   width: 80%;
   min-width: 1280px;
   margin: auto;
@@ -525,7 +579,7 @@ h2 {
   width: 100%;
   margin-bottom: 2%;
   overflow-y: auto;
-  background: #E1F5FE !important;
+  background: #e1f5fe !important;
   border: 1px solid gray;
   border-radius: 5px;
 }
@@ -547,5 +601,9 @@ h2 {
 .toc {
   position: sticky;
   padding-top: 74px;
+}
+
+.calendar {
+  margin-bottom: 2%;
 }
 </style>

@@ -94,14 +94,13 @@
           <v-row justify="space-around">
             <v-col cols="12" sm="8" md="8" lg="11">
               <v-sheet elevation="5" class="pa-4 chipSheet">
-                <v-chip-group column multiple active-class="#FED8B1">
+                <v-chip-group v-model="activeTags" column multiple active-class="#FED8B1">
                   <v-chip
                     v-for="tag in tags"
                     :key="tag"
                     large
                     filter
                     outlined
-                    @click="addTags(tag)"
                   >
                     {{ tag }}
                   </v-chip>
@@ -282,7 +281,7 @@
               <div class="errorColor" v-if="!!error">
                 {{ error.message }}
               </div>
-              <v-btn type="button" color="#69F0AE" @click.prevent="onSignup" block
+              <v-btn type="button" color="#69F0AE" @click.prevent="onSignup" :loading="loading" block
                 >Sign up</v-btn
               >
               <br />
@@ -537,19 +536,9 @@ export default {
     close() {
       this.termsNcondition = false
     },
-    addTags(tag) {
-      if (!this.activeTags.includes(tag)) {
-        this.activeTags.push(tag)
-      } else {
-        for (let i in this.activeTags) {
-          if (this.activeTags[i] == tag) {
-            this.activeTags.splice(i, 1)
-          }
-        }
-      }
-    },
     async onSignup() {
       if (this.$refs.form.validate()) {
+        this.$store.commit("setLoading", true)
         if (this.password !== this.confirmPassword) {
           console.log("error")
           return false
@@ -573,6 +562,7 @@ export default {
               this.snackbarText = "Registered Account Successfully!"
               this.snackbarShow = true
               setTimeout(() => {
+                this.$store.commit("setLoading", false)
                 this.$router.push("/login")
               }, 3000)
             }

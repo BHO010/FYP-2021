@@ -12,6 +12,12 @@
           <v-stepper-step :complete="step > 2" step="2" @click="nextStep(2)">
             Trainers Information
           </v-stepper-step>
+
+          <v-divider></v-divider>
+
+          <v-stepper-step :complete="step > 3" step="3" @click="nextStep(3)">
+            Registration Info
+          </v-stepper-step>
         </v-stepper-header>
         <br />
         <div class="formContent">
@@ -51,14 +57,14 @@
               dense
             ></v-select>
 
-            <h2>Course Type</h2>
+            <!-- <h2>Course Type</h2>
             <v-select
               v-model="type"
               :items="types"
               label="Type"
               outlined
               dense
-            ></v-select>
+            ></v-select> -->
 
             <h2 id="Venue">Course Venue</h2>
             <v-text-field
@@ -68,20 +74,31 @@
               dense
             ></v-text-field>
 
-            <h2 id="Timing">
-              Timing
-              <span style="font-weight: regular; font-size: 18px"
-                >(Eg: 24 March 2020 - 24 June 2020 Mon-Fri 7pm)</span
-              >
-            </h2>
+            <h2>Course Start Date</h2>
+            <v-date-picker
+              class="calendar"
+              v-model="startDate"
+              width="100%"
+            ></v-date-picker>
             <v-text-field
-              v-model="time"
-              label="Time"
+              v-model="startDateText"
+              label="Start Date"
+              prepend-inner-icon="mdi-calendar"
+              readonly
               outlined
               dense
             ></v-text-field>
 
-            <h2 id="Fee">Course Fee 
+            <h2 id="Duration">Duration</h2>
+            <v-text-field
+              v-model="duration"
+              label="Duration"
+              outlined
+              dense
+            ></v-text-field>
+
+            <h2 id="Fee">
+              Course Fee
               <span style="font-weight: regular; font-size: 18px"
                 >(Incl. GST, Numbers Only)</span
               >
@@ -197,11 +214,63 @@
               >Delete</v-btn
             >
 
-           <v-row justify="end"> 
-               <v-btn class="button" color="#F44336" @click="updateCourse()" block
+            <v-row justify="end">
+              <v-btn
+                class="button"
+                color="#F44336"
+                @click="updateCourse()"
+                block
                 >Update Course</v-btn
               >
             </v-row>
+          </v-stepper-content>
+
+          <v-stepper-content step="3" style="height: 100%">
+            <v-form ref="form" v-model="valid" @submit.prevent="addCourse">
+              <h2>Batch Id</h2>
+              <v-text-field
+                v-model="batchID"
+                label="Batch ID"
+                readonly
+                outlined
+                dense
+              >
+              </v-text-field>
+
+              <h2 id="regPeriod">Registration Period</h2>
+              <v-date-picker
+                class="calendar"
+                v-model="regDates"
+                width="100%"
+                range
+              ></v-date-picker>
+              <v-text-field
+                v-model="dateRangeText"
+                label="Date range"
+                prepend-icon="mdi-calendar"
+                :rules="requiredRule"
+                readonly
+                outlined
+                dense
+              ></v-text-field>
+
+              <h2>Are you updating the course for a new batch of intakes?</h2>
+              <v-checkbox
+                id="checkbox"
+                v-model="newBatch"
+                :label="`${newBatch.toString()}`"
+              ></v-checkbox>
+
+              <v-row justify="end">
+                <v-btn
+                  class="button"
+                  color="#F44336"
+                  @click="updateCourse()"
+                  block
+                  >Update Course</v-btn
+                >
+              </v-row>
+            </v-form>
           </v-stepper-content>
         </div>
       </v-stepper>
@@ -221,7 +290,6 @@ export default {
       snackbarText: "",
       snackbarTimeout: 5000,
       step: 1,
-      surveyJson: '',
       reference: "",
       title: "",
       description: "",
@@ -229,7 +297,12 @@ export default {
       level: "",
       type: "",
       venue: "",
-      time: "",
+      duration: "",
+      fee: "",
+      batchID: "",
+      newBatch: false,
+      regDates: [],
+      startDate: "",
       objectivePoints: [],
       outlinePoints: [],
       trainers: [],
@@ -273,35 +346,33 @@ export default {
         "Computer Science",
         "Math",
       ],
-      levels: [
-        'Basic',
-        'Intermediate',
-        'Advance'
-      ]
+      levels: ["Basic", "Intermediate", "Advance"],
     }
   },
   created() {},
   async mounted() {
-       this.reference = this.$route.query.reference
-       let rv = await http.get(`/api/me/course/${this.reference}`)
-       this.title = rv.data.title
-       this.description = rv.data.description
-       this.category = rv.data.category
-       this.level = rv.data.level
-       this.venue = rv.data.venue
-       this.time = rv.data.time
-       this.fee = rv.data.fee
-       this.objectivePoints = rv.data.objectives
-       this.attendPoints = rv.data.attends
-       this.outlinePoints = rv.data.outlines
-       this.trainers = rv.data.trainers
+    this.reference = this.$route.query.reference
+    let rv = await http.get(`/api/me/course/${this.reference}`)
+    this.title = rv.data.title
+    this.description = rv.data.description
+    this.category = rv.data.category
+    this.level = rv.data.level
+    this.venue = rv.data.venue
+    this.startDate = rv.data.startDate
+    this.duration = rv.data.duration
+    this.fee = rv.data.fee
+    this.objectivePoints = rv.data.objectives
+    this.attendPoints = rv.data.attends
+    this.outlinePoints = rv.data.outlines
+    this.trainers = rv.data.trainers
+    this.regDates.push(rv.data.regStart)
+    this.regDates.push(rv.data.regEnd)
+    this.batchID = rv.data.batchID
 
-  console.log(rv.data.objectives)
-       this.updateTrainers()
-       this.updateOutline()
-       this.updateObjective()
-       this.updateAttend()
-
+    this.updateTrainers()
+    this.updateOutline()
+    this.updateObjective()
+    this.updateAttend()
   },
   computed: {
     user() {
@@ -310,6 +381,12 @@ export default {
     loading() {
       return this.$store.getters.loading
     },
+    dateRangeText() {
+      return this.regDates.join(" ~ ")
+    },
+    startDateText() {
+      return this.startDate
+    }
   },
   methods: {
     addPoint() {
@@ -409,13 +486,17 @@ export default {
         description: this.description,
         category: this.category,
         level: this.level,
-        type: this.type,
         venue: this.venue,
-        time: this.time,
+        startDate: this.startDate,
+        duration: this.duration,
         objectives: this.objectivePoints,
         outlines: this.outlinePoints,
         trainers: this.trainers,
         attends: this.attendPoints,
+        fee: this.fee,
+        regDates: this.regDates,
+        batchID: this.batchID,
+        newBatch: this.newBatch,
       })
       if (rv) {
         this.snackbarColor = "success"
@@ -435,7 +516,7 @@ export default {
 .v-stepper__header,
 .theme--light.v-stepper {
   box-shadow: none;
-  background: #E1F5FE !important;
+  background: #e1f5fe !important;
 }
 
 h2 {
@@ -477,7 +558,7 @@ h2 {
   width: 100%;
   margin-bottom: 2%;
   overflow-y: auto;
-  background: #E1F5FE !important;
+  background: #e1f5fe !important;
   border: 1px solid gray;
   border-radius: 5px;
 }
@@ -499,5 +580,13 @@ h2 {
 .toc {
   position: sticky;
   padding-top: 74px;
+}
+
+.calendar {
+  margin-bottom: 2%;
+}
+
+#checkbox {
+  margin-left: 2% !important;
 }
 </style>

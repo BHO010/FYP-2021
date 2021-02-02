@@ -57,13 +57,11 @@ export default {
 }
 
 .v-application--wrap {
-  background-color: #E1F5FE
+  background-color: #e1f5fe
 }
 
-.v-data-table > .v-data-table__wrapper > table > thead > tr > th {
-  font-family: "DarkerGrotesque-Bold" !important;
-  font-size: 30px !important;
-  color: #0d47a1;
+.v-dialog {
+  width: 50%;
 }
 
 ::-webkit-scrollbar {

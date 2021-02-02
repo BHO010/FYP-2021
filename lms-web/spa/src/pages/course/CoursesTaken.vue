@@ -36,7 +36,6 @@ export default {
     async mounted() {
         const rv = await http.get('/api/me/courses/taken')
         this.courses = rv.data.courses
-        console.log("here",this.courses)
     },
     methods: {
 

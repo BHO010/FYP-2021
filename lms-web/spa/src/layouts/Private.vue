@@ -105,6 +105,16 @@
                   <v-list-item-title>{{ item.title }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
+              <h3 class="listTitle">Classes</h3>
+              <v-list-item
+                v-for="item in classesItems"
+                :key="item.title"
+                :to="item.route"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ item.title }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
             </v-list-item-group>
           </v-list>
         </v-navigation-drawer>
@@ -146,6 +156,16 @@
               <h3 class="listTitle">Community</h3>
               <v-list-item
                 v-for="item in communityItems"
+                :key="item.title"
+                :to="item.route"
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ item.title }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <h3 class="listTitle">Ongoing</h3>
+              <v-list-item
+                v-for="item in ongoingItems"
                 :key="item.title"
                 :to="item.route"
               >
@@ -203,6 +223,7 @@ export default {
         { title: "Course Taken", route: "/courses-taken" },
       ],
       communityItems: [{ title: "Discussion", route: "/discussion" }],
+      ongoingItems: [{ title: "Classes", route: "/classes" }],
       drawer: true,
     }
   },

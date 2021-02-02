@@ -44,7 +44,11 @@
           </v-list-item>
         </v-list>
         <div id="btnRow">
-          <v-btn class="button" color="#69F0AE" @click="onSaved"
+          <v-btn
+            class="button"
+            color="#69F0AE"
+            :loading="loading"
+            @click="onSaved"
             >Save Survey</v-btn
           >
         </div>
@@ -252,11 +256,14 @@ export default {
       reference: "",
     }
   },
+  conputed: {
+    ...mapState(["error", "loading"]),
+  },
   mounted() {
     let params = new URL(document.location).searchParams
     this.reference = params.get("reference")
-    if(this.type=="Edit") {
-      this.QNumber = this.survey.length +1
+    if (this.type == "Edit") {
+      this.QNumber = this.survey.length + 1
     }
   },
   methods: {
@@ -267,15 +274,13 @@ export default {
         title: "",
         answer: "",
       }
-      if(this.type=="Edit") {
+      if (this.type == "Edit") {
         this.survey.push(question)
         this.QNumber++
-      }else {
+      } else {
         this.questions.push(question)
         this.QNumber++
       }
-
-      
     },
     onCheckBox() {
       let question = {
@@ -288,10 +293,10 @@ export default {
         ],
       }
 
-      if(this.type=="Edit") {
+      if (this.type == "Edit") {
         this.survey.push(question)
         this.QNumber++
-      }else {
+      } else {
         this.questions.push(question)
         this.QNumber++
       }
@@ -307,10 +312,10 @@ export default {
         ],
       }
 
-      if(this.type=="Edit") {
+      if (this.type == "Edit") {
         this.survey.push(question)
         this.QNumber++
-      }else {
+      } else {
         this.questions.push(question)
         this.QNumber++
       }
@@ -323,25 +328,39 @@ export default {
         rating: 0,
       }
 
-      if(this.type=="Edit") {
+      if (this.type == "Edit") {
         this.survey.push(question)
         this.QNumber++
-      }else {
+      } else {
         this.questions.push(question)
         this.QNumber++
       }
     },
     async onSaved() {
-      if (this.type == "Edit") {
-        alert("edit")
-      } else {
-        let rv = await http.post("/api/me/survey/create", {
-          reference: this.reference,
-          survey: this.questions,
-        })
-        if (rv) {
-          window.location.href = "/profile"
+      try {
+        let rv = null
+        if (this.type == "Edit") {
+          this.$store.commit("setLoading", true)
+          rv = await http.post("/api/me/survey/update", {
+            reference: this.reference,
+            survey: this.questions,
+          })
+        } else {
+          this.$store.commit("setLoading", true)
+          rv = await http.post("/api/me/survey/create", {
+            reference: this.reference,
+            survey: this.questions,
+          })
         }
+        if (rv) {
+          this.$store.commit("setLoading", false)
+          this.$router.push("/profile").catch((err) => {})
+        }
+      } catch (e) {
+        this.snackbarColor = "error"
+        this.snackbarText = e.response.data.e
+        this.snackbarShow = true
+        this.$store.commit("setLoading", false)
       }
     },
     addOption(index) {
@@ -351,33 +370,31 @@ export default {
         label: `Option ${length + 1}`,
       }
       let length = 0
-      if(this.type=="Edit") {
+      if (this.type == "Edit") {
         length = this.survey[index].options.length
         this.survey[index].options.push(option)
-      }else {
+      } else {
         length = this.questions[index].options.length
         this.questions[index].options.push(option)
       }
-      
     },
     deleteOption(index) {
-      if(this.type=="Edit") {
+      if (this.type == "Edit") {
         let length = this.survey[index].options.length
         if (length > 2) {
           this.survey[index].options.pop()
         }
-      }else {
+      } else {
         let length = this.questions[index].options.length
         if (length > 2) {
           this.questions[index].options.pop()
         }
       }
-      
     },
     deleteQuestion(index) {
-      if(this.type=="Edit") {
-        this.survey.splice(index, 1) 
-      }else {
+      if (this.type == "Edit") {
+        this.survey.splice(index, 1)
+      } else {
         this.questions.splice(index, 1)
       }
     },
@@ -509,5 +526,9 @@ export default {
 
 .header .v-btn {
   margin-top: 5px;
+}
+
+input {
+  padding-left: 1%;
 }
 </style>

@@ -5,7 +5,7 @@
         <v-container class="user" @click="gotoProfile(review.author)">
           <div :id="review._id" class="icon"></div>
           <div>
-            <div class="name">{{ review.name }}</div>
+            <div class="name">{{ userDetails.name }}</div>
             <div class="date"><b>Joined:</b> {{ review.joined }}</div>
           </div>
         </v-container>
@@ -15,36 +15,55 @@
           {{ review.review }}
         </div>
         <div class="btmDiv">
-            {{ review.date }}
+          {{ review.date }}
         </div>
       </v-col>
     </v-row>
-    </div>
+  </div>
 </template>
 
 <script>
+import { mapState } from "vuex"
+import { http } from "@/axios"
+
 export default {
   name: "ReviewSection",
   props: {
     review: Object,
   },
-  created() {
-
+  data() {
+    return {
+      userDetails: null,
+      name: "",
+      joined: "",
+    }
   },
-  mounted() {
-        this.getImage()
-        this.review.joined = this.review.joined.slice(0, 11)
-        this.review.date = this.review.date.slice(0, 11)
+  created() {},
+  async mounted() {
+    await this.getUser()
+    this.getImage()
+    this.review.date = this.review.date.slice(0, 11)
+    this.review.joined = this.review.joined.slice(0, 11)
   },
   methods: {
+    async getUser() {
+      try {
+        let rv = await http.get("api/me/user", {
+          params: {
+            email: this.review.author,
+          },
+        })
+        this.userDetails = rv.data
+      } catch (e) {}
+    },
     getImage() {
-      let d = document.getElementById(this.review._id)
-      d.innerHTML = ""
-      d.innerHTML = this.review.authorImg
+       let d = document.getElementById(this.review._id)
+        d.innerHTML = ""
+        d.innerHTML = this.userDetails.profileImage
     },
     gotoProfile(id) {
-        console.log(id)
-    }
+      console.log(id)
+    },
   },
 }
 </script>
@@ -63,16 +82,16 @@ export default {
 .sheetRow {
   margin-left: 1%;
   margin-right: 1%;
-  outline: 4px solid green
+  outline: 4px solid green;
 }
 
 .user {
-    margin:5px;
-    border:1px solid blue;
+  margin: 5px;
+  border: 1px solid blue;
 }
 
 .user:hover {
-    opacity: 0.55;
+  opacity: 0.55;
 }
 
 .icon {
@@ -87,14 +106,13 @@ export default {
 }
 
 .date {
-    text-align: center;
+  text-align: center;
 }
 
 .reviewTxtContainer {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .reviewTxt {
@@ -105,6 +123,6 @@ export default {
 }
 
 .btmDiv {
-    font-style: italic;
+  font-style: italic;
 }
 </style>

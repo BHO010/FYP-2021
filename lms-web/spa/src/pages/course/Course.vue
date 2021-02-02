@@ -4,8 +4,8 @@
       <div id="imgCol">
         <img class="imgDiv" :src="this.imageURL" />
         <div id="ratingRow">
-          <div>Rating: {{this.rating}}/5</div>
-          <div>Number Of Views: {{this.course.clicks +1}}</div>
+          <div>Rating: {{ this.rating || 0 }}/5</div>
+          <div>Number Of Views: {{ this.course.views + 1 }}</div>
         </div>
       </div>
       <div id="titleCol">
@@ -13,7 +13,7 @@
           <h1>{{ course.title }}</h1>
         </div>
       </div>
-    </section>
+    </section> 
 
     <div class="main">
       <div id="content">
@@ -33,7 +33,7 @@
               <tbody>
                 <tr>
                   <th>NEXT COURSE STARTS ON</th>
-                  <td>{{ course.time }}</td>
+                  <td>{{ course.startDate }}</td>
                 </tr>
                 <tr>
                   <th>Duration</th>
@@ -202,21 +202,26 @@
       <div id="tocDiv">
         <div id="toc">
           <div id="tocList">
-                <v-list-item-group
-                  active-class="red lighten-5--text text--accent-4"
-                  mandatory
-                >
-                  <v-list-item
-                    v-for="tocItem in tocItems"
-                    :key="tocItem.title"
-                    :href="tocItem.href"
-                  >
-                    <v-list-item-title>{{ tocItem.title }}</v-list-item-title>
-                  </v-list-item>
-                </v-list-item-group>
+            <v-list-item-group
+              active-class="red lighten-5--text text--accent-4"
+              mandatory
+            >
+              <v-list-item
+                v-for="tocItem in tocItems"
+                :key="tocItem.title"
+                :href="tocItem.href"
+              >
+                <v-list-item-title>{{ tocItem.title }}</v-list-item-title>
+              </v-list-item>
+            </v-list-item-group>
           </div>
           <div id="btnRow">
-            <v-btn class="button" color="#69F0AE">Register</v-btn>
+            <v-btn v-if="regWindow" class="button" color="#69F0AE" @click="register()"
+              >Register</v-btn
+            >
+            <v-btn v-else class="button" color="#69F0AE" disabled @click="register"
+              >Register</v-btn
+            >
           </div>
           <div id="emailRow">
             <v-icon id="icon">mdi-email</v-icon>
@@ -227,19 +232,44 @@
     </div>
 
     <br />
+    <v-dialog v-model="regDialog" persistent max-width="600">
+      <v-card>
+        <v-container id="dialogMain">
+          <h2>Register</h2>
+          <p>Are you sure you want to register for this course?</p>
+          <v-card-actions id="dialogAction">
+            <v-row class="center-all" justify="center">
+              <a @click="regDialog = false">Cancel</a>
+              <v-btn
+                type="button"
+                class="btn"
+                color="#69F0AE"
+                @click="confirmReg"
+                :loading="loading"
+                >Confirm</v-btn
+              >
+            </v-row>
+          </v-card-actions>
+        </v-container>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
 import { http } from "@/axios"
+import { mapState } from "vuex"
 
 export default {
   data() {
     return {
+      regDialog: false,
+      regWindow: false,
       course: [],
       category: "",
       imageURL: "",
       fee: 0,
+      reference: "",
       rating: 0,
       objectives: [],
       outlines: [],
@@ -255,10 +285,12 @@ export default {
       ],
     }
   },
+  computed: {
+    ...mapState(["user", "error", "loading"]),
+  },
   async mounted() {
-    this.title = this.$route.params.title
-    console.log(this.title)
-    let rv = await http.get(`/api/me/course/${this.title}`)
+    this.reference = this.$route.params.reference
+    let rv = await http.get(`/api/me/course/${this.reference}`)
 
     this.course = rv.data
     this.splited = rv.data.category.split(" ")
@@ -266,13 +298,81 @@ export default {
     this.imageURL = "/img/" + this.category + ".svg"
     this.fee = Number(this.course.fee)
     this.rating = this.course.ratingScore / this.course.ratingCount
+
+    let regStart = new Date(this.course.regStart).getTime() /1000
+    let regEnd = new Date(this.course.regEnd).getTime() /1000
+    let now = new Date().getTime() /1000
+    if(now < regEnd && now > regStart) {
+      this.regWindow = true;
+    }
   },
   methods: {
+    register() {
+      this.regDialog = true
+    },
+    async confirmReg() {
+      this.$store.commit("setLoading", true)
+      let rv = await http.post("/api/me/register", {
+        courseRef: this.reference,
+        batchID: this.course.batchID,
+        startDate: this.course.startDate
+      })
+      if (rv) {
+        this.snackbarColor = "success"
+        this.snackbarText = "Registered Successfully!"
+        this.snackbarShow = true
+        setTimeout(() => {
+          this.$store.commit("setLoading", false)
+          this.$router.go()
+        }, 3000)
+      }
+    },
   },
 }
 </script>
 
 <style scoped>
+.center-all {
+  display: flex;
+  margin: auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.v-list-item >>> .v-list-item__title {
+  white-space: normal;
+}
+
+#dialogMain {
+  font-family: "DarkerGrotesque-Medium";
+  width: 90%;
+  margin: auto;
+}
+
+#dialogMain h2 {
+  font-size: 48px;
+  color: #0d47a1;
+}
+
+#dialogMain p {
+  font-size: 28px;
+}
+
+#dialogAction a {
+  font-family: "DarkerGrotesque-Medium";
+  text-decoration: none;
+  font-size: 20px;
+  color: #f92c2c;
+  margin-right: 2%;
+}
+
+#dialogAction .btn {
+  font-family: "DarkerGrotesque-Medium";
+  text-transform: none;
+  line-height: 2em;
+  font-size: 24px;
+  height: auto;
+}
 
 section {
   position: relative;
@@ -318,8 +418,8 @@ section p {
 #ratingRow {
   font-family: "DarkerGrotesque-Medium";
   font-size: 26px;
-  position: absolute; 
-  bottom: 5px; 
+  position: absolute;
+  bottom: 5px;
 }
 
 #overview #content {
@@ -353,7 +453,6 @@ section p {
   margin: 2%;
 }
 
-
 #toc #btnRow {
   margin: auto;
   width: 60%;
@@ -376,7 +475,7 @@ section p {
 
 #emailRow #icon {
   margin-right: 4%;
-} 
+}
 
 #imgCol {
   width: 50%;
@@ -400,9 +499,8 @@ section p {
 #title {
   width: 80%;
   margin: auto;
-  color: #69f0ae;
   font-family: "Allstar";
-  font-size: 62px;
+  font-size: 48px;
 }
 
 #detailsSection #table {

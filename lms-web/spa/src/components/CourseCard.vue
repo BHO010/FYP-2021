@@ -27,7 +27,6 @@ export default {
   },
   methods: {
       viewCourse() {
-        this.updateClicks()
         this.$router
         .push({ path: `/course/${this.course.reference}`})
         .catch(err => {});
@@ -42,14 +41,6 @@ export default {
         .push({ path: "/survey", query: { reference: this.course.reference } })
         .catch(err => {});
       },
-      async updateClicks() {
-        try {
-          let rv = await http.post("/api/me/clicks", {
-            reference: this.course.reference,
-            clicks: this.course.clicks
-          })
-        }catch(e) {}
-      }
   }
 }
 </script>

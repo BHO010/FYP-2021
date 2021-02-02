@@ -49,7 +49,7 @@
       </div>
       <v-row id="btnRow" align="end">
         <v-spacer></v-spacer>
-        <v-btn class="button" color="#69F0AE" @click="onComplete"
+        <v-btn class="button" color="#69F0AE" :loading="loading" @click="onComplete"
           >Complete</v-btn
         >
       </v-row>
@@ -70,16 +70,23 @@ export default {
   data() {
     return {}
   },
+  conputed: {
+    ...mapState(["error", "loading"]),
+  },
   mounted() {},
   methods: {
     async onComplete() {
-      let rv = await http.post("/api/me/survey/completed", {
-        reference: this.reference,
-        survey: this.survey,
-      })
-      if (rv) {
-        window.location.href = "/profile"
-      }
+      try {
+        this.$store.commit("setLoading", true);
+        let rv = await http.post("/api/me/survey/completed", {
+          reference: this.reference,
+          survey: this.survey,
+        })
+        if (rv) {
+          this.$store.commit("setLoading", false)
+          this.$router.push("/profile").catch((err) => {})
+        }
+      } catch (e) {}
     },
   },
 }
