@@ -54,6 +54,12 @@
               <div id="imptContent">
                 <div v-if="classes">
                   <!-- component here -->
+                  <classes-card
+                    v-for="course in classes"
+                    :key="course._id"
+                    :block="course"
+                    :type="type"
+                  ></classes-card>
                 </div>
                 <div v-else>
                   <h3>You do not have an ongoing classes</h3>
@@ -86,34 +92,65 @@
             </div>
             <div id="imptContent">
               <!-- component here, notice -->
+              <classes-card
+                v-for="item in notices"
+                :key="item.id"
+                :block="item"
+                :type="type"
+                type2="notice"
+                courseRef
+                batchID
+              ></classes-card>
             </div>
             <div class="row">
               <h1>Quiz</h1>
               <v-spacer></v-spacer>
-              <v-btn class="Btn" text outlined @click="newQuiz()"
+              <v-btn class="Btn" text outlined @click="newQuiz('quiz')"
                 >Create Quiz</v-btn
               >
             </div>
             <div id="discussionContent">
               <!-- component here, quiz -->
+              <classes-card
+                v-for="item in quizes"
+                :key="item.id"
+                :block="item"
+                :type="type"
+                type2="quiz"
+                courseRef
+                batchID
+              ></classes-card>
             </div>
             <div class="row">
               <h1>Questions</h1>
               <v-spacer></v-spacer>
-              <v-btn class="Btn" text outlined @click="newQuestion()"
+              <v-btn class="Btn" text outlined @click="newQuestion('question')"
                 >New Question</v-btn
               >
+              <div id="discussionContent">
+              <!-- component here, quiz -->
+              <classes-card
+                v-for="item in feedbacks"
+                :key="item.id"
+                :block="item"
+                :type="type"
+                type2="feedback"
+                courseRef
+                batchID
+              ></classes-card>
+            </div>
             </div>
           </div>
         </div>
       </div>
       <!-- Dialogue-->
-      <v-dialog v-model="create" persistent scrollable width="50%">
+      <v-dialog v-model="cr8Notice" persistent scrollable width="50%">
         <v-card tile>
           <v-toolbar flat dark color="primary">
-            <v-btn icon dark @click="create = false">
+            <v-btn icon dark @click="cr8Notice = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
+            <v-toolbar-title>Create a new thread under Notice section.</v-toolbar-title>
           </v-toolbar>
           <div id="dialogMain">
             <div id="dialogBody">
@@ -144,20 +181,26 @@
 <script>
 import { mapState } from "vuex"
 import { http } from "@/axios"
+import ClassesCard from "../components/ClassesCard.vue"
 
 export default {
+  components: { ClassesCard },
   data() {
     return {
       user: true,
       title: "",
       tMsg: "",
-      ref: null,
-      classes: null,
-      regClasses: null,
-      threads: [],
-      imptThreads: [],
+      courseRef: null,
+      classes: null, //block
+      regClasses: null, //block
+      notices: null, //Threads
+      quizes: null,
+      quizContent: null,
+      feedbacks: null,
       type: "block",
-      create: false,
+      cr8Notice: false,
+      cr8Quiz: false,
+      cr8NQuestion: false,
       createType: null,
     }
   },
@@ -167,39 +210,52 @@ export default {
       this.user = false
     }
 
-    this.ref = this.$route.query.ref
+    this.courseRef = this.$route.query.ref
+    this.batchID = this.$route.query.batch
 
-    /* if (this.ref) {
+    if (this.courseRef) {
       this.type = "thread"
-      let rv = await http.get("/api/me/discussion", {
+      let rv = await http.get("/api/me/class", {
         params: {
-          reference: this.ref,
+          courseRef: this.courseRef,
+          batchID: this.batchID,
         },
       })
-      this.imptThreads = rv.data.imptThreads
-      this.threads = rv.data.threads
+      this.notices = rv.data.notice
+      this.quizes = rv.data.quiz
+      this.feedbacks = rv.data.feedback
     } else {
-      let rv = await http.get("/api/me/discussion/list")
+      let rv = await http.get("/api/me/classes/list")
 
       if (this.user) {
+        this.regCourses = rv.data.regClasses
       } else {
-        this.courses = rv.data.courses
-        this.regCourses = rv.data.regCourses
+        this.classes = rv.data.classes
+        this.regClasses = rv.data.regClasses
       }
-    } */
+    }
   },
   methods: {
-    async newThread(type) {
-      this.create = true
+    newThread(type) {
+      this.cr8Notice = true
+      this.createType = type
+    },
+    newQuiz(type) {
+      this.cr8Quiz = true
+      this.createType = type
+    },
+    newQuestion(type) {
+      this.cr8NQuestion = true
       this.createType = type
     },
     async postThread() {
-      let rv = await http.post("/api/me/discussion/post/thread", {
+       let rv = await http.post("/api/me/classes/post/thread", {
         createType: this.createType,
-        tMsg: this.tMsg,
-        title: this.title,
+        tMsg: this.tMsg, //For Notice section & question section
+        title: this.title, 
         courseRef: this.ref,
-      })
+        quizContent: this.quizContent
+      }) 
 
       if (rv) {
         this.$router.go()

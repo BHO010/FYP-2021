@@ -14,6 +14,7 @@ import FileUpload from 'ext-lib/webpacked/FileUpload.vue'
 import ReviewSection from './components/ReviewSection.vue'
 import CourseCard from './components/CourseCard.vue'
 import DiscussionCard from './components/DiscussionCard.vue'
+import ClassesCard from './components/ClassesCard.vue'
 //import SurveyCreator from './components/SurveyCreator.vue'
 //import SurveyDisplay from './components/SurveyDisplay.vue'
 //import SurveyAnalysis from './components/SurveyAnalysis.vue'
@@ -44,6 +45,7 @@ Vue.component('vue-crud-x', VueCrudX)
 Vue.component('review-section', ReviewSection)
 Vue.component('course-card', CourseCard)
 Vue.component('discussion-card', DiscussionCard)
+Vue.component('classes-card', ClassesCard)
 // Vue.component('survey-creator', SurveyCreator)
 // Vue.component('survey-display', SurveyDisplay)
 // Vue.component('survey-analytics', SurveyAnalysis)

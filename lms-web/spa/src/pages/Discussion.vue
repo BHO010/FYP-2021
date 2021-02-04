@@ -7,7 +7,13 @@
         <div id="content">
           <div v-if="type == 'block'">
             <div id="imptContent">
-              <discussion-card :type="type"></discussion-card>
+              <discussion-card
+                v-for="course in regCourses"
+                :key="course._id"
+                :block="course"
+                :type="type"
+              >
+              </discussion-card>
             </div>
           </div>
           <div v-else>
@@ -53,7 +59,12 @@
             <div class="row">
               <h1>Notice</h1>
               <v-spacer></v-spacer>
-              <v-btn v-if="!user" class="Btn" text outlined @click="newThread('notice')"
+              <v-btn
+                v-if="!user"
+                class="Btn"
+                text
+                outlined
+                @click="newThread('notice')"
                 >New Thread</v-btn
               >
             </div>
@@ -84,17 +95,13 @@
         </div>
       </div>
       <!-- Dialogue-->
-      <v-dialog
-        v-model="create"
-        persistent
-        scrollable
-        width="50%"
-      >
+      <v-dialog v-model="create" persistent scrollable width="50%">
         <v-card tile>
           <v-toolbar flat dark color="primary">
             <v-btn icon dark @click="create = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
+            <v-toolbar-title>Create a new thread</v-toolbar-title>
           </v-toolbar>
           <div id="dialogMain">
             <div id="dialogBody">
@@ -110,11 +117,7 @@
                 </div>
                 <div class="inputRow">
                   <h3 class="size-18">Message:</h3>
-                  <v-textarea
-                    v-model="tMsg"
-                    outlined
-                    rows="4"
-                  ></v-textarea>
+                  <v-textarea v-model="tMsg" outlined rows="4"></v-textarea>
                 </div>
                 <v-btn text outlined @click="postThread">Submit</v-btn>
               </v-form>
@@ -143,7 +146,7 @@ export default {
       imptThreads: [],
       type: "block",
       create: false,
-      createType: null
+      createType: null,
     }
   },
   async mounted() {
@@ -153,7 +156,6 @@ export default {
     }
 
     this.ref = this.$route.query.ref
-    console.log("LL", this.ref)
 
     if (this.ref) {
       this.type = "thread"
@@ -162,12 +164,13 @@ export default {
           reference: this.ref,
         },
       })
-      this.imptThreads = rv.data.imptThreads
-      this.threads = rv.data.threads
+      this.imptThreads = rv.data.imptThreads //notice section
+      this.threads = rv.data.threads  // discussion section
     } else {
       let rv = await http.get("/api/me/discussion/list")
 
       if (this.user) {
+        this.regCourses = rv.data
       } else {
         this.courses = rv.data.courses
         this.regCourses = rv.data.regCourses
@@ -180,17 +183,17 @@ export default {
       this.createType = type
     },
     async postThread() {
-      let rv = await http.post('/api/me/discussion/post/thread', {
+      let rv = await http.post("/api/me/discussion/post/thread", {
         createType: this.createType,
         tMsg: this.tMsg,
         title: this.title,
-        courseRef: this.ref
+        courseRef: this.ref,
       })
 
-      if(rv) {
+      if (rv) {
         this.$router.go()
       }
-    }
+    },
   },
 }
 </script>
@@ -241,7 +244,6 @@ export default {
   font-family: "DarkerGrotesque-Bold";
   text-transform: none;
 }
-
 
 #dialogBody {
   width: 80%;

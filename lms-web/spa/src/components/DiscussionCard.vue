@@ -25,7 +25,7 @@
       <v-flex xs12 row v-if="type == 'thread'">
         <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
           <div class="icon" :id="block._id"></div>
-          <div class="name">{{this.userDetails.name}}</div>
+          <div class="name">{{userDetails.name}}</div>
           <div>
             
           </div>
@@ -34,7 +34,7 @@
           <router-link class="link" :to="{path: `/discussion/thread`, query: {tRef: block.reference}}"
             >{{block.title}}</router-link
           >
-          <div class="btmRow">{{block.author}}, {{block.created}}</div>
+          <div class="btmRow">{{block.name}}, {{block.created}}</div>
         </v-col>
         <v-col cols="1.5" class="stats">
           <v-row>
@@ -50,7 +50,7 @@
         </v-col>
         <v-col cols="1.5" class="stats">
           <div>{{block.latest.title}}</div>
-          <div>{{block.latest.author}}</div>
+          <div>{{block.latest.name}}</div>
         </v-col>
       </v-flex>
 

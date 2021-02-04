@@ -80,6 +80,16 @@ meRoutes
     }
   })
 
+  .get('/course', authUser, async (req,res) => {
+    let { courseRef } = req.query
+    try {
+      const course = await mongo.db.collection('courses').findOne({ reference: courseRef })
+      return res.status(200).json(course)
+    }catch(e) {
+      return res.status(400).json({ e })
+    }
+  })
+
   .get('/courses', async (req, res) => {
     let { email, role } = req.query
     try {
@@ -134,6 +144,8 @@ meRoutes
       if (user) {
         let first = new Date(regDates[0]).getTime() / 1000
         let second = new Date(regDates[1]).getTime() / 1000
+        let endDate = startDate.setDate(date.getDate() + durtion);
+        endDate = endDate.toISOString()
 
         if (first - second < 0) {
           regStart = regDates[0]
@@ -163,6 +175,19 @@ meRoutes
           views: 0,
           regStart,
           regEnd
+        })
+
+
+        let rv = await mongo.db.collection('classes').insertOne({
+          courseRef: reference,
+          batchID: batchID,
+          duration: duration,
+          instructor: user.email,
+          startDate: startDate,
+          endDate: endDate,
+          notice: [],
+          quiz: [],
+          feedback: []
         })
       }
       return res.status(200).json({ reference })
@@ -418,12 +443,98 @@ meRoutes
     let mainPost = null
     try {
       let thread = await mongo.db.collection('threads').findOneAndUpdate({ reference: tRef }, { $inc: { views: 1 } })
-      let posts = await mongo.db.collection('messages').find({ tRef: tRef }).sort({ "_id": -1 }).toArray()
+      let posts = await mongo.db.collection('messages').find({ tRef: tRef }).sort({ "_id": 1 }).toArray()
 
       mainPost = thread.value
       return res.status(200).json({ mainPost, posts })
     } catch (e) {
       return res.status(500).json({ e })
+    }
+  })
+
+  .post('/discussion/post/thread', authUser, async (req, res) => {
+    let { createType, tMsg, title, courseRef } = req.body
+    let user = null
+    try {
+      user = await findUser({ id: req.decoded.id })
+      if (user) {
+        let body = {
+          title: title,
+          message: tMsg,
+          type: createType,
+          author: user.email,
+          name: user.name,
+          reference: uuidv4(),
+          courseRef: courseRef,
+          created: new Date().toISOString(),
+          views: 0
+
+        }
+        let rv = await mongo.db.collection('threads').insertOne(body)
+      }
+      return res.status(200).json('success')
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .post('/discussion/post/thread/message', authUser, async (req,res) => {
+    let { courseRef, tRef, message } = req.body
+    let user = null
+    try {
+      user = await findUser({ id: req.decoded.id })
+      if(user) {
+        let body = {
+          reference: uuidv4(),
+          courseRef: courseRef,
+          tRef: tRef,
+          author: user.email,
+          name: user.name,
+          created: new Date().toISOString(),
+          message: message
+        }
+
+        let rv = await mongo.db.collection('messages').insertOne(body)
+      }
+      return res.status(200).json('success')
+    }catch(e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .get('/classes/list', authUser, async (req, res) => {
+    let user = null
+    let date = new Date().toISOString()
+    let classes = null
+    let regClasses = null
+    try {
+      user = await findUser({ id: req.decoded.id })
+      const { email, role } = user
+      if(role == "user") {
+
+      }else {
+        //Own course classes
+        let rv = await mongo.db.collection('classes').find({ instructor: email, endDate: {$gte: new Date() } }).toArray()
+
+        //Reg Course classes
+        let rv2 = await mongo.db.collection('classes').find({ email: email, endDate: {$gte: new Date() } }).toArray()
+
+        classes =  rv
+        regClasses = rv2
+        return res.status(200).json({ classes, regClasses })
+      }
+    }catch(e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .get('/class', authUser, async (req,res) => {
+    let { courseRef, batchID } = req.query
+    try {
+      let rv = await mongo.db.collection('classes').findOne({courseRef: courseRef, batchID: batchID})
+      return res.status(200).json(rv)
+    }catch(e) {
+      return res.status(500).json({ e: e.toString() })
     }
   })
 
@@ -464,33 +575,8 @@ meRoutes
     }
   })
 
-  .post('/discussion/post/thread', authUser, async (req, res) => {
-    let { createType, tMsg, title, courseRef } = req.body
-    let user = null
-    try {
-      user = await findUser({ id: req.decoded.id })
-      if (user) {
-        let body = {
-          title: title,
-          message: tMsg,
-          type: createType,
-          author: user.email,
-          reference: uuidv4(),
-          courseRef: courseRef,
-          created: new Date().toISOString(),
-          views: 0
-
-        }
-        let rv = await mongo.db.collection('threads').insertOne(body)
-      }
-      return res.status(200).json('success')
-    } catch (e) {
-      return res.status(500).json({ e: e.toString() })
-    }
-  })
-
   .post('/register', authUser, async (req, res) => {
-    let { courseRef, batchID, startDate } = req.body
+    let { courseRef, batchID, startDate, endDate } = req.body
     let user = null
     try {
       user = await findUser({ id: req.decoded.id })
@@ -499,7 +585,8 @@ meRoutes
           email: user.email,
           courseRef: courseRef,
           regDate: new Date().toISOString(),
-          startDate: startDate,
+          startDate: ISODate(startDate),
+          endDate: ISODate(endDate),
           batchID: batchID
         }
         let rv = await mongo.db.collection('registration').insertOne(body)

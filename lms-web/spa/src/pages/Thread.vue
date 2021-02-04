@@ -5,7 +5,7 @@
         <div class="headRow">
           <h1>{{ main.title }}</h1>
           <v-spacer></v-spacer>
-          <v-btn class="Btn" text outlined @click="newPost">New Post</v-btn>
+          <v-btn class="Btn" text outlined @click="newPost">Reply</v-btn>
         </div>
 
         <div id="mainPost">
@@ -77,6 +77,8 @@ export default {
       title: "",
       email: "",
       tRef: null,
+      tMsg: null,
+      courseRef: "",
       main: [],
       posts: [],
       type: "message",
@@ -94,6 +96,7 @@ export default {
     this.main = rv.data.mainPost
     this.email = this.main.author
     this.posts = rv.data.posts
+    this.courseRef = rv.data.courseRef
     await this.getUser()
     await this.getImage()
   },
@@ -118,7 +121,17 @@ export default {
     },
     async upVote() {},
     async downVote() {},
-    async postMsg() {}
+    async postMsg() {
+      let rv = await http.post('/api/me/discussion/post/thread/message', {
+        courseRef: this.main.courseRef,
+        tRef: this.tRef,
+        message: this.tMsg,
+      })
+
+      if(rv) {
+        this.$router.go()
+      }
+    }
   },
 }
 </script>
