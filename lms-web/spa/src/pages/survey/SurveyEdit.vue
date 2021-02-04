@@ -39,12 +39,12 @@ export default {
     try {
       this.reference = this.$route.query.reference
       const rv2 = await http.get("/api/me")
-      const rv = await http.get(`/api/me/survey/${this.reference}`)
-      this.survey = rv.data.survey
       this.userDetails = rv2.data
       if (this.userDetails.role == "instructor") {
         this.auth = true
       }
+      const rv = await http.get(`/api/me/survey/${this.reference}`)
+      this.survey = rv.data.survey
     } catch (e) {}
   },
   computed: {},

@@ -14,6 +14,7 @@ const mongo = require(LIB_PATH + '/services/db/mongodb')
 const { ObjectID } = require('mongodb')
 const multer = require('multer')
 const { ref } = require('objection')
+const { title } = require('process')
 
 
 
@@ -80,12 +81,12 @@ meRoutes
     }
   })
 
-  .get('/course', authUser, async (req,res) => {
+  .get('/course', authUser, async (req, res) => {
     let { courseRef } = req.query
     try {
       const course = await mongo.db.collection('courses').findOne({ reference: courseRef })
       return res.status(200).json(course)
-    }catch(e) {
+    } catch (e) {
       return res.status(400).json({ e })
     }
   })
@@ -478,12 +479,12 @@ meRoutes
     }
   })
 
-  .post('/discussion/post/thread/message', authUser, async (req,res) => {
+  .post('/discussion/post/thread/message', authUser, async (req, res) => {
     let { courseRef, tRef, message } = req.body
     let user = null
     try {
       user = await findUser({ id: req.decoded.id })
-      if(user) {
+      if (user) {
         let body = {
           reference: uuidv4(),
           courseRef: courseRef,
@@ -497,7 +498,27 @@ meRoutes
         let rv = await mongo.db.collection('messages').insertOne(body)
       }
       return res.status(200).json('success')
-    }catch(e) {
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .get('/class', authUser, async (req, res) => {
+    let { courseRef, batchID, index } = req.query
+
+    try {
+      if (index) {
+        let rv = await mongo.db.collection('classes').findOne({ courseRef: courseRef, batchID: batchID })
+        index = index.split('-')
+        let posts = rv.notice[index[1]]
+
+        return res.status(200).json(posts)
+      } else {
+
+        let rv = await mongo.db.collection('classes').findOne({ courseRef: courseRef, batchID: batchID })
+        return res.status(200).json(rv)
+      }
+    } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
   })
@@ -510,30 +531,112 @@ meRoutes
     try {
       user = await findUser({ id: req.decoded.id })
       const { email, role } = user
-      if(role == "user") {
+      if (role == "user") {
 
-      }else {
+      } else {
         //Own course classes
-        let rv = await mongo.db.collection('classes').find({ instructor: email, endDate: {$gte: new Date() } }).toArray()
+        let rv = await mongo.db.collection('classes').find({ instructor: email, endDate: { $gte: new Date() } }).toArray()
 
         //Reg Course classes
-        let rv2 = await mongo.db.collection('classes').find({ email: email, endDate: {$gte: new Date() } }).toArray()
+        let rv2 = await mongo.db.collection('classes').find({ email: email, endDate: { $gte: new Date() } }).toArray()
 
-        classes =  rv
+        classes = rv
         regClasses = rv2
         return res.status(200).json({ classes, regClasses })
       }
-    }catch(e) {
+    } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
   })
 
-  .get('/class', authUser, async (req,res) => {
-    let { courseRef, batchID } = req.query
+  .post('/classes/post/thread/message', authUser, async (req, res) => {
+    let { courseRef, batchID, message, index } = req.body
+    let user = null
+    let id = index.split('-')
     try {
-      let rv = await mongo.db.collection('classes').findOne({courseRef: courseRef, batchID: batchID})
-      return res.status(200).json(rv)
-    }catch(e) {
+      user = await findUser({ id: req.decoded.id })
+      let rv = await mongo.db.collection('classes').findOne({ courseRef: courseRef, batchID: batchID })
+
+      if (user) {
+        let length = rv.notice[id[1]].replies.length
+        let body = {
+          id: 'reply-' + length,
+          author: user.name,
+          email: user.email,
+          message: message,
+          created: new Date().toISOString(),
+        }
+
+
+        let rv2 = await mongo.db.collection('classes').updateOne({ courseRef: courseRef, batchID: batchID, "notice.id": index }, {
+          $push: {
+            "notice.$.replies": body
+          }
+        })
+
+        return res.status(200).json('success')
+
+      }
+
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .post('/quiz/create', authUser, async (req, res) => {
+    let { courseRef, batchID, quiz, quizTitle } = req.body
+
+    let user = null
+    let length = null
+    try {
+      user = await findUser({ id: req.decoded.id })
+      let rv = await mongo.db.collection('classes').findOne({ courseRef: courseRef, batchID: batchID })
+      if (user) {
+
+        length = rv.quiz.length
+
+
+        let body = {
+          id: 'quiz-' + length,
+          author: user.name,
+          email: user.email,
+          title: quizTitle,
+          created: new Date().toISOString(),
+          content: quiz
+        }
+
+        let rv2 = await mongo.db.collection('classes').findOneAndUpdate({ courseRef: courseRef, batchID: batchID }, {
+          $push: {
+            "quiz": body
+          }
+        })
+      }
+      return res.status(200).json('success')
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .post('/quiz/update', authUser, async (req, res) => {
+    let { courseRef, batchID, quiz, title, quizID } = req.body
+    let user = null
+    console.log("AA", title)
+    console.log("AA", quiz)
+    try {
+      user = await findUser({ id: req.decoded.id })
+      if (user) {
+        let rv = await mongo.db.collection('classes').updateOne({ courseRef: courseRef, batchID: batchID, "quiz.id": quizID }, {
+          $set: {
+            "quiz.$.title": title,
+            "quiz.$.content": quiz
+          }
+        })
+
+        if(rv) {
+          return res.status(200).json('success')
+        }
+      }
+    } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
   })

@@ -45,6 +45,23 @@
         </v-list>
         <div id="btnRow">
           <v-btn
+            v-if="type == 'quiz' || 'quizEdit'"
+            class="button"
+            color="#69F0AE"
+            :loading="loading"
+            @click="onSavedQuiz"
+            >Save Quiz</v-btn
+          >
+          <v-btn
+            v-else-if="type == 'Edit'"
+            class="button"
+            color="#69F0AE"
+            :loading="loading"
+            @click="onSaved"
+            >Update Survey</v-btn
+          >
+          <v-btn
+            v-else
             class="button"
             color="#69F0AE"
             :loading="loading"
@@ -141,6 +158,212 @@
         </div>
       </div>
     </div>
+
+    <!-- If Creating Quiz -->
+    <div v-else-if="type == 'quiz'" id="rightCol">
+      <div id="surveyContent">
+        <h3>Quiz Template</h3>
+        <div class="questionDiv" id="quizTitle">
+          <div class="header">
+            <h2>Quiz Title</h2>
+          </div>
+          <label for="quizTitle"> Title: </label>
+          <input id="quizTitle" v-model="quizTitle" /> <br />
+        </div>
+        <div
+          class="questionDiv"
+          v-for="(question, index) in questions"
+          :key="question.id"
+        >
+          <!-- Text question -->
+          <div v-if="question.type == 'text'">
+            <div class="header">
+              <h2>Text Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+            <div class="question">
+              <label :for="question.id"> Question: </label>
+              <input :id="question.id" v-model="question.title" /> <br />
+              <label :for="question.id"> Points: </label>
+              <input :id="question.id" v-model="question.points" />
+            </div>
+          </div>
+          <!-- CheckBox question -->
+          <div v-if="question.type == 'check'">
+            <div class="header">
+              <h2>CheckBox Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+
+            <div class="properties"></div>
+            <div class="question">
+              <label :for="question.id">Question: </label>
+              <input :id="question.id" v-model="question.title" /><br />
+              <label :for="question.id">Points: </label>
+              <input :id="question.id" v-model="question.points" /><br />
+            </div>
+
+            <div
+              class="multi"
+              v-for="option in question.options"
+              :key="option.id"
+            >
+              <label :for="option.id">{{ option.label }}: </label>
+              <input :id="option.id" v-model="option.title" /><br />
+            </div>
+            <v-row class="optionRow">
+              <v-btn @click="addOption(index)">Add Option</v-btn>
+              <v-btn @click="deleteOption(index)">Delete Option</v-btn>
+            </v-row>
+          </div>
+          <!-- RadioGroup question -->
+          <div v-if="question.type == 'radio'">
+            <div class="header">
+              <h2>RadioGroup Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+            <div class="properties"></div>
+            <div class="question">
+              <label :for="question.id">Question: </label>
+              <input :id="question.id" v-model="question.title" /><br />
+              <label :for="question.points">Points: </label>
+              <input :id="question.points" v-model="question.points" /><br />
+            </div>
+
+            <div
+              class="multi"
+              v-for="option in question.options"
+              :key="option.id"
+            >
+              <label :for="option.id">{{ option.label }}: </label>
+              <input :id="option.id" v-model="option.title" /><br />
+            </div>
+            <v-row class="optionRow">
+              <v-btn @click="addOption(index)">Add Option</v-btn>
+              <v-btn @click="deleteOption(index)">Delete Option</v-btn>
+            </v-row>
+          </div>
+          <!-- Rating question -->
+          <div v-if="question.type == 'rate'">
+            <div class="header">
+              <h2>Rating Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+
+            <div class="properties"></div>
+            <div class="question">
+              <label :for="question.id">Question: </label>
+              <input :id="question.id" v-model="question.title" /><br />
+              <label :for="question.id">Points: </label>
+              <input :id="question.id" v-model="question.points" /><br />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- If Editing Quiz -->
+    <div v-else-if="type == 'quizEdit'" id="rightCol">
+      <div id="surveyContent">
+        <h3>Quiz Template</h3>
+        <div class="questionDiv" id="quizTitle">
+          <div class="header">
+            <h2>Quiz Title</h2>
+          </div>
+          <label for="quizTitle"> Title: </label>
+          <input id="quizTitle" v-model="quiz.title" /> <br />
+        </div>
+        <div
+          class="questionDiv"
+          v-for="(question, index) in quiz.content"
+          :key="question.id"
+        >
+          <!-- Text question -->
+          <div v-if="question.type == 'text'">
+            <div class="header">
+              <h2>Text Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+
+            <label :for="question.id"> Question: </label>
+            <input v-model="question.title" />
+          </div>
+          <!-- CheckBox question -->
+          <div v-if="question.type == 'check'">
+            <div class="header">
+              <h2>CheckBox Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+
+            <div class="properties"></div>
+            <label :for="question.id">Question: </label>
+            <input v-model="question.title" /><br />
+            <div
+              class="multi"
+              v-for="option in question.options"
+              :key="option.id"
+            >
+              <label :for="option.id">{{ option.label }}: </label>
+              <input v-model="option.title" /><br />
+            </div>
+            <v-row class="optionRow">
+              <v-btn @click="addOption(index)">Add Option</v-btn>
+              <v-btn @click="deleteOption(index)">Delete Option</v-btn>
+            </v-row>
+          </div>
+          <!-- RadioGroup question -->
+          <div v-if="question.type == 'radio'">
+            <div class="header">
+              <h2>RadioGroup Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+            <div class="properties"></div>
+            <label :for="question.id">Question: </label>
+            <input v-model="question.title" /><br />
+            <div
+              class="multi"
+              v-for="option in question.options"
+              :key="option.id"
+            >
+              <label :for="option.id">{{ option.label }}: </label>
+              <input v-model="option.title" /><br />
+            </div>
+            <v-row class="optionRow">
+              <v-btn @click="addOption(index)">Add Option</v-btn>
+              <v-btn @click="deleteOption(index)">Delete Option</v-btn>
+            </v-row>
+          </div>
+          <!-- Rating question -->
+          <div v-if="question.type == 'rate'">
+            <div class="header">
+              <h2>Rating Type Question</h2>
+              <v-btn icon color="indigo" @click="deleteQuestion(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
+            </div>
+
+            <div class="properties"></div>
+            <label :for="question.id">Question: </label>
+            <input v-model="question.title" /><br />
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- If Creating Survey -->
     <div v-else id="rightCol">
       <div id="surveyContent">
@@ -248,12 +471,18 @@ export default {
   props: {
     survey: Array,
     type: String,
+    //For quiz
+    courseRef: String,
+    batchID: String,
+    quiz: Object,
+    quizID: null
   },
   data() {
     return {
       QNumber: 1,
       questions: [],
       reference: "",
+      quizTitle: "",
     }
   },
   conputed: {
@@ -265,6 +494,9 @@ export default {
     if (this.type == "Edit") {
       this.QNumber = this.survey.length + 1
     }
+    if (this.type == "quizEdit") {
+      this.QNumber = this.quiz.content.length + 1
+    }
   },
   methods: {
     onText() {
@@ -272,10 +504,14 @@ export default {
         id: this.QNumber,
         type: "text",
         title: "",
+        points: 0,
         answer: "",
       }
       if (this.type == "Edit") {
         this.survey.push(question)
+        this.QNumber++
+      } else if (this.type == "quizEdit") {
+        this.quiz.content.push(question)
         this.QNumber++
       } else {
         this.questions.push(question)
@@ -287,6 +523,7 @@ export default {
         id: this.QNumber,
         type: "check",
         title: "",
+        points: 0,
         options: [
           { id: 1, title: "", label: "Option 1", checked: false },
           { id: 2, title: "", label: "Option 2", checked: false },
@@ -295,6 +532,9 @@ export default {
 
       if (this.type == "Edit") {
         this.survey.push(question)
+        this.QNumber++
+      } else if (this.type == "quizEdit") {
+        this.quiz.content.push(question)
         this.QNumber++
       } else {
         this.questions.push(question)
@@ -306,6 +546,7 @@ export default {
         id: this.QNumber,
         type: "radio",
         title: "",
+        points: 0,
         options: [
           { id: 1, title: "", label: "Option 1", checked: false },
           { id: 2, title: "", label: "Option 2", checked: false },
@@ -314,6 +555,9 @@ export default {
 
       if (this.type == "Edit") {
         this.survey.push(question)
+        this.QNumber++
+      } else if (this.type == "quizEdit") {
+        this.quiz.content.push(question)
         this.QNumber++
       } else {
         this.questions.push(question)
@@ -325,11 +569,15 @@ export default {
         id: this.QNumber,
         type: "rate",
         title: "",
+        points: 0,
         rating: 0,
       }
 
       if (this.type == "Edit") {
         this.survey.push(question)
+        this.QNumber++
+      } else if (this.type == "quizEdit") {
+        this.quiz.content.push(question)
         this.QNumber++
       } else {
         this.questions.push(question)
@@ -343,7 +591,7 @@ export default {
           this.$store.commit("setLoading", true)
           rv = await http.post("/api/me/survey/update", {
             reference: this.reference,
-            survey: this.questions,
+            survey: this.survey,
           })
         } else {
           this.$store.commit("setLoading", true)
@@ -363,18 +611,60 @@ export default {
         this.$store.commit("setLoading", false)
       }
     },
+    async onSavedQuiz() {
+      try {
+        let rv = null
+        if (this.type == "quizEdit") {
+          this.$store.commit("setLoading", true)
+          alert(this.quiz.title)
+          rv = await http.post("/api/me/quiz/update", {
+            courseRef: this.courseRef,
+            batchID: this.batchID,
+            quiz: this.quiz.content,
+            title: this.quiz.title,
+            quizID: this.quizID
+          })
+        } else {
+          this.$store.commit("setLoading", true)
+          rv = await http.post("/api/me/quiz/create", {
+            courseRef: this.courseRef,
+            batchID: this.batchID,
+            quiz: this.questions,
+            quizTitle: this.quizTitle,
+          })
+        }
+
+        if (rv) {
+          this.$store.commit("setLoading", false)
+          this.$router.go().catch((err) => {})
+        }
+      } catch (e) {
+        this.snackbarColor = "error"
+        this.snackbarText = e.response.data.e
+        this.snackbarShow = true
+        this.$store.commit("setLoading", false)
+      }
+    },
     addOption(index) {
       let option = {
-        id: length + 1,
+        id: 0,
         title: "",
-        label: `Option ${length + 1}`,
+        label: "",
       }
-      let length = 0
       if (this.type == "Edit") {
-        length = this.survey[index].options.length
+        let length = this.survey[index].options.length
+        option.id = length + 1
+        option.label = "Option " + (length + 1)
         this.survey[index].options.push(option)
+      } else if (this.type == "quizEdit") {
+        let length = this.quiz.content[index].options.length
+        option.id = length + 1
+        option.label = "Option " + (length + 1)
+        this.quiz.content[index].options.push(option)
       } else {
-        length = this.questions[index].options.length
+        let length = this.questions[index].options.length
+        option.id = length + 1
+        option.label = "Option " + (length + 1)
         this.questions[index].options.push(option)
       }
     },
@@ -383,6 +673,11 @@ export default {
         let length = this.survey[index].options.length
         if (length > 2) {
           this.survey[index].options.pop()
+        }
+      } else if (this.type == "quizEdit") {
+        let length = this.quiz.content[index].options.length
+        if (length > 2) {
+          this.quiz.content[index].options.pop()
         }
       } else {
         let length = this.questions[index].options.length
@@ -394,6 +689,8 @@ export default {
     deleteQuestion(index) {
       if (this.type == "Edit") {
         this.survey.splice(index, 1)
+      } else if (this.type == "quizEdit") {
+        this.quiz.content.splice(index, 1)
       } else {
         this.questions.splice(index, 1)
       }
@@ -497,13 +794,17 @@ export default {
 }
 
 .questionDiv .multi {
-  margin-top: 1%;
+  margin-top: 2%;
 }
 
 .questionDiv input {
   border: 1px solid black;
   border-radius: 10px;
   width: 50%;
+}
+
+.question label {
+  margin-top: 1%;
 }
 
 .optionRow {

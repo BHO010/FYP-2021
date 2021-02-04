@@ -97,9 +97,9 @@
                 :key="item.id"
                 :block="item"
                 :type="type"
+                :courseRef="courseRef"
+                :batchID="batchID"
                 type2="notice"
-                courseRef
-                batchID
               ></classes-card>
             </div>
             <div class="row">
@@ -117,8 +117,8 @@
                 :block="item"
                 :type="type"
                 type2="quiz"
-                courseRef
-                batchID
+                :courseRef="courseRef"
+                :batchID="batchID"
               ></classes-card>
             </div>
             <div class="row">
@@ -128,29 +128,30 @@
                 >New Question</v-btn
               >
               <div id="discussionContent">
-              <!-- component here, quiz -->
-              <classes-card
-                v-for="item in feedbacks"
-                :key="item.id"
-                :block="item"
-                :type="type"
-                type2="feedback"
-                courseRef
-                batchID
-              ></classes-card>
-            </div>
+                <!-- component here, quiz -->
+                <classes-card
+                  v-for="item in feedbacks"
+                  :key="item.id"
+                  :block="item"
+                  :type="type"
+                  type2="feedback"
+                ></classes-card>
+              </div>
             </div>
           </div>
         </div>
       </div>
       <!-- Dialogue-->
+      <!-- Create New Thread -->
       <v-dialog v-model="cr8Notice" persistent scrollable width="50%">
-        <v-card tile>
+        <v-card tile color="#e1f5fe">
           <v-toolbar flat dark color="primary">
             <v-btn icon dark @click="cr8Notice = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title>Create a new thread under Notice section.</v-toolbar-title>
+            <v-toolbar-title
+              >Create a new thread under Notice section.</v-toolbar-title
+            >
           </v-toolbar>
           <div id="dialogMain">
             <div id="dialogBody">
@@ -174,6 +175,22 @@
           </div>
         </v-card>
       </v-dialog>
+
+      <!-- create Quiz -->
+      <v-dialog v-model="cr8Quiz" persistent scrollable>
+        <v-card tile  height="100%" color="#e1f5fe">
+          <v-toolbar  fixed dark color="primary">
+            <v-btn icon dark @click="cr8Quiz = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Quiz.</v-toolbar-title>
+          </v-toolbar>
+          <!-- Quiz component -->
+          <div id="dialogContent">
+              <survey-builder type="quiz" :courseRef="this.courseRef" :batchID="this.batchID"></survey-builder>
+          </div>
+        </v-card>
+      </v-dialog>
     </div>
   </div>
 </template>
@@ -182,15 +199,17 @@
 import { mapState } from "vuex"
 import { http } from "@/axios"
 import ClassesCard from "../components/ClassesCard.vue"
+import SurveyBuilder from '../components/SurveyBuilder.vue'
 
 export default {
-  components: { ClassesCard },
+  components: { ClassesCard, SurveyBuilder },
   data() {
     return {
       user: true,
       title: "",
       tMsg: "",
-      courseRef: null,
+      courseRef: this.$route.query.ref,
+      batchID: this.$route.query.batch,
       classes: null, //block
       regClasses: null, //block
       notices: null, //Threads
@@ -201,7 +220,7 @@ export default {
       cr8Notice: false,
       cr8Quiz: false,
       cr8NQuestion: false,
-      createType: null,
+      createType: null
     }
   },
   async mounted() {
@@ -209,9 +228,6 @@ export default {
     if (user.data.role == "instructor") {
       this.user = false
     }
-
-    this.courseRef = this.$route.query.ref
-    this.batchID = this.$route.query.batch
 
     if (this.courseRef) {
       this.type = "thread"
@@ -248,14 +264,12 @@ export default {
       this.cr8NQuestion = true
       this.createType = type
     },
-    async postThread() {
-       let rv = await http.post("/api/me/classes/post/thread", {
+    async postThread(type) {
+      let rv = await http.post("/api/me/classes/post/thread", {
         createType: this.createType,
         tMsg: this.tMsg, //For Notice section & question section
-        title: this.title, 
-        courseRef: this.ref,
-        quizContent: this.quizContent
-      }) 
+        title: this.title,
+      })
 
       if (rv) {
         this.$router.go()
@@ -317,6 +331,10 @@ export default {
   margin: auto;
   margin-top: 2%;
   margin-bottom: 2%;
+}
+
+#dialogContent {
+    min-height: 600px;
 }
 
 v.application-wrap >>> .v-dialog {

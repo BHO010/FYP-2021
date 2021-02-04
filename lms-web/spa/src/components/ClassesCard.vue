@@ -37,7 +37,7 @@
           class="link"
           :to="{
             path: `/classes/thread`,
-            query: { courseRef: courseRef, batch: batchID },
+            query: { courseRef: this.courseRef,batch: this.batchID,id:this.block.id },
           }"
           >{{ block.title }}</router-link
         >
@@ -49,6 +49,21 @@
       </v-col>
     </v-flex>
 
+    <v-flex xs12 row v-else-if="type == 'message'">
+        <v-col cols="2" class="profile" @click="gotoProfile(block.email)">
+          <div class="icon" :id="block.id"></div>
+          <div class="name">{{userDetails.name}}</div>
+        </v-col>
+        <v-col cols="10" class="title">
+          <div class="topRow">{{block.created}}</div>
+          <div class="content">
+            <p>
+              {{block.message}}
+            </p>
+          </div>
+        </v-col>
+      </v-flex>
+
     <v-flex xs12 row v-if="(type == 'thread') & (type2 == 'quiz')">
       <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
         <div class="icon" :id="block.id"></div>
@@ -57,6 +72,7 @@
       </v-col>
       <v-col cols="9" class="title">
         <v-btn text class="quizBtn" @click="quizDialog = true">{{block.title}}</v-btn>
+        <v-btn icon color="indigo" @click="quizEditDialog(block.id)"><v-icon>mdi-pencil</v-icon></v-btn>
         <div class="btmRow">{{ block.author }}, {{ block.created }}</div>
       </v-col>
       <v-col cols="1.5" class="stats">
@@ -87,14 +103,49 @@
           <div>{{ block.latest.author }}</div> -->
       </v-col>
     </v-flex>
+
+    <!-- Dialog -->
+    <!-- View Quiz -->
+    <v-dialog v-model="quizDialog" persistent scrollable>
+        <v-card tile  height="100%" color="#e1f5fe">
+          <v-toolbar  fixed dark color="primary">
+            <v-btn icon dark @click="quizDialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Complete The Quiz.</v-toolbar-title>
+          </v-toolbar>
+          <!-- Quiz component -->
+          <div id="dialogContent">
+              <survey-viewer type="quiz"></survey-viewer>
+          </div>
+        </v-card>
+    </v-dialog>
+
+     <!-- Edit Quiz -->
+    <v-dialog v-model="quizEdit" persistent scrollable>
+        <v-card tile  height="100%" color="#e1f5fe">
+          <v-toolbar  fixed dark color="primary">
+            <v-btn icon dark @click="quizEdit = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Update The Quiz.</v-toolbar-title>
+          </v-toolbar>
+          <!-- Quiz component -->
+          <div id="dialogContent">
+              <survey-builder type="quizEdit" :quiz="this.block" :quizID='this.quizID' :courseRef='this.courseRef' :batchID='this.batchID'></survey-builder>
+          </div>
+        </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script>
 import { http } from "@/axios"
 import { mapState } from "vuex"
+import SurveyViewer from './SurveyViewer.vue'
 
 export default {
+  components: { SurveyViewer },
   name: "ClassesCard",
   props: {
     block: Object,
@@ -110,7 +161,9 @@ export default {
       ongoing: false,
       ended: false,
       userDetails: null,
-      quizDialog: false
+      quizDialog: false,
+      quizEdit: false,
+      quizID: null
     }
   },
   async mounted() {
@@ -148,7 +201,7 @@ export default {
       try {
         let rv = await http.get("api/me/user", {
           params: {
-            email: this.block.author,
+            email: this.block.email,
           },
         })
         this.userDetails = rv.data
@@ -159,6 +212,10 @@ export default {
       d.innerHTML = ""
       d.innerHTML = this.userDetails.profileImage
     },
+    quizEditDialog(id) {
+        this.quizID = id
+        this.quizEdit = true
+    }
   },
 }
 </script>
@@ -228,6 +285,17 @@ export default {
   text-align: center;
 }
 
+.title .topRow {
+  font-family: "DarkerGrotesque-Medium";
+  border-bottom: 1px solid lightgrey;
+}
+
+.content {
+  font-family: "DarkerGrotesque-Medium";
+  margin-top: 1%;
+  margin-bottom: 1%;
+}
+
 .quizBtn {
   font-family: "DarkerGrotesque-Bold";
   font-size: 28px;
@@ -235,6 +303,13 @@ export default {
   text-transform: none;
   color: #1976d2;
   padding: 0 !important;
+}
+
+#dialogContent {
+    width: 80%;
+    margin: auto;
+    margin-top: 2%;
+    margin-bottom: 2%;
 }
 
 </style>

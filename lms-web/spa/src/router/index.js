@@ -18,6 +18,7 @@ export default new Router({
     { path: '/discussion', name:'Discussion', component: () => import('@/pages/Discussion'),  beforeEnter: AuthGuard},
     { path: '/discussion/thread', name:'Threads', component: () => import('@/pages/Thread'),  beforeEnter: AuthGuard},
     { path: '/classes', name:'Classes', component: () => import('@/pages/Classes'),  beforeEnter: AuthGuard},
+    { path: '/classes/thread', name:'CThread', component: () => import('@/pages/CThread'),  beforeEnter: AuthGuard},
     { path: '/settings', name:'Settings', component: () => import('@/pages/Settings'),  beforeEnter: AuthGuard},
     { path: '/statistics', name:'Statistics', component: () => import('@/pages/Statistics'),  beforeEnter: AuthGuard},
     { path: '/achievements', name:'Achievements', component: () => import('@/pages/Achievements'),  beforeEnter: AuthGuard},

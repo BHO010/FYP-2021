@@ -107,7 +107,7 @@
               </v-list-item>
               <h3 class="listTitle">Classes</h3>
               <v-list-item
-                v-for="item in classesItems"
+                v-for="item in ongoingItems"
                 :key="item.title"
                 :to="item.route"
               >

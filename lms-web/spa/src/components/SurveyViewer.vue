@@ -1,6 +1,6 @@
 <template>
   <div id="survey">
-    <div id="body">
+    <div v-if="!type" id="body">
       <div class="questionDiv" v-for="(item, index) in survey" :key="item.id">
         <div class="textInput" v-if="item.type == 'text'">
           <h3>Question {{ index + 1 }}: {{ item.title }}</h3>
@@ -65,7 +65,9 @@ export default {
   name: "survey-viewer",
   props: {
     survey: Array,
+    quiz: Array,
     reference: String,
+    type: String
   },
   data() {
     return {}
