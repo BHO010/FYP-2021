@@ -4,9 +4,27 @@
       <h2>You do not have any courses.</h2>
     </div>
     <div v-else>
-      <v-flex xs12 row v-if="type == 'block'">
+      <v-flex xs12 row v-if="type == 'block' && type2=='owned'">
         <v-col cols="8" class="title">
           <router-link class="link" :to="{ path: `/discussion`, query: { ref: block.reference } }">{{block.title}}</router-link>
+        </v-col>
+        <v-col cols="1" class="stats">
+          <div>Threads</div>
+          <div>{{block.threads}}</div>
+        </v-col>
+        <v-col cols="1" class="stats">
+          <div>Messages</div>
+          <div>{{block.msgs}}</div>
+        </v-col>
+        <v-col cols="2" class="stats">
+          <div>{{block.latest.title}}</div>
+          <div>{{block.latest.author}}</div>
+        </v-col>
+      </v-flex>
+
+      <v-flex xs12 row v-if="type == 'block' && type2=='registered'">
+        <v-col cols="8" class="title">
+          <router-link class="link" :to="{ path: `/discussion`, query: { ref: block.courseRef } }">{{block.title}}</router-link>
         </v-col>
         <v-col cols="1" class="stats">
           <div>Threads</div>
@@ -26,6 +44,7 @@
         <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
           <div class="icon" :id="block._id"></div>
           <div class="name">{{userDetails.name}}</div>
+          <div class="name">{{userDetails.role}}</div>
           <div>
             
           </div>
@@ -34,9 +53,9 @@
           <router-link class="link" :to="{path: `/discussion/thread`, query: {tRef: block.reference}}"
             >{{block.title}}</router-link
           >
-          <div class="btmRow">{{block.name}}, {{block.created}}</div>
+          <div class="btmRow">{{block.name}}, {{new Date(block.created).toLocaleString()}}</div>
         </v-col>
-        <v-col cols="1.5" class="stats">
+        <v-col cols="1.5" class="tStats">
           <v-row>
             <div>Replies:</div>
             <v-spacer></v-spacer>
@@ -48,8 +67,8 @@
             <div>{{block.views}}</div>
           </v-row>
         </v-col>
-        <v-col cols="1.5" class="stats">
-          <div>{{block.latest.title}}</div>
+        <v-col cols="1.5" class="tStats">
+          <div>{{new Date(block.latest.created).toLocaleString()}}</div>
           <div>{{block.latest.name}}</div>
         </v-col>
       </v-flex>
@@ -60,7 +79,7 @@
           <div class="name">{{userDetails.name}}</div>
         </v-col>
         <v-col cols="10" class="title">
-          <div class="topRow">{{block.created}}</div>
+          <div class="topRow">{{new Date(block.created).toLocaleString()}}</div>
           <div class="content">
             <p>
               {{block.message}}
@@ -89,6 +108,7 @@ export default {
   props: {
     block: Object,
     type: String,
+    type2: String
   },
   data() {
     return {
@@ -96,10 +116,14 @@ export default {
       
     }
   },
+  computed: {
+    ...mapState(["error", "loading"]),
+  },
   async mounted() {
     if(this.type != "block") {
       await this.getUser()
       await this.getImage()
+      console.log(this.type2, this.block)
     }
     
   },
@@ -167,11 +191,17 @@ export default {
 }
 
 .title,
-.stats {
+.stats,
+.tStats {
   border-left: 1px solid blue;
   font-family: "DarkerGrotesque-Medium";
   padding-top: 0;
   padding-bottom: 0;
+}
+
+.tStats {
+  padding-top: 2%;
+  font-weight: bold;
 }
 
 /* Thread */

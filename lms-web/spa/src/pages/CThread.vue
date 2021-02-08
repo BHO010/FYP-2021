@@ -15,7 +15,7 @@
               <div class="name">{{ userDetails.name }}</div>
             </v-col>
             <v-col cols="10" class="title">
-              <div class="topRow">{{ main.created }}</div>
+              <div class="topRow">{{ new Date(main.created).toLocaleString() }}</div>
               <div class="content">
                 <p>
                   {{ main.message }}
@@ -72,6 +72,7 @@ export default {
       courseRef: this.$route.query.courseRef,
       batchID: this.$route.query.batch,
       id: this.$route.query.id,
+      section: this.$route.params.type,
       main: [],
       posts: [],
       type: "message",
@@ -84,7 +85,8 @@ export default {
         params: {
           courseRef: this.courseRef,
           batchID: this.batchID,
-          index: this.id
+          index: this.id,
+          section: this.section
         },
     })
     this.main = rv.data
@@ -117,7 +119,7 @@ export default {
         courseRef: this.courseRef,
         batchID: this.batchID,
         message: this.message,
-        index: this.id
+        index: this.id,
       })
 
       if(rv) {
@@ -193,6 +195,10 @@ export default {
   align-content: center;
   justify-content: center;
   margin: auto;
+}
+
+.title {
+  padding-top: 0;
 }
 
 .name {

@@ -8,18 +8,21 @@ import App from './App'
 
 import vuetify from '@/plugins/vuetify'
 import VueCrudX from 'ext-lib/webpacked/VueCrudX.vue' // Vuetify
+import ECharts from 'vue-echarts'
+import VueApexCharts from 'vue-apexcharts'
 import TimePicker from 'ext-lib/webpacked/TimePicker.vue'
 import DatePicker from 'ext-lib/webpacked/DatePicker.vue'
 import FileUpload from 'ext-lib/webpacked/FileUpload.vue'
+
 import ReviewSection from './components/ReviewSection.vue'
 import CourseCard from './components/CourseCard.vue'
 import DiscussionCard from './components/DiscussionCard.vue'
 import ClassesCard from './components/ClassesCard.vue'
-//import SurveyCreator from './components/SurveyCreator.vue'
-//import SurveyDisplay from './components/SurveyDisplay.vue'
-//import SurveyAnalysis from './components/SurveyAnalysis.vue'
 import SurveyBuilder from './components/SurveyBuilder.vue'
 import SurveyViewer from './components/SurveyViewer.vue'
+import QuizMarker from './components/QuizMarker.vue'
+import QuizAnalysis from './components/QuizAnalysis.vue'
+
 
 Vue.config.productionTip = false
 
@@ -42,15 +45,18 @@ Vue.component('app-date-picker', DatePicker)
 Vue.component('app-time-picker', TimePicker)
 Vue.component('app-file-upload', FileUpload)
 Vue.component('vue-crud-x', VueCrudX)
+Vue.component('v-chart', ECharts)
+Vue.component('apexchart', VueApexCharts)
+
 Vue.component('review-section', ReviewSection)
 Vue.component('course-card', CourseCard)
 Vue.component('discussion-card', DiscussionCard)
 Vue.component('classes-card', ClassesCard)
-// Vue.component('survey-creator', SurveyCreator)
-// Vue.component('survey-display', SurveyDisplay)
-// Vue.component('survey-analytics', SurveyAnalysis)
+
 Vue.component('survey-builder', SurveyBuilder)
 Vue.component('survey-viewer', SurveyViewer)
+Vue.component('quiz-marker', QuizMarker)
+Vue.component('quiz-analysis', QuizAnalysis)
 
 /* eslint-disable no-new */
 export const app = new Vue({

@@ -13,7 +13,7 @@
           <h1>{{ course.title }}</h1>
         </div>
       </div>
-    </section> 
+    </section>
 
     <div class="main">
       <div id="content">
@@ -216,10 +216,19 @@
             </v-list-item-group>
           </div>
           <div id="btnRow">
-            <v-btn v-if="regWindow" class="button" color="#69F0AE" @click="register()"
+            <v-btn
+              v-if="regWindow"
+              class="button"
+              color="#69F0AE"
+              @click="register()"
               >Register</v-btn
             >
-            <v-btn v-else class="button" color="#69F0AE" disabled @click="register"
+            <v-btn
+              v-else
+              class="button"
+              color="#69F0AE"
+              disabled
+              @click="register"
               >Register</v-btn
             >
           </div>
@@ -299,11 +308,11 @@ export default {
     this.fee = Number(this.course.fee)
     this.rating = this.course.ratingScore / this.course.ratingCount
 
-    let regStart = new Date(this.course.regStart).getTime() /1000
-    let regEnd = new Date(this.course.regEnd).getTime() /1000
-    let now = new Date().getTime() /1000
-    if(now < regEnd && now > regStart) {
-      this.regWindow = true;
+    let regStart = new Date(this.course.regStart).getTime() / 1000
+    let regEnd = new Date(this.course.regEnd).getTime() / 1000
+    let now = new Date().getTime() / 1000
+    if (now < regEnd && now > regStart) {
+      this.regWindow = true
     }
   },
   methods: {
@@ -311,20 +320,30 @@ export default {
       this.regDialog = true
     },
     async confirmReg() {
-      this.$store.commit("setLoading", true)
-      let rv = await http.post("/api/me/register", {
-        courseRef: this.reference,
-        batchID: this.course.batchID,
-        startDate: this.course.startDate
-      })
-      if (rv) {
-        this.snackbarColor = "success"
-        this.snackbarText = "Registered Successfully!"
+      try {
+        this.$store.commit("setLoading", true)
+        let rv = await http.post("/api/me/register", {
+          title: this.course.title,
+          courseRef: this.reference,
+          batchID: this.course.batchID,
+          startDate: this.course.startDate,
+          endDate: this.course.endDate,
+        })
+        if (rv) {
+          this.snackbarColor = "success"
+          this.snackbarText = "Registered Successfully!"
+          this.snackbarShow = true
+          setTimeout(() => {
+            this.$router.go()
+            this.$store.commit("setLoading", false)
+          }, 1000)
+        }
+      } catch (e) {
+        this.$store.commit("setLoading", false)
+        this.snackbarColor = "Error"
+        this.snackbarText = "Error, please try again"
         this.snackbarShow = true
-        setTimeout(() => {
-          this.$store.commit("setLoading", false)
-          this.$router.go()
-        }, 3000)
+        alert("Error")
       }
     },
   },

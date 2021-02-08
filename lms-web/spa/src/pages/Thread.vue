@@ -15,7 +15,7 @@
               <div class="name">{{ userDetails.name }}</div>
             </v-col>
             <v-col cols="10" class="title">
-              <div class="topRow">{{ main.created }}</div>
+              <div class="topRow">{{ new Date(main.created).toLocaleString() }}</div>
               <div class="content">
                 <p>
                   {{ main.message }}

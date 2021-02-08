@@ -6,12 +6,14 @@
       <div v-if="user">
         <div id="content">
           <div v-if="type == 'block'">
+            <h1>Courses Registered</h1>
             <div id="imptContent">
               <discussion-card
                 v-for="course in regCourses"
                 :key="course._id"
                 :block="course"
                 :type="type"
+                type2="registered"
               >
               </discussion-card>
             </div>
@@ -20,14 +22,35 @@
             <v-row>
               <h1>Notice</h1>
               <v-spacer></v-spacer>
-              <v-btn class="Btn">New Thread</v-btn>
             </v-row>
 
             <div id="imptContent">
-              <discussion-card :type="type"></discussion-card>
+              <discussion-card
+                v-for="thread in imptThreads"
+                :block="thread"
+                :key="thread._id"
+                :type="type"
+              ></discussion-card>
             </div>
-            <h1>Discussion</h1>
-            <div id="discussionContent"></div>
+             <v-row>
+              <h1>Discussion</h1>
+              <v-spacer></v-spacer>
+              <v-btn
+                class="Btn"
+                text
+                outlined
+                @click="newThread('discussion')"
+                >New Thread</v-btn
+              >
+            </v-row>
+            <div id="discussionContent">
+              <discussion-card
+                v-for="thread in threads"
+                :block="thread"
+                :key="thread._id"
+                :type="type"
+              ></discussion-card>
+            </div>
           </div>
         </div>
       </div>
@@ -42,6 +65,7 @@
                   :key="course._id"
                   :block="course"
                   :type="type"
+                  type2="owned"
                 ></discussion-card>
               </div>
               <h1>Courses Registered</h1>
@@ -51,6 +75,7 @@
                   :key="course._id"
                   :block="course"
                   :type="type"
+                  type2="registered"
                 ></discussion-card>
               </div>
             </div>
@@ -94,6 +119,8 @@
           </div>
         </div>
       </div>
+
+
       <!-- Dialogue-->
       <v-dialog v-model="create" persistent scrollable width="50%">
         <v-card tile>
@@ -149,6 +176,9 @@ export default {
       createType: null,
     }
   },
+  computed: {
+    ...mapState(["error", "loading"]),
+  },
   async mounted() {
     let user = await http.get("api/me")
     if (user.data.role == "instructor") {
@@ -171,6 +201,7 @@ export default {
 
       if (this.user) {
         this.regCourses = rv.data
+        console.log("USER", this.regCourses)
       } else {
         this.courses = rv.data.courses
         this.regCourses = rv.data.regCourses

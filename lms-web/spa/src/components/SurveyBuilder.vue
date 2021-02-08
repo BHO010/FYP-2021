@@ -43,25 +43,38 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
-        <div id="btnRow">
+        <div id="btnRow" v-if="type == 'quiz'">
           <v-btn
-            v-if="type == 'quiz' || 'quizEdit'"
             class="button"
             color="#69F0AE"
             :loading="loading"
             @click="onSavedQuiz"
             >Save Quiz</v-btn
           >
+        </div>
+
+         <div id="btnRow" v-else-if="type == 'quizEdit'">
           <v-btn
-            v-else-if="type == 'Edit'"
+            class="button"
+            color="#69F0AE"
+            :loading="loading"
+            @click="onSavedQuiz"
+            >Save Quiz</v-btn
+          >
+        </div>
+
+        <div id="btnRow" v-else-if="type == 'Edit'">
+          <v-btn
             class="button"
             color="#69F0AE"
             :loading="loading"
             @click="onSaved"
             >Update Survey</v-btn
           >
+        </div>
+
+        <div id="btnRow" v-else>
           <v-btn
-            v-else
             class="button"
             color="#69F0AE"
             :loading="loading"
@@ -475,7 +488,7 @@ export default {
     courseRef: String,
     batchID: String,
     quiz: Object,
-    quizID: null
+    quizID: null,
   },
   data() {
     return {
@@ -523,10 +536,11 @@ export default {
         id: this.QNumber,
         type: "check",
         title: "",
+        selected: [],
         points: 0,
         options: [
-          { id: 1, title: "", label: "Option 1", checked: false },
-          { id: 2, title: "", label: "Option 2", checked: false },
+          { id: 1, title: "", label: "Option 1" },
+          { id: 2, title: "", label: "Option 2" },
         ],
       }
 
@@ -546,10 +560,11 @@ export default {
         id: this.QNumber,
         type: "radio",
         title: "",
+        selected: "",
         points: 0,
         options: [
-          { id: 1, title: "", label: "Option 1", checked: false },
-          { id: 2, title: "", label: "Option 2", checked: false },
+          { id: 1, title: "", label: "Option 1" },
+          { id: 2, title: "", label: "Option 2" },
         ],
       }
 
@@ -622,7 +637,7 @@ export default {
             batchID: this.batchID,
             quiz: this.quiz.content,
             title: this.quiz.title,
-            quizID: this.quizID
+            quizID: this.quizID,
           })
         } else {
           this.$store.commit("setLoading", true)

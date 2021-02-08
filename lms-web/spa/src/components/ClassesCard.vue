@@ -26,7 +26,7 @@
       </v-col>
     </v-flex>
 
-    <v-flex xs12 row v-if="(type == 'thread') & (type2 == 'notice')">
+    <v-flex xs12 row v-else-if="(type == 'thread') & (type2 == 'notice' )">
       <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
         <div class="icon" :id="block.id"></div>
         <div class="name">{{ this.userDetails.name }}</div>
@@ -36,16 +36,16 @@
         <router-link
           class="link"
           :to="{
-            path: `/classes/thread`,
+            path: `/classes/thread/notice`,
             query: { courseRef: this.courseRef,batch: this.batchID,id:this.block.id },
           }"
           >{{ block.title }}</router-link
         >
-        <div class="btmRow">{{ block.author }}, {{ block.created }}</div>
+        <div class="btmRow">{{ block.author }}, {{ new Date(block.created).toLocaleString() }}</div>
       </v-col>
-      <v-col cols="2" class="stats">
-        <!--  <div>{{ block.latest.title }}</div>
-          <div>{{ block.latest.author }}</div> -->
+      <v-col cols="2" class="stats padTop">
+         <div>{{ latest.author }}</div>
+          <div>{{ latest.date }}</div> 
       </v-col>
     </v-flex>
 
@@ -55,7 +55,7 @@
           <div class="name">{{userDetails.name}}</div>
         </v-col>
         <v-col cols="10" class="title">
-          <div class="topRow">{{block.created}}</div>
+          <div class="topRow">{{new Date(block.created).toLocaleString()}}</div>
           <div class="content">
             <p>
               {{block.message}}
@@ -64,7 +64,7 @@
         </v-col>
       </v-flex>
 
-    <v-flex xs12 row v-if="(type == 'thread') & (type2 == 'quiz')">
+    <v-flex xs12 row v-else-if="(type == 'thread') & (type2 == 'quiz')">
       <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
         <div class="icon" :id="block.id"></div>
         <div class="name">{{ this.userDetails.name }}</div>
@@ -72,18 +72,24 @@
       </v-col>
       <v-col cols="9" class="title">
         <v-btn text class="quizBtn" @click="quizDialog = true">{{block.title}}</v-btn>
-        <v-btn icon color="indigo" @click="quizEditDialog(block.id)"><v-icon>mdi-pencil</v-icon></v-btn>
-        <div class="btmRow">{{ block.author }}, {{ block.created }}</div>
+        <v-btn v-if="!user" icon color="indigo" @click="quizEditDialog(block.id)"><v-icon>mdi-pencil</v-icon></v-btn>
+        <div class="btmRow">{{ block.author }}, {{ new Date(block.created).toLocaleString() }}</div>
       </v-col>
-      <v-col cols="1.5" class="stats">
-        <div>Attempt</div>
-        <div>3/3</div>
+      <v-col v-if="user" cols="1.5" class="stats">
+        <div>Status</div>
+        <div>{{quizStatus}}</div>
+      </v-col>
+      <v-col v-else cols="1.5" class="stats">
+        <div>
+          <v-btn text @click="viewQuizResults">View</v-btn>
+           <v-btn text @click="viewQuizStats">Statistics</v-btn>
+        </div>
       </v-col>
     </v-flex>
 
-    <v-flex xs12 row v-if="(type == 'thread') & (type2 == 'feedback')">
+    <v-flex xs12 row v-else-if="(type == 'thread') & (type2 == 'feedback')">
       <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
-        <div class="icon" id="profile"></div>
+        <div class="icon" :id="block.id"></div>
         <div class="name">{{ this.userDetails.name }}</div>
         <div></div>
       </v-col>
@@ -91,16 +97,16 @@
         <router-link
           class="link"
           :to="{
-            path: `/classes/thread`,
-            query: { courseRef: courseRef, batch: batchID },
+            path: `/classes/thread/question`,
+             query: { courseRef: this.courseRef,batch: this.batchID,id:this.block.id },
           }"
           >{{ block.title }}</router-link
         >
-        <div class="btmRow">{{ block.author }}, {{ block.created }}</div>
+        <div class="btmRow">{{ block.author }}, {{ new Date(block.created).toLocaleString() }}</div>
       </v-col>
-      <v-col cols="2" class="stats">
-        <!--  <div>{{ block.latest.title }}</div>
-          <div>{{ block.latest.author }}</div> -->
+      <v-col cols="2" class="stats padTop">
+        <div>{{ latest.title }}</div>
+          <div>{{ latest.author }}</div>
       </v-col>
     </v-flex>
 
@@ -116,7 +122,7 @@
           </v-toolbar>
           <!-- Quiz component -->
           <div id="dialogContent">
-              <survey-viewer type="quiz"></survey-viewer>
+              <survey-viewer type="quiz" :quiz="this.block" :quizID='this.quizID' :courseRef='this.courseRef' :batchID='this.batchID'></survey-viewer>
           </div>
         </v-card>
     </v-dialog>
@@ -153,6 +159,7 @@ export default {
     type2: String,
     courseRef: String,
     batchID: String,
+    user: Boolean
   },
   data() {
     return {
@@ -161,16 +168,21 @@ export default {
       ongoing: false,
       ended: false,
       userDetails: null,
+      quizStatus: "Incomplete",
       quizDialog: false,
       quizEdit: false,
-      quizID: null
+      quizID: null,
+      latest: {
+        author: "No Post",
+        date: ""
+      }
     }
   },
   async mounted() {
     if (this.type != "block") {
       await this.getUser()
       await this.getImage()
-    } else {
+    } else { //type=block
       let rv = await http.get("/api/me/course", {
         params: {
           courseRef: this.block.courseRef,
@@ -193,8 +205,38 @@ export default {
         this.ended = true
       }
     }
+
+    if(this.type2 == "quiz") {
+      console.log(this.type2, this.courseRef, this.batchID)
+      let result = await http.get('/api/me/quizResult', {
+        params: {
+          courseRef: this.courseRef,
+          batchID: this.batchID,
+          quizID: this.block.id
+        }
+      })
+
+      if(result.data.found) {
+        this.quizStatus = "Completed"
+      }else {
+        this.quizStatus = "Incomplete"
+      }
+
+    }else {
+      console.log(this.type2, this.courseRef, this.batchID)
+    let index = this.block.replies.length
+    if(index >0) {
+      this.latest.author = this.block.replies[index-1].author
+      let date = this.block.replies[index-1].created
+     
+      this.latest.date = new Date(date).toLocaleString()
+    }
+   
+    }
   },
-  computed: {},
+  computed: {
+    ...mapState(["error", "loading"]),
+  },
   methods: {
     async deleteClass() {},
     async getUser() {
@@ -215,7 +257,21 @@ export default {
     quizEditDialog(id) {
         this.quizID = id
         this.quizEdit = true
-    }
+    },
+    viewQuizResults() {
+      this.$router.push({path: '/classes/quiz/list', query: {
+        ref: this.courseRef,
+        batchID: this.batchID,
+        quizID: this.block.id
+      }})
+    },
+    viewQuizStats() {
+      this.$router.push({path: '/classes/quiz/stats', query: {
+        ref: this.courseRef,
+        batchID: this.batchID,
+        quizID: this.block.id
+      }})
+    },
   },
 }
 </script>
@@ -242,8 +298,12 @@ export default {
 .stats {
   border-left: 1px solid blue;
   font-family: "DarkerGrotesque-Medium";
-  padding-top: 0;
   padding-bottom: 0;
+  padding-top: 0;
+}
+
+.padTop {
+  padding-top: 1%;
 }
 
 /* Thread */

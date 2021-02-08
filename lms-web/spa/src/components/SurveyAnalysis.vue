@@ -1,29 +1,21 @@
 <template>
-  <div>
-    <div id="surveyAnalysis"></div>
+  <div id="template">
+    
   </div>
 </template>
 
 
 <script>
-import * as SurveyVue from "survey-vue"
-import * as SurveyAnalytics from "survey-analytics";
-import "survey-analytics/survey.analytics.css";
+import { mapState } from "vuex"
 import { http } from "@/axios"
-
-
-SurveyVue.StylesManager.applyTheme("winter")
 
 
 export default {
   name: "survey-analytics",
   props: {
-    Json: Object,
-    results: Array,
+    
   },
   data() {
-    const survey = new SurveyVue.Model(this.Json)
-    
     return {
       survey: survey,
       result: [],
@@ -31,14 +23,6 @@ export default {
     }
   },
   mounted() {
-    var surveyAnalyticsDataTables = new SurveyAnalytics.VisualizationPanel(
-      this.survey.getAllQuestions(),
-      this.results
-    );
-    SurveyAnalytics.VisualizationManager.unregisterVisualizerForAll(SurveyAnalytics.WordCloud);
-    surveyAnalyticsDataTables.render(
-      document.getElementById("surveyAnalysis")
-    );
     
   },
   methods: {
@@ -51,7 +35,11 @@ export default {
 </script>
 
 <style scoped>
-.sa-commercial, .sa-toolbar__button {
-  display: none !important;
+template {
+  margin-top: 2%;
+  margin-bottom: 2%;
+  padding-bottom: 2%;
+  width: 100%;
+  border-bottom: 5px solid lightgrey;
 }
 </style>

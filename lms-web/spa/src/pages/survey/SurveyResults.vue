@@ -1,10 +1,8 @@
 <template>
   <div v-if="auth" id="main">
-    <!-- <survey-analytics
-      :key="Json.page"
-      :Json="this.Json"
-      :results="this.results"
-    ></survey-analytics> -->
+    <div id="body">
+      <h1>Survey Results</h1>
+    </div>
   </div>
 
   <div v-else class="main">
@@ -25,8 +23,12 @@ export default {
       auth: false,
     }
   },
+  computed: {
+    ...mapState(["error", "loading"]),
+  },
   async mounted() {
     try {
+      this.$store.commit("setLoading", true)
       this.reference = this.$route.query.reference
       let rv = await http.get(`/api/me/survey/${this.reference}`)
       let user = await http.get("/api/me")
@@ -43,7 +45,18 @@ export default {
 
 <style scoped>
 #main {
-  width: 90%;
+  width: 80%;
   margin: auto;
+}
+
+#body h1 {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 48px;
+  color: #0d47a1;
+  margin-bottom: 1%;
+}
+
+#body {
+  margin-top: 2%;
 }
 </style>

@@ -29,6 +29,7 @@ export default {
     loading() {
       return this.$store.getters.loading
     },
+     ...mapState(["error", "loading"]),
   },
   async mounted() {
     try {

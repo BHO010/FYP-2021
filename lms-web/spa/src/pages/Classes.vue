@@ -9,8 +9,14 @@
             <div>
               <h1>Ongoing Courses</h1>
               <div id="imptContent">
-                <div v-if="classes">
+                <div v-if="regClasses">
                   <!-- component here -->
+                  <classes-card
+                    v-for="course in regClasses"
+                    :key="course._id"
+                    :block="course"
+                    :type="type"
+                  ></classes-card>
                 </div>
                 <div v-else>
                   <h3>You do not have an ongoing classes</h3>
@@ -27,9 +33,31 @@
 
             <div id="imptContent">
               <!-- component here -->
+              <classes-card
+                v-for="item in notices"
+                :key="item.id"
+                :block="item"
+                :type="type"
+                :user="user"
+                :courseRef="courseRef"
+                :batchID="batchID"
+                type2="notice"
+              ></classes-card>
             </div>
             <h1>Quiz</h1>
-            <div id="discussionContent"></div>
+            <div id="discussionContent">
+              <!-- component here, quiz -->
+              <classes-card
+                v-for="item in quizes"
+                :key="item.id"
+                :block="item"
+                :type="type"
+                type2="quiz"
+                :user="user"
+                :courseRef="courseRef"
+                :batchID="batchID"
+              ></classes-card>
+            </div>
             <div class="row">
               <h1>Question</h1>
               <v-spacer></v-spacer>
@@ -42,7 +70,19 @@
                 >New Question</v-btn
               >
             </div>
-            <div id="discussionContent"></div>
+            <div id="discussionContent">
+              <!-- component here, feedback -->
+              <classes-card
+                v-for="item in feedbacks"
+                :key="item.id"
+                :block="item"
+                :type="type"
+                :courseRef="courseRef"
+                :batchID="batchID"
+                :user="user"
+                type2="feedback"
+              ></classes-card>
+            </div>
           </div>
         </div>
       </div>
@@ -78,6 +118,8 @@
             </div>
           </div>
           <div v-else-if="type == 'thread'">
+
+            <!-- Notice -->
             <div class="row">
               <h1>Notice</h1>
               <v-spacer></v-spacer>
@@ -90,7 +132,7 @@
                 >New Thread</v-btn
               >
             </div>
-            <div id="imptContent">
+            <div class="imptContent">
               <!-- component here, notice -->
               <classes-card
                 v-for="item in notices"
@@ -99,9 +141,12 @@
                 :type="type"
                 :courseRef="courseRef"
                 :batchID="batchID"
+                :user="user"
                 type2="notice"
               ></classes-card>
             </div>
+
+            <!-- Quiz -->
             <div class="row">
               <h1>Quiz</h1>
               <v-spacer></v-spacer>
@@ -109,7 +154,7 @@
                 >Create Quiz</v-btn
               >
             </div>
-            <div id="discussionContent">
+            <div class="discussionContent">
               <!-- component here, quiz -->
               <classes-card
                 v-for="item in quizes"
@@ -119,38 +164,47 @@
                 type2="quiz"
                 :courseRef="courseRef"
                 :batchID="batchID"
+                :user="user"
               ></classes-card>
             </div>
+
+            <!-- Questions -->
             <div class="row">
               <h1>Questions</h1>
               <v-spacer></v-spacer>
-              <v-btn class="Btn" text outlined @click="newQuestion('question')"
+              <v-btn class="Btn" text outlined @click="newQuestion('feedback')"
                 >New Question</v-btn
               >
-              <div id="discussionContent">
-                <!-- component here, quiz -->
-                <classes-card
-                  v-for="item in feedbacks"
-                  :key="item.id"
-                  :block="item"
-                  :type="type"
-                  type2="feedback"
-                ></classes-card>
-              </div>
             </div>
+            <div class="discussionContent">
+              <!-- component here, feedback -->
+               <classes-card
+                v-for="item in feedback"
+                :key="item.id"
+                :block="item"
+                :type="type"
+                type2="feedback"
+                :courseRef="courseRef"
+                :batchID="batchID"
+                :user="user"
+              ></classes-card>
+            </div>
+
           </div>
         </div>
       </div>
+
       <!-- Dialogue-->
       <!-- Create New Thread -->
-      <v-dialog v-model="cr8Notice" persistent scrollable width="50%">
+      <v-dialog v-model="cr8Thread" persistent scrollable width="50%">
         <v-card tile color="#e1f5fe">
           <v-toolbar flat dark color="primary">
-            <v-btn icon dark @click="cr8Notice = false">
+            <v-btn icon dark @click="cr8Thread = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <v-toolbar-title
-              >Create a new thread under Notice section.</v-toolbar-title
+              >Create a new thread under
+              {{ createType }} section.</v-toolbar-title
             >
           </v-toolbar>
           <div id="dialogMain">
@@ -178,16 +232,20 @@
 
       <!-- create Quiz -->
       <v-dialog v-model="cr8Quiz" persistent scrollable>
-        <v-card tile  height="100%" color="#e1f5fe">
-          <v-toolbar  fixed dark color="primary">
+        <v-card tile height="100%" color="#e1f5fe">
+          <v-toolbar fixed dark color="primary">
             <v-btn icon dark @click="cr8Quiz = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title>Quiz.</v-toolbar-title>
+            <v-toolbar-title>Mark the Quiz.</v-toolbar-title>
           </v-toolbar>
           <!-- Quiz component -->
           <div id="dialogContent">
-              <survey-builder type="quiz" :courseRef="this.courseRef" :batchID="this.batchID"></survey-builder>
+            <survey-builder
+              type="quiz"
+              :courseRef="this.courseRef"
+              :batchID="this.batchID"
+            ></survey-builder>
           </div>
         </v-card>
       </v-dialog>
@@ -199,7 +257,7 @@
 import { mapState } from "vuex"
 import { http } from "@/axios"
 import ClassesCard from "../components/ClassesCard.vue"
-import SurveyBuilder from '../components/SurveyBuilder.vue'
+import SurveyBuilder from "../components/SurveyBuilder.vue"
 
 export default {
   components: { ClassesCard, SurveyBuilder },
@@ -217,11 +275,13 @@ export default {
       quizContent: null,
       feedbacks: null,
       type: "block",
-      cr8Notice: false,
+      cr8Thread: false,
       cr8Quiz: false,
-      cr8NQuestion: false,
-      createType: null
+      createType: null,
     }
+  },
+  computed: {
+    ...mapState(["error", "loading"]),
   },
   async mounted() {
     let user = await http.get("api/me")
@@ -244,7 +304,7 @@ export default {
       let rv = await http.get("/api/me/classes/list")
 
       if (this.user) {
-        this.regCourses = rv.data.regClasses
+        this.regClasses = rv.data.regClasses
       } else {
         this.classes = rv.data.classes
         this.regClasses = rv.data.regClasses
@@ -253,7 +313,7 @@ export default {
   },
   methods: {
     newThread(type) {
-      this.cr8Notice = true
+      this.cr8Thread = true
       this.createType = type
     },
     newQuiz(type) {
@@ -261,7 +321,7 @@ export default {
       this.createType = type
     },
     newQuestion(type) {
-      this.cr8NQuestion = true
+      this.cr8Thread = true
       this.createType = type
     },
     async postThread(type) {
@@ -269,6 +329,8 @@ export default {
         createType: this.createType,
         tMsg: this.tMsg, //For Notice section & question section
         title: this.title,
+        courseRef: this.courseRef,
+        batchID: this.batchID,
       })
 
       if (rv) {
@@ -334,7 +396,8 @@ export default {
 }
 
 #dialogContent {
-    min-height: 600px;
+  margin-top: 2%;
+  min-height: 600px;
 }
 
 v.application-wrap >>> .v-dialog {
