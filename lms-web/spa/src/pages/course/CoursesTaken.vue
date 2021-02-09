@@ -34,8 +34,11 @@ export default {
         }
     },
     async mounted() {
-        const rv = await http.get('/api/me/courses/taken')
-        this.courses = rv.data.courses
+        const rv = await http.get('/api/me/courses/registered')
+        if(rv.data.length > 0 ) {
+          this.courses = rv.data
+        }
+        
     },
     methods: {
 

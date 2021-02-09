@@ -214,7 +214,7 @@ export default {
       ],
       instructorCourseItems: [
         { title: "Browse", route: "/browse" },
-        { title: "Course Taken", route: "/courses-taken" },
+        { title: "Registered", route: "/courses-taken" },
         { title: "Your Course", route: "/courses-created" },
         { title: "Course Creation", route: "/course/create" },
       ],

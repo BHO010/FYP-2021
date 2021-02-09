@@ -8,7 +8,6 @@ import App from './App'
 
 import vuetify from '@/plugins/vuetify'
 import VueCrudX from 'ext-lib/webpacked/VueCrudX.vue' // Vuetify
-import ECharts from 'vue-echarts'
 import VueApexCharts from 'vue-apexcharts'
 import TimePicker from 'ext-lib/webpacked/TimePicker.vue'
 import DatePicker from 'ext-lib/webpacked/DatePicker.vue'
@@ -20,6 +19,7 @@ import DiscussionCard from './components/DiscussionCard.vue'
 import ClassesCard from './components/ClassesCard.vue'
 import SurveyBuilder from './components/SurveyBuilder.vue'
 import SurveyViewer from './components/SurveyViewer.vue'
+import SurveyAnalysis from './components/SurveyAnalysis.vue'
 import QuizMarker from './components/QuizMarker.vue'
 import QuizAnalysis from './components/QuizAnalysis.vue'
 
@@ -45,7 +45,6 @@ Vue.component('app-date-picker', DatePicker)
 Vue.component('app-time-picker', TimePicker)
 Vue.component('app-file-upload', FileUpload)
 Vue.component('vue-crud-x', VueCrudX)
-Vue.component('v-chart', ECharts)
 Vue.component('apexchart', VueApexCharts)
 
 Vue.component('review-section', ReviewSection)
@@ -55,6 +54,7 @@ Vue.component('classes-card', ClassesCard)
 
 Vue.component('survey-builder', SurveyBuilder)
 Vue.component('survey-viewer', SurveyViewer)
+Vue.component('survey-analysis', SurveyAnalysis)
 Vue.component('quiz-marker', QuizMarker)
 Vue.component('quiz-analysis', QuizAnalysis)
 

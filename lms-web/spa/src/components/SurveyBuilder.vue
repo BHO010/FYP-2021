@@ -47,7 +47,6 @@
           <v-btn
             class="button"
             color="#69F0AE"
-            :loading="loading"
             @click="onSavedQuiz"
             >Save Quiz</v-btn
           >
@@ -57,7 +56,6 @@
           <v-btn
             class="button"
             color="#69F0AE"
-            :loading="loading"
             @click="onSavedQuiz"
             >Save Quiz</v-btn
           >
@@ -67,7 +65,6 @@
           <v-btn
             class="button"
             color="#69F0AE"
-            :loading="loading"
             @click="onSaved"
             >Update Survey</v-btn
           >
@@ -77,7 +74,6 @@
           <v-btn
             class="button"
             color="#69F0AE"
-            :loading="loading"
             @click="onSaved"
             >Save Survey</v-btn
           >
@@ -506,6 +502,7 @@ export default {
     this.reference = params.get("reference")
     if (this.type == "Edit") {
       this.QNumber = this.survey.length + 1
+      
     }
     if (this.type == "quizEdit") {
       this.QNumber = this.quiz.content.length + 1

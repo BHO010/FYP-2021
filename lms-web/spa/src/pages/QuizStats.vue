@@ -56,7 +56,9 @@ export default {
       average: 0,
     }
   },
-  computed: {},
+  computed: {
+    ...mapState(["error", "loading"]),
+  },
   async mounted() {
     try {
       this.$store.commit("setLoading", true)

@@ -29,7 +29,7 @@ import { mapState } from "vuex"
 export default {
   data() {
     return {
-      survey: null,
+      survey: [],
       reference: "",
       type: "Edit",
       auth: false,
@@ -44,10 +44,16 @@ export default {
         this.auth = true
       }
       const rv = await http.get(`/api/me/survey/${this.reference}`)
+      console.log("AA", rv.data)
+      if(rv.data == null) {
+        this.type = ""
+      }
       this.survey = rv.data.survey
     } catch (e) {}
   },
-  computed: {},
+  computed: {
+     ...mapState(["error", "loading"]),
+  },
   methods: {},
 }
 </script>

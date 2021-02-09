@@ -1,5 +1,14 @@
 <template>
   <div style="width: 80%; margin: auto; margin-top: 2%">
+     <v-snackbar
+      v-model="snackbarShow"
+      :timeout="snackbarTimeout"
+      :color="snackbarColor"
+      absolute
+      top
+      class="snackbar"
+      >{{ snackbarText }}</v-snackbar
+    >
     <section class="header">
       <div id="imgCol">
         <img class="imgDiv" :src="this.imageURL" />
@@ -241,6 +250,8 @@
     </div>
 
     <br />
+
+    <!-- Dialog -->
     <v-dialog v-model="regDialog" persistent max-width="600">
       <v-card>
         <v-container id="dialogMain">
@@ -272,6 +283,10 @@ import { mapState } from "vuex"
 export default {
   data() {
     return {
+      snackbarColor: "success",
+      snackbarShow: false,
+      snackbarText: "",
+      snackbarTimeout: 3000,
       regDialog: false,
       regWindow: false,
       course: [],
@@ -328,22 +343,28 @@ export default {
           batchID: this.course.batchID,
           startDate: this.course.startDate,
           endDate: this.course.endDate,
+          instructor: this.course.createdBy,
         })
-        if (rv) {
+
+        if (rv.data.success) {
           this.snackbarColor = "success"
-          this.snackbarText = "Registered Successfully!"
+          this.snackbarText = rv.data.msg
           this.snackbarShow = true
-          setTimeout(() => {
-            this.$router.go()
-            this.$store.commit("setLoading", false)
-          }, 1000)
+          this.regDialog = false
+          this.$store.commit("setLoading", false)
+        } else {
+          this.regDialog = false
+          this.$store.commit("setLoading", false)
+          this.snackbarColor = "error"
+          this.snackbarText = rv.data.msg
+          this.snackbarShow = true
         }
       } catch (e) {
         this.$store.commit("setLoading", false)
-        this.snackbarColor = "Error"
+        this.regDialog = false
+        this.snackbarColor = "error"
         this.snackbarText = "Error, please try again"
         this.snackbarShow = true
-        alert("Error")
       }
     },
   },
@@ -351,6 +372,11 @@ export default {
 </script>
 
 <style scoped>
+.snackbar {
+  position: sticky;
+  top: 70px;
+}
+
 .center-all {
   display: flex;
   margin: auto;

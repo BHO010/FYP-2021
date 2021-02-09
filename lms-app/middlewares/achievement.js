@@ -1,6 +1,6 @@
 let statsTemplate = {
     email: "",
-    courseTaken: 0,
+    registered: 0,
     courseCreated: 0,
     reviewsCount: 0,
     maxLikes: 0,

@@ -51,7 +51,7 @@ export default {
       averagePoints: 0,
       chartOptions: {
         chart: {
-          id: "vuechart-example",
+          id: "quizChart",
         },
         xaxis: {
           categories: ["Full Mark", "Half Mark", "Zero Mark"],

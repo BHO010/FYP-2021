@@ -4,7 +4,7 @@ const meRoutes = express.Router()
 
 const bcrypt = require('bcryptjs')
 const otplib = require('otplib')
-const { SALT_ROUNDS, UPLOAD_FOLDER, httpsCerts } = require('../config')
+const { SALT_ROUNDS, UPLOAD_FOLDER, httpsCerts, MONGO_DB } = require('../config')
 const { v4: uuidv4 } = require('uuid');
 
 const { findUser } = require(LIB_PATH + '/auth')
@@ -56,15 +56,68 @@ meRoutes
     return res.status(500).json()
   })
 
-  .get('/stats', authUser, async (req, res) => {
+  .post('/settings/update', authUser, async (req, res) => {
     let user = null
     try {
       user = await findUser({ id: req.decoded.id })
-      const { email } = user
-      let rv = await mongo.db.collection('statistics').findOne({ email: email })
-      return res.status(200).json(rv)
-    } catch (e) { }
-    return res.status(500).json()
+      if (user) {
+        if (req.body.type == "profile") {
+          let { name, email, contactNumber, activeTags } = req.body
+          let rv = mongo.db.collection('user').findOneAndUpdate({ email: user.email },
+            {
+              $set:
+                { name: name, email: email, contactNumber: contactNumber, activeTags: activeTags }
+            })
+          return res.status(200).json(rv)
+        } else if (req.body.type == "avatar") {
+          let { profileImg } = req.body
+          let rv = mongo.db.collection('user').findOneAndUpdate({ email: user.email }, { $set: { profileImage: profileImg } })
+          return res.status(200).json(rv)
+        } else {
+          let { oldPassword, password } = req.body
+          if ((password && !oldPassword) || (!password && oldPassword)) return res.status(500).json({ e: 'Old and New Password Required' })
+          let newPassword
+          if (password && oldPassword) {
+            if (bcrypt.compareSync(oldPassword, user.password)) {
+              newPassword = bcrypt.hashSync(password, SALT_ROUNDS)
+            } else {
+              return res.status(500).json({ e: 'Invalid Old Password' })
+            }
+          }
+          let rv = mongo.db.collection('user').findOneAndUpdate({ email: user.email }, { $set: { password: newPassword } })
+          return res.status(200).json(rv)
+        }
+      }
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .get('/stats', authUser, async (req, res) => {
+    let user = null
+    let courses = null
+    try {
+      user = await findUser({ id: req.decoded.id })
+      const { email, role } = user
+
+
+      let stats = await mongo.db.collection('statistics').findOne({ email: email })
+
+      if (role == "instructor") {
+        courses = await mongo.db.collection('courses').find({ createdBy: email }, { projection: { registration: 1, title: 1, _id: 1 } }).toArray()
+      }
+
+      let courseList = ["All"]
+
+      for(var item of courses) {
+        courseList.push(item.title)
+      }
+
+      return res.status(200).json({ stats, courses,courseList }) //success
+
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
   })
 
   .get('/achievements', authUser, async (req, res) => {
@@ -96,6 +149,110 @@ meRoutes
       return res.status(400).json({ e })
     }
   })
+
+  .post('/register', authUser, async (req, res) => {
+    let { title, courseRef, batchID, startDate, endDate, instructor } = req.body
+    let user = null
+    let year = new Date().getFullYear()
+    let month = new Date().getMonth()
+    try {
+      user = await findUser({ id: req.decoded.id })
+      let register = await mongo.db.collection('registrations').findOne({ email: user.email, courseRef: courseRef, batchID: batchID })
+      let instructorStats = await mongo.db.collection('statistics').findOne({ email: instructor })
+      let course = await mongo.db.collection('courses').findOne({ createdBy: instructor, reference: courseRef })
+
+      if (register) {
+        return res.status(200).json({ success: false, msg: 'You have already registered for the course!' })
+      }
+
+      if (user && user.email == instructor) {
+        return res.status(200).json({ success: false, msg: 'Cannot Register for your own course!' })
+      } else {
+        let body = {
+          email: user.email,
+          courseRef: courseRef,
+          title: title,
+          regDate: new Date(),
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+          batchID: batchID
+        }
+
+        //Transaction
+        const { defaultTransactionOptions, client } = mongo
+        const session = client.startSession({ defaultTransactionOptions }) // for transactions
+        session.startTransaction()
+        try {
+          let rv0 = await mongo.db.collection('registrations').insertOne(body, { session })
+          let rv1 = await mongo.db.collection('statistics').findOneAndUpdate({ email: user.email }, { $inc: { registered: 1 } }, { session })  //update user
+          let rv2 = await mongo.db.collection('statistics').findOneAndUpdate({ email: instructor }, { $inc: { studentsCount: 1 } }, { session }) //update instructor
+
+          var index = instructorStats.registration.findIndex(p => p.year == year)  //add all course
+          var index2 = course.registration.findIndex(p => p.year == year)  // add specific course
+
+          if (index < 0) {
+            let template = {
+              year: year,
+              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }
+
+            template.data[month]++
+            instructorStats.registration.push(template)
+            await mongo.db.collection('statistics').updateOne({ email: instructor }, {
+              $set: {
+                registration: instructorStats.registration
+              }
+            },
+              { session })
+          } else {
+            instructorStats.registration[index].data[month]++
+            await mongo.db.collection('statistics').updateOne({ email: instructor }, {
+              $set: {
+                registration: instructorStats.registration
+              }
+            },
+              { session })
+          }
+
+          if (index2 < 0) {
+            let template = {
+              year: year,
+              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }
+
+            template.data[month]++
+            course.registration.push(template)
+            await mongo.db.collection('courses').updateOne({ createdBy: instructor, reference: courseRef }, {
+              $set: {
+                registration: course.registration
+              }
+            },
+              { session })
+          } else {
+            course.registration[index2].data[month]++
+            await mongo.db.collection('courses').updateOne({ createdBy: instructor, reference: courseRef }, {
+              $set: {
+                registration: course.registration
+              }
+            },
+              { session })
+          }
+
+          await session.commitTransaction()
+          return res.status(200).json({ success: true, msg: 'Registered Successfully!' }) //success
+        } catch (e) {
+          await session.abortTransaction()
+          res.status(500).json({ e: e.toString() })
+
+        }
+        return session.endSession()
+      }
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+
 
   // Course related API
 
@@ -133,8 +290,9 @@ meRoutes
   .get('/courses/registered', authUser, async (req, res) => {
     try {
       let user = await findUser({ id: req.decoded.id })
+      let rv = await mongo.db.collection('registrations').find({ email: user.email }).toArray()
 
-      return res.status(200).json()
+      return res.status(200).json(rv)
     } catch (e) {
       return res.status(400).json({ e: e.toString() })
     }
@@ -176,43 +334,59 @@ meRoutes
           regEnd = regDates[0]
         }
 
-        course = await mongo.db.collection('courses').insertOne({
-          reference,
-          createdBy: user.email,
-          createdOn: new Date().toISOString(),
-          batchID,
-          title,
-          description,
-          category,
-          level,
-          venue,
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
-          duration,
-          fee,
-          objectives,
-          outlines,
-          trainers,
-          attends,
-          views: 0,
-          regStart,
-          regEnd
-        })
+        //Transaction
+        const { defaultTransactionOptions, client } = mongo
+        const session = client.startSession({ defaultTransactionOptions }) // for transactions
+        session.startTransaction()
+        try {
+          course = await mongo.db.collection('courses').insertOne({
+            reference,
+            createdBy: user.email,
+            createdOn: new Date().toISOString(),
+            batchID,
+            title,
+            description,
+            category,
+            level,
+            venue,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            duration,
+            fee,
+            objectives,
+            outlines,
+            trainers,
+            attends,
+            views: 0,
+            regStart,
+            regEnd,
+            regstration: []
+          }, { session })
 
+          let rv = await mongo.db.collection('classes').insertOne({
+            courseRef: reference,
+            batchID: batchID,
+            duration: duration,
+            instructor: user.email,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            notice: [],
+            quiz: [],
+            feedback: []
+          }, { session })
 
-        let rv = await mongo.db.collection('classes').insertOne({
-          courseRef: reference,
-          batchID: batchID,
-          duration: duration,
-          instructor: user.email,
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
-          notice: [],
-          quiz: [],
-          feedback: []
-        })
+          await mongo.db.collection('statistics').updateOne({ email: user.email }, { $inc: { courseCreated: 1 } }, { session })
+
+          await session.commitTransaction()
+          return res.status(200).json({ reference })
+
+        } catch (e) {
+          await session.abortTransaction()
+          res.status(500).json({ e: e.toString() })
+        }
+        return session.endSession()
       }
-      return res.status(200).json({ reference })
+
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
@@ -313,7 +487,7 @@ meRoutes
     }
   })
 
-  .get('/survey/:reference', authUser, async (req, res) => {
+  .get('/survey/:reference', authUser, async (req, res) => {  //find survey question
     try {
       const { reference } = req.params
       const r = await mongo.db.collection('survey').findOne({ reference: reference })
@@ -323,15 +497,75 @@ meRoutes
     }
   })
 
-  .get('/survey/results/:reference', authUser, async (req, res) => {
+  .get('/survey/results/:reference', authUser, async (req, res) => {  //find survey replies
     try {
       const { reference } = req.params
-      const r = await mongo.db.collection('surveyResults').find({ reference: reference }).toArray()
-      let results = []
-      for (var result of r) {
-        results.push(result.result)
+
+      const survey = await mongo.db.collection('survey').findOne({ reference: reference }, { projection: { survey: 1, _id: 0 } })
+      const r = await mongo.db.collection('surveyResults').find({ reference: reference }, { projection: { result: 1, _id: 0 } }).toArray()
+
+      //set up aggregate array
+      let aggregate = []
+      for (var [index, q] of survey.survey.entries()) {
+        let template = {
+          id: null,
+          type: "",
+          title: "",
+          categories: [],
+          data: []
+        }
+
+        if (aggregate[index] == null) {
+          template.id = q.id
+          template.title = q.title
+          template.type = q.type
+          if (q.type == "check" || q.type == "radio") {
+            for (var option of q.options) {
+              //console.log("AA",option.title)
+              template.categories.push(option.title)
+            }
+          }
+          aggregate.push(template)
+        }
       }
-      res.status(200).json(results)
+
+      //console.log("SETUP", aggregate)
+
+      //aggregate result into aggregate array
+      for (var d of r) {
+        for (var index2 of d.result) {
+          for (var i of aggregate) {
+            if (i.id == index2.id) {
+              if (i.type == 'text') {
+                if (index2.answer != null) {
+                  i.data.push(index2.answer)
+                }
+              } else if (i.type == 'rate') {
+                i.data.push(index2.rating)
+              } else if (i.type == 'check') {
+                for (var x of index2.selected) {
+                  if (i.data[x] == null) {
+                    i.data[x] = 1
+                  } else {
+                    i.data[x]++
+                  }
+                }
+              } else if (i.type == 'radio') {
+                if (i.data[index2.selected] == null) {
+                  console.log("HH", index2.selected)
+                  i.data[index2.selected] = 1
+                } else {
+                  i.data[index2.selected]++
+                }
+
+              }
+
+            }
+          }
+        }
+      }
+      console.log(aggregate)
+      res.status(200).json(aggregate)
     } catch (e) {
       res.status(404).json({ e: 'Server Error' })
     }
@@ -788,11 +1022,11 @@ meRoutes
 
   .get('/quiz/stats', authUser, async (req, res) => {   //get all quiz documents 
     let { courseRef, batchID, quizID } = req.query
-     let aggregate = {
-       totalPoints: 0,
-       totalScore: 0,
-       Qstats: []
-     }
+    let aggregate = {
+      totalPoints: 0,
+      totalScore: 0,
+      Qstats: []
+    }
 
     try {
       let count = await mongo.db.collection('quizResults').find({ courseRef: courseRef, batchID: batchID, quizID: quizID }).count()
@@ -816,27 +1050,27 @@ meRoutes
             template.title = item2.title
             aggregate.Qstats.push(template)
           }
-         
+
           let maxPoints = item2.points
-          aggregate.totalPoints += maxPoints 
-          
-           if (item2.score == maxPoints) {
-            aggregate.totalScore += maxPoints 
+          aggregate.totalPoints += maxPoints
+
+          if (item2.score == maxPoints) {
+            aggregate.totalScore += maxPoints
             aggregate.Qstats[index2].full += 1
             aggregate.Qstats[index2].totalScore += maxPoints
 
-          }else if (item2.score == maxPoints/2) {
-            aggregate.totalScore += maxPoints/2 
+          } else if (item2.score == maxPoints / 2) {
+            aggregate.totalScore += maxPoints / 2
             aggregate.Qstats[index2].half += 1
-            aggregate.Qstats[index2].totalScore += maxPoints/2
-          }else {
+            aggregate.Qstats[index2].totalScore += maxPoints / 2
+          } else {
             aggregate.Qstats[index2].zero += 1
-          } 
+          }
         }
       }
 
       //console.log("AA", aggregate)
-      return res.status(200).json({aggregate, count})
+      return res.status(200).json({ aggregate, count })
 
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
@@ -866,66 +1100,8 @@ meRoutes
     }
   })
 
-  // Others
 
-  .post('/settings/update', authUser, async (req, res) => {
-    let user = null
-    try {
-      user = await findUser({ id: req.decoded.id })
-      if (user) {
-        if (req.body.type == "profile") {
-          let { name, email, contactNumber, activeTags } = req.body
-          let rv = mongo.db.collection('user').findOneAndUpdate({ email: user.email },
-            {
-              $set:
-                { name: name, email: email, contactNumber: contactNumber, activeTags: activeTags }
-            })
-          return res.status(200).json(rv)
-        } else if (req.body.type == "avatar") {
-          let { profileImg } = req.body
-          let rv = mongo.db.collection('user').findOneAndUpdate({ email: user.email }, { $set: { profileImage: profileImg } })
-          return res.status(200).json(rv)
-        } else {
-          let { oldPassword, password } = req.body
-          if ((password && !oldPassword) || (!password && oldPassword)) return res.status(500).json({ e: 'Old and New Password Required' })
-          let newPassword
-          if (password && oldPassword) {
-            if (bcrypt.compareSync(oldPassword, user.password)) {
-              newPassword = bcrypt.hashSync(password, SALT_ROUNDS)
-            } else {
-              return res.status(500).json({ e: 'Invalid Old Password' })
-            }
-          }
-          let rv = mongo.db.collection('user').findOneAndUpdate({ email: user.email }, { $set: { password: newPassword } })
-          return res.status(200).json(rv)
-        }
-      }
-    } catch (e) {
-      return res.status(500).json({ e: e.toString() })
-    }
-  })
 
-  .post('/register', authUser, async (req, res) => {
-    let { title, courseRef, batchID, startDate, endDate } = req.body
-    let user = null
-    try {
-      user = await findUser({ id: req.decoded.id })
-      if (user) {
-        let body = {
-          email: user.email,
-          courseRef: courseRef,
-          title: title,
-          regDate: new Date(),
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
-          batchID: batchID
-        }
-        let rv = await mongo.db.collection('registrations').insertOne(body)
-      }
-      return res.status(200).json('success')
-    } catch (e) {
-      return res.status(500).json({ e: e.toString() })
-    }
-  })
+
 
 module.exports = meRoutes
