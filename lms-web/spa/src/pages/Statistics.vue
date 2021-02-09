@@ -1,8 +1,8 @@
 <template>
   <div id="main">
     <h1>Statistics</h1>
-    <div v-if="user" class="body">
-      <div class="row">
+    <div v-if="user" class="body ">
+      <div class="row section">
         <div class="leftCol">
           <v-card class="mx-auto" width="500px" height="250px">
             <v-card-text class="cardTxt">
@@ -35,6 +35,29 @@
             </v-row>
           </v-card>
         </div>
+      </div>
+      <div id="userRegOnMonth" class="section">
+        <h1>Your Registration Per Month</h1>
+        <div class="topRow">
+          <v-row>
+            <v-label>Year:</v-label>
+            <v-select
+              :items="items"
+              v-model="year"
+              @input="updateSearchII"
+              dense
+              outlined
+            ></v-select>
+            <v-spacer></v-spacer>
+          </v-row>
+        </div>
+        <apexchart
+          width="100%"
+          height="400"
+          type="line"
+          :options="regOnMonthOptions"
+          :series="seriesII"
+        ></apexchart>
       </div>
     </div>
 
@@ -74,8 +97,8 @@
         </div>
       </div>
 
-      <div id="regOnMonth" class="section">
-        <h1>Registration Per Month</h1>
+      <div id="userOnMonth" class="section">
+        <h1>Students Per Month</h1>
         <div class="topRow">
           <v-row>
             <v-label>Year:</v-label>
@@ -106,6 +129,31 @@
           :series="series"
         ></apexchart>
       </div>
+
+      <div id="regOnMonth" class="section">
+        <h1>Your Registration Per Month</h1>
+        <div class="topRow">
+          <v-row>
+            <v-label>Year:</v-label>
+            <v-select
+              :items="items"
+              v-model="year"
+              @input="updateSearchII"
+              dense
+              outlined
+            ></v-select>
+            <v-spacer></v-spacer>
+          </v-row>
+        </div>
+
+        <apexchart
+          width="100%"
+          height="400"
+          type="line"
+          :options="regOnMonthOptions"
+          :series="seriesII"
+        ></apexchart>
+      </div>
     </div>
   </div>
 </template>
@@ -122,6 +170,7 @@ export default {
       userStats: null,
       courses: [],
       courseList: [],
+      totalCourseStats: [],
       year: "",
       selectCourse: "All",
       regOnMonthOptions: {
@@ -151,7 +200,7 @@ export default {
           ],
         },
         title: {
-          text: "Students on Month",
+          text: "Number of Registration on Month",
         },
       },
       series: [
@@ -160,7 +209,13 @@ export default {
           data: [],
         },
       ],
-      emptyData: [0,0,0,0,0,0,0,0,0,0,0,0],
+      seriesII: [
+        {
+          name: "Course",
+          data: [],
+        },
+      ],
+      emptyData: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       items: [],
     }
   },
@@ -172,38 +227,51 @@ export default {
     const rv0 = await http.get("/api/me")
     this.userDetails = rv0.data
 
-    if (rv0.data.role == "instructor") {
-      this.user = false
-    }
+    this.year = new Date().getFullYear()
 
     let rv = await http.get("/api/me/stats")
-    this.userStats = rv.data.stats
-    this.courses = rv.data.courses
-    this.courseList = rv.data.courseList
+    if (rv0.data.role == "instructor") {
+      this.user = false
+      this.userStats = rv.data.stats
+      this.courses = rv.data.courses
+      this.courseList = rv.data.courseList
+      this.totalCourseStats = rv.data.aggregate
 
-    for (var item of this.userStats.registration) {
-      this.items.push(item.year)
+      for (var item of this.totalCourseStats) {
+        this.items.push(item.year)
+      }
+
+      var index = this.totalCourseStats.findIndex((p) => p.year == this.year)
+      this.series[0].data = this.totalCourseStats[index].dat
+    } else {
+      this.userStats = rv.data.stats
     }
 
-    this.year = new Date().getFullYear()
-    var index = this.userStats.registration.findIndex(
+    var index2 = this.userStats.registration.findIndex(
       (p) => p.year == this.year
     )
 
-    this.series[0].data = this.userStats.registration[index].data
+    if (index2 < 0) {
+      this.seriesII[0].data = this.emptyData
+    } else {
+      for (var item2 of this.userStats.registration) {
+        this.items.push(item2.year)
+      }
+
+      this.seriesII[0].data =
+        this.userStats.registration[index2].data || this.emptyData
+    }
 
     window.dispatchEvent(new Event("resize"))
     this.$store.commit("setLoading", false)
   },
   methods: {
     updateSearch() {
-        let index = null
+      let index = null
       if (this.selectCourse == "All") {
-        index = this.userStats.registration.findIndex(
-          (p) => p.year == this.year
-        )
+        index = this.totalCourseStats.findIndex((p) => p.year == this.year)
 
-        this.series[0].data = this.userStats.registration[index].data
+        this.series[0].data = this.totalCourseStats[index].data
         window.dispatchEvent(new Event("resize"))
       } else {
         index = this.courses.findIndex((p) => p.title == this.selectCourse)
@@ -212,12 +280,12 @@ export default {
         var index2 = this.courses[index].registration.findIndex(
           (a) => a.year == this.year
         )
-        
-        if(index2 < 0) {
-            this.series[0].data =  this.emptyData
-            window.dispatchEvent(new Event("resize"))
+
+        if (index2 < 0) {
+          this.series[0].data = this.emptyData
+          window.dispatchEvent(new Event("resize"))
         }
-        this.series[0].data = this.courses[index].registration[index2].data || this.emptyData
+        this.series[0].data = this.courses[index].registration[index2].data
         window.dispatchEvent(new Event("resize"))
       }
     },

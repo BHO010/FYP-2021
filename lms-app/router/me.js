@@ -105,15 +105,37 @@ meRoutes
 
       if (role == "instructor") {
         courses = await mongo.db.collection('courses').find({ createdBy: email }, { projection: { registration: 1, title: 1, _id: 1 } }).toArray()
+
+        let courseList = ["All"]
+        let aggregate = []
+
+
+        for (var course of courses) {
+          for (var item of course.registration) {
+            let template = {
+              year: "",
+              data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            }
+            index = aggregate.findIndex(
+              (p) => p.year == item.year
+            )
+            if (index < 0) {
+              template.year = item.year
+              aggregate.push(template)
+              index = 0
+            }
+            for (var [i, month] of item.data.entries()) {
+              aggregate[index].data[i] += month
+            }
+          }
+          courseList.push(course.title)
+        }
+        return res.status(200).json({ stats, courses, aggregate, courseList }) //success
+      }else {
+        return res.status(200).json({ stats }) //success
       }
 
-      let courseList = ["All"]
-
-      for(var item of courses) {
-        courseList.push(item.title)
-      }
-
-      return res.status(200).json({ stats, courses,courseList }) //success
+      
 
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
@@ -157,8 +179,8 @@ meRoutes
     let month = new Date().getMonth()
     try {
       user = await findUser({ id: req.decoded.id })
-      let register = await mongo.db.collection('registrations').findOne({ email: user.email, courseRef: courseRef, batchID: batchID })
-      let instructorStats = await mongo.db.collection('statistics').findOne({ email: instructor })
+      let register = await mongo.db.collection('registrations').findOne({ email: user.email, courseRef: courseRef, batchID: batchID }) //check if user register b4
+      let userStats = await mongo.db.collection('statistics').findOne({ email: user.email })
       let course = await mongo.db.collection('courses').findOne({ createdBy: instructor, reference: courseRef })
 
       if (register) {
@@ -187,8 +209,8 @@ meRoutes
           let rv1 = await mongo.db.collection('statistics').findOneAndUpdate({ email: user.email }, { $inc: { registered: 1 } }, { session })  //update user
           let rv2 = await mongo.db.collection('statistics').findOneAndUpdate({ email: instructor }, { $inc: { studentsCount: 1 } }, { session }) //update instructor
 
-          var index = instructorStats.registration.findIndex(p => p.year == year)  //add all course
-          var index2 = course.registration.findIndex(p => p.year == year)  // add specific course
+          var index = userStats.registration.findIndex(p => p.year == year)  //add user registration
+          var index2 = course.registration.findIndex(p => p.year == year)  // add course registration stats
 
           if (index < 0) {
             let template = {
@@ -197,18 +219,18 @@ meRoutes
             }
 
             template.data[month]++
-            instructorStats.registration.push(template)
-            await mongo.db.collection('statistics').updateOne({ email: instructor }, {
+            userStats.registration.push(template)
+            await mongo.db.collection('statistics').updateOne({ email: user.email }, {
               $set: {
-                registration: instructorStats.registration
+                registration: userStats.registration
               }
             },
               { session })
           } else {
-            instructorStats.registration[index].data[month]++
-            await mongo.db.collection('statistics').updateOne({ email: instructor }, {
+            userStats.registration[index].data[month]++
+            await mongo.db.collection('statistics').updateOne({ email: user.email }, {
               $set: {
-                registration: instructorStats.registration
+                registration: userStats.registration
               }
             },
               { session })
