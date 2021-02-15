@@ -372,4 +372,8 @@ export default {
     margin-bottom: 2%;
 }
 
+.fileRow {
+  display: flex;
+}
+
 </style>

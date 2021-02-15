@@ -6,9 +6,11 @@ if (!config) {
   dotenv.config()
   if (process.env.NODE_ENV) {
     try {
-      const envFile = path.join(APP_PATH, 'config', '.env')
+      const envFile = path.join(APP_PATH, 'config', '.env')  //Select environment file
+      console.log("Env Path:", envFile)
       const envConfig = dotenv.parse(fs.readFileSync(envFile)) //  relative to index.js call
       for (var k in envConfig) process.env[k] = envConfig[k]
+      
     } catch (e) {
       console.log('missing configuration file, using defaults', e.toString())
     }

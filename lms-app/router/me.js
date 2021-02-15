@@ -13,8 +13,6 @@ const { authUser } = require('../middlewares/auth')
 const mongo = require(LIB_PATH + '/services/db/mongodb')
 const { ObjectID } = require('mongodb')
 const multer = require('multer')
-const { ref } = require('objection')
-const { title } = require('process')
 
 
 const getQuizResult = async (req, res) => {  //check if user done the quiz
@@ -131,11 +129,11 @@ meRoutes
           courseList.push(course.title)
         }
         return res.status(200).json({ stats, courses, aggregate, courseList }) //success
-      }else {
+      } else {
         return res.status(200).json({ stats }) //success
       }
 
-      
+
 
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
@@ -149,8 +147,9 @@ meRoutes
       const { email } = user
       let rv = await mongo.db.collection('achievements').findOne({ email: email })
       return res.status(200).json(rv)
-    } catch (e) { }
-    return res.status(500).json()
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
   })
 
   .get('/reviews', async (req, res) => {
@@ -181,6 +180,8 @@ meRoutes
       user = await findUser({ id: req.decoded.id })
       let register = await mongo.db.collection('registrations').findOne({ email: user.email, courseRef: courseRef, batchID: batchID }) //check if user register b4
       let userStats = await mongo.db.collection('statistics').findOne({ email: user.email })
+      //let userAchieve = await mongo.db.collection('achievements').findOne({ email: user.email })
+      //let instructorAchieve = await mongo.db.collection('achievements').findOne({ email: instructor })
       let course = await mongo.db.collection('courses').findOne({ createdBy: instructor, reference: courseRef })
 
       if (register) {
@@ -192,6 +193,8 @@ meRoutes
       } else {
         let body = {
           email: user.email,
+          name: user.name,
+          active: true,
           courseRef: courseRef,
           title: title,
           regDate: new Date(),
@@ -212,6 +215,7 @@ meRoutes
           var index = userStats.registration.findIndex(p => p.year == year)  //add user registration
           var index2 = course.registration.findIndex(p => p.year == year)  // add course registration stats
 
+          //user
           if (index < 0) {
             let template = {
               year: year,
@@ -236,6 +240,7 @@ meRoutes
               { session })
           }
 
+          //course 
           if (index2 < 0) {
             let template = {
               year: year,
@@ -296,6 +301,87 @@ meRoutes
       return res.status(200).json({ courses, total })
     } catch (e) {
       return res.status(400).json({ e })
+    }
+  })
+
+  .get('/courses/list', authUser, async (req, res) => {
+    try {
+      let list = []
+      let user = await findUser({ id: req.decoded.id })
+      let courses = await mongo.db.collection('courses').find({ createdBy: user.email }).toArray()
+
+      for (var item of courses) {
+        list.push(item.title)
+      }
+
+      return res.status(200).json({ list, courses })
+    } catch (e) {
+      return res.status(400).json({ e: e.toString() })
+    }
+  })
+
+  .get('/courses/students', authUser, async (req, res) => {
+    let { courseRef, batchID } = req.query
+    try {
+      let user = await findUser({ id: req.decoded.id })
+      let rv = await mongo.db.collection('registrations').find({ courseRef: courseRef, batchID: batchID }).toArray()
+
+      return res.status(200).json(rv)
+    } catch (e) {
+      return res.status(400).json({ e: e.toString() })
+    }
+  })
+
+  .delete('/courses/students', authUser, async (req, res) => {
+    let { courseRef, batchID, email } = req.query
+    let year = new Date().getFullYear()
+    let month = new Date().getMonth()
+    try {
+      let instructor = await findUser({ id: req.decoded.id }) // this is instructor
+      let course = await mongo.db.collection('courses').findOne({ createdBy: instructor.email, reference: courseRef }) // get course
+      let userStats = await mongo.db.collection('statistics').findOne({ email: email }) //students stats
+
+      //Transaction
+      const { defaultTransactionOptions, client } = mongo
+      const session = client.startSession({ defaultTransactionOptions }) // for transactions
+      session.startTransaction()
+      try {
+        let rv = await mongo.db.collection('registrations').deleteOne({ courseRef: courseRef, batchID: batchID, email: email }, { session })
+        let rv1 = await mongo.db.collection('statistics').findOneAndUpdate({ email: email }, { $inc: { registered: -1 } }, { session })  //update user
+        let rv2 = await mongo.db.collection('statistics').findOneAndUpdate({ email: instructor.email }, { $inc: { studentsCount: -1 } }, { session }) //update instructor
+
+        //update user and course stats
+        var index = userStats.registration.findIndex(p => p.year == year)  //add user registration
+        var index2 = course.registration.findIndex(p => p.year == year)  // add course registration stats
+
+        //user
+        userStats.registration[index].data[month]--
+        await mongo.db.collection('statistics').updateOne({ email: email }, {
+          $set: {
+            registration: userStats.registration
+          }
+        },
+          { session })
+
+        //course
+        course.registration[index2].data[month]--
+        await mongo.db.collection('courses').updateOne({ createdBy: instructor.email, reference: courseRef }, {
+          $set: {
+            registration: course.registration
+          }
+        },
+          { session })
+
+        await session.commitTransaction()
+        return res.status(200).json({ success: true, msg: 'Deleted Successfully!' }) //success
+
+      } catch (e) {
+        await session.abortTransaction()
+        res.status(500).json({ e: e.toString() })
+      }
+      return session.endSession()
+    } catch (e) {
+      return res.status(400).json({ e: e.toString() })
     }
   })
 
@@ -525,68 +611,75 @@ meRoutes
 
       const survey = await mongo.db.collection('survey').findOne({ reference: reference }, { projection: { survey: 1, _id: 0 } })
       const r = await mongo.db.collection('surveyResults').find({ reference: reference }, { projection: { result: 1, _id: 0 } }).toArray()
-
-      //set up aggregate array
+      
       let aggregate = []
-      for (var [index, q] of survey.survey.entries()) {
-        let template = {
-          id: null,
-          type: "",
-          title: "",
-          categories: [],
-          data: []
-        }
-
-        if (aggregate[index] == null) {
-          template.id = q.id
-          template.title = q.title
-          template.type = q.type
-          if (q.type == "check" || q.type == "radio") {
-            for (var option of q.options) {
-              //console.log("AA",option.title)
-              template.categories.push(option.title)
-            }
+      //set up aggregate array
+      if (survey) {
+        
+        for (var [index, q] of survey.survey.entries()) {
+          let template = {
+            id: null,
+            type: "",
+            title: "",
+            categories: [],
+            data: []
           }
-          aggregate.push(template)
+
+          if (aggregate[index] == null) {
+            template.id = q.id
+            template.title = q.title
+            template.type = q.type
+            if (q.type == "check" || q.type == "radio") {
+              for (var option of q.options) {
+                //console.log("AA",option.title)
+                template.categories.push(option.title)
+              }
+            }
+            aggregate.push(template)
+          }
         }
       }
+
 
       //console.log("SETUP", aggregate)
 
       //aggregate result into aggregate array
-      for (var d of r) {
-        for (var index2 of d.result) {
-          for (var i of aggregate) {
-            if (i.id == index2.id) {
-              if (i.type == 'text') {
-                if (index2.answer != null) {
-                  i.data.push(index2.answer)
-                }
-              } else if (i.type == 'rate') {
-                i.data.push(index2.rating)
-              } else if (i.type == 'check') {
-                for (var x of index2.selected) {
-                  if (i.data[x] == null) {
-                    i.data[x] = 1
-                  } else {
-                    i.data[x]++
+      if (r) {
+        for (var d of r) {
+          for (var index2 of d.result) {
+            for (var i of aggregate) {
+              if (i.id == index2.id) {
+                if (i.type == 'text') {
+                  if (index2.answer != null) {
+                    i.data.push(index2.answer)
                   }
-                }
-              } else if (i.type == 'radio') {
-                if (i.data[index2.selected] == null) {
-                  console.log("HH", index2.selected)
-                  i.data[index2.selected] = 1
-                } else {
-                  i.data[index2.selected]++
+                } else if (i.type == 'rate') {
+                  i.data.push(index2.rating)
+                } else if (i.type == 'check') {
+                  for (var x of index2.selected) {
+                    if (i.data[x] == null) {
+                      i.data[x] = 1
+                    } else {
+                      i.data[x]++
+                    }
+                  }
+                } else if (i.type == 'radio') {
+                  if (i.data[index2.selected] == null) {
+                    console.log("HH", index2.selected)
+                    i.data[index2.selected] = 1
+                  } else {
+                    i.data[index2.selected]++
+                  }
+
                 }
 
               }
-
             }
           }
         }
       }
-      console.log(aggregate)
+
+
       res.status(200).json(aggregate)
     } catch (e) {
       res.status(404).json({ e: 'Server Error' })
@@ -751,10 +844,13 @@ meRoutes
           reference: uuidv4(),
           courseRef: courseRef,
           created: new Date().toISOString(),
-          views: 0
+          views: 0,
+          upvote: [],
+          downvote: []
 
         }
         let rv = await mongo.db.collection('threads').insertOne(body)
+        await mongo.db.collection(statistics).findOneAndUpdate({ email: user.email }, { $inc: { discussionPoints: 5 } })
       }
       return res.status(200).json('success')
     } catch (e) {
@@ -775,15 +871,23 @@ meRoutes
           author: user.email,
           name: user.name,
           created: new Date().toISOString(),
-          message: message
+          message: message,
+          upvote: [],
+          downvote: []
         }
 
         let rv = await mongo.db.collection('messages').insertOne(body)
+        //update stats
+        await mongo.db.collection(statistics).findOneAndUpdate({ email: user.email }, { $inc: { discussionPoints: 1 } })
       }
       return res.status(200).json('success')
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
+  })
+
+  .post('/discussion/vote', authUser, async (req, res) => {
+
   })
 
   //Class related API
@@ -843,7 +947,7 @@ meRoutes
   })
 
   .post('/classes/post/thread', authUser, async (req, res) => {
-    let { createType, tMsg, title, courseRef, batchID } = req.body
+    let { createType, tMsg, title, courseRef, batchID, fileName } = req.body
     let user = null
     let length = null
     try {
@@ -861,6 +965,7 @@ meRoutes
           title: title,
           message: tMsg,
           created: new Date(),
+          fileName,
           replies: []
         }
 

@@ -165,7 +165,7 @@
               </v-list-item>
               <h3 class="listTitle">Ongoing</h3>
               <v-list-item
-                v-for="item in ongoingItems"
+                v-for="item in ongoingInstructorItems"
                 :key="item.title"
                 :to="item.route"
               >
@@ -224,6 +224,10 @@ export default {
       ],
       communityItems: [{ title: "Discussion", route: "/discussion" }],
       ongoingItems: [{ title: "Classes", route: "/classes" }],
+      ongoingInstructorItems: [
+        { title: "Classes", route: "/classes" },
+        { title: "Students", route: "/students" }
+      ],
       drawer: true,
     }
   },

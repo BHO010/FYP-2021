@@ -3,6 +3,8 @@ const mongo = require(LIB_PATH + '/services/db/mongodb')
 const apiRoutes = express.Router()
 const { authSignup, authUser } = require('../middlewares/auth')
 
+const { gcpGetSignedUrl } = require(LIB_PATH + '/services/gcp')
+
 apiRoutes
 
 .get('/healthcheck', async (req, res) => { // health check
@@ -40,6 +42,6 @@ apiRoutes
   }
 })
 
-
+.post('/gcp-sign', authUser, asyncWrapper(gcpGetSignedUrl))
 
   module.exports = apiRoutes;

@@ -13,8 +13,9 @@
     "dev": "cross-env NODE_ENV=%npm_package_config_env% nodemon %npm_package_config_app%/index.js"
   },
   "dependencies": {
+    "@google-cloud/storage": "^5.7.4",
     "agenda": "^3.0.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "bull": "^3.18.0",

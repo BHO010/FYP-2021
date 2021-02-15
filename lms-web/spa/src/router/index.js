@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import AuthGuard from './auth-guard'
 
-
+ 
 Vue.use(Router)
 
 export default new Router({
@@ -17,6 +17,7 @@ export default new Router({
     { path: '/browse', name:'Browse', component: () => import('@/pages/Browse'),  beforeEnter: AuthGuard},
     { path: '/discussion', name:'Discussion', component: () => import('@/pages/Discussion'),  beforeEnter: AuthGuard},
     { path: '/discussion/thread', name:'Threads', component: () => import('@/pages/Thread'),  beforeEnter: AuthGuard},
+    { path: '/students', name:'Students', component: () => import('@/pages/Students'),  beforeEnter: AuthGuard},
     { path: '/classes', name:'Classes', component: () => import('@/pages/Classes'),  beforeEnter: AuthGuard},
     { path: '/classes/thread/:type', name:'CThread', component: () => import('@/pages/CThread'),  beforeEnter: AuthGuard},
     { path: '/classes/quiz/list', name:'QuizResults', component: () => import('@/pages/QuizResults'),  beforeEnter: AuthGuard},

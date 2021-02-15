@@ -16,6 +16,7 @@
     "@dicebear/avatars-avataaars-sprites": "^4.2.5",
     "apexcharts": "^3.17.1",
     "axios": "^0.21.1",
+    "file-saver": "^2.0.2",
     "ckeditor": "^4.12.1",
     "core-js": "^3.6.4",
     "echarts": "^5.0.2",

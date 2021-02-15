@@ -89,8 +89,8 @@
             <v-btn class="Btn" text>Report</v-btn>
             <v-spacer></v-spacer>
             <div>
-              <v-btn class="Btn" text>Upvote</v-btn>
-              <v-btn class="Btn" text>Downvote</v-btn>
+              <v-btn class="Btn" text @click="upVote">Upvote</v-btn>
+              <v-btn class="Btn" text @click="downVote">Downvote</v-btn>
             </div>
           </div>
         </v-col>
@@ -123,7 +123,6 @@ export default {
     if(this.type != "block") {
       await this.getUser()
       await this.getImage()
-      console.log(this.type2, this.block)
     }
     
   },
@@ -143,6 +142,8 @@ export default {
       d.innerHTML = ""
       d.innerHTML = this.userDetails.profileImage
     },
+    async upvote() {},
+    async downvote() {}
   },
 }
 </script>

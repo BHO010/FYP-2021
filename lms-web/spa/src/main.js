@@ -5,7 +5,7 @@ import i18n from './lang'
 import { store } from './store'
 import router from './router'
 import App from './App'
-
+ 
 import vuetify from '@/plugins/vuetify'
 import VueCrudX from 'ext-lib/webpacked/VueCrudX.vue' // Vuetify
 import VueApexCharts from 'vue-apexcharts'

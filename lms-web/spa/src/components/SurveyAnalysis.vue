@@ -125,4 +125,32 @@ export default {
   width: 100%;
   border-bottom: 5px solid lightgrey;
 }
+
+.table {
+  background-color: transparent;
+  border: 5px solid lightgrey;
+  border-radius: 50px;
+  padding: 1%;
+  margin: 1%;
+}
+
+.table >>> .header {
+  font-family: "DarkerGrotesque-Bold";
+  font-size: 30px !important;
+  color: #0d47a1 !important;
+}
+
+.table >>> td{
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 22px !important; 
+  border-right: 1px solid lightgrey;
+}
+
+.table >>> td:last-child{
+  border-right: 0;
+}
+
+.table >>> .tableRow:hover{
+  background-color: none !important;
+}
 </style>

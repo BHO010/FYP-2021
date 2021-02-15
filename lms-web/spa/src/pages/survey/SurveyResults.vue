@@ -2,11 +2,16 @@
   <div v-if="auth" id="main">
     <div id="body">
       <h1>Survey Results</h1>
-      <survey-analysis
-        v-for="item in data"
-        :key="item.id"
-        :item="item"
-      ></survey-analysis>
+      <div v-if="data.length != 0">
+        <survey-analysis
+          v-for="item in data"
+          :key="item.id"
+          :item="item"
+        ></survey-analysis>
+      </div>
+      <div v-else>
+        <p>There is no result to display.</p>
+      </div>
     </div>
   </div>
 
@@ -36,16 +41,15 @@ export default {
   },
   async mounted() {
     try {
-     // this.$store.commit("setLoading", true)
-      this.reference = this.$route.query.reference
-      //let rv = await http.get(`/api/me/survey/${this.reference}`)
-      let rv = await http.get(`/api/me/survey/results/${this.reference}`)
-      this.data = rv.data
       let user = await http.get("/api/me")
       this.userDetails = user.data
       if (this.userDetails.role == "instructor") {
         this.auth = true
       }
+
+      this.reference = this.$route.query.reference
+      let rv = await http.get(`/api/me/survey/results/${this.reference}`)
+      this.data = rv.data
     } catch (e) {}
   },
 }

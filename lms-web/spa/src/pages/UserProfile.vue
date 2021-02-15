@@ -76,7 +76,10 @@
           <v-row>
             <v-col cols="9">
               <div class="statsContent">
-                <h1>{{userDetails.rank}} Instructor Level {{ userDetails.level }}</h1>
+                <h1>
+                  {{ userDetails.rank }} Instructor Level
+                  {{ userDetails.level }}
+                </h1>
                 <div>
                   <v-progress-linear
                     v-model="progressValue"
@@ -92,7 +95,7 @@
                   >
                 </div>
                 <div class="exp">
-                  <h1>{{this.userDetails.knowledgePoints}}</h1>
+                  <h1>{{ this.userDetails.knowledgePoints }}</h1>
                 </div>
               </v-row>
             </v-col>
@@ -101,21 +104,28 @@
           <v-row>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Students: {{this.stats.studentsCount}}</v-row>
-                <v-row class="statsItem">Courses: {{this.stats.courseTaken}}</v-row>
-                <v-row class="statsItem">Accounting</v-row>
+                <v-row class="statsItem"
+                  >Students: {{ this.stats.studentsCount }}</v-row
+                >
+                <v-row class="statsItem"
+                  >Courses: {{ this.stats.courseCreated }}</v-row
+                >
+                <v-row class="statsItem"
+                  >Registered: {{ this.stats.registered }}</v-row
+                >
               </div>
             </v-col>
             <v-col cols="6">
               <div class="leftStats">
                 <v-row class="statsItem">Rating: 4.5/5</v-row>
-                <v-row class="statsItem">Comments: {{this.stats.discussionPoints}}</v-row>
-                <v-row class="statsItem">Accounting</v-row>
+                <v-row class="statsItem"
+                  >Comments: {{ this.stats.discussionPoints }}</v-row
+                >
+                <v-row class="statsItem"
+                  >Discussion Points: {{ this.stats.discussionPoints }}</v-row
+                >
               </div>
             </v-col>
-          </v-row>
-          <v-row class="statsBtmRow">
-               <v-btn class="btn" @click="achievements()">Achievements</v-btn>
           </v-row>
         </div>
       </v-col>
@@ -126,14 +136,14 @@
         <h1>Your Courses</h1>
         <v-btn class="btn" color="#E1F5FE" @click="coursesAll()">See All</v-btn>
       </div>
-      
+
       <div class="courseRow">
-         <course-card
+        <course-card
           v-for="course in courses"
           :key="course._id"
           :course="course"
-          >
-         </course-card>
+        >
+        </course-card>
       </div>
     </div>
 
@@ -142,13 +152,13 @@
         <h1>Your Achievement</h1>
         <v-btn class="btn" color="#E1F5FE" @click="achieveAll()">See All</v-btn>
       </div>
-      
+
       <div>...</div>
     </div>
 
     <div class="reviewContainer">
-         <h1 style="margin-bottom: 2%">Reviews</h1>
-     
+      <h1 style="margin-bottom: 2%">Reviews</h1>
+
       <div>
         <review-section
           v-for="review in reviews"
@@ -188,7 +198,7 @@ export default {
       reviewsPageSize: 5,
       reviewsTotalPages: 0,
       courses: [],
-      totalCourse: ''
+      totalCourse: "",
     }
   },
   created() {},
@@ -208,7 +218,7 @@ export default {
       }
       this.insertImage()
       this.getCourses()
-      this.getExp()
+      this.getExp(this.userDetails.role)
       this.getStats()
     } catch (e) {}
   },
@@ -222,10 +232,10 @@ export default {
       try {
         const { data } = await http.get("/api/me/reviews", {
           params: {
-              email: this.userDetails.email,
-              currentPage: this.reviewsCurrentPage,
-              pageSize: this.reviewsPageSize,
-          }
+            email: this.userDetails.email,
+            currentPage: this.reviewsCurrentPage,
+            pageSize: this.reviewsPageSize,
+          },
         })
         this.reviews = data.reviews
         this.reviewsTotalPages = Math.ceil(data.total / this.reviewsPageSize)
@@ -235,10 +245,10 @@ export default {
     },
     async getCourses() {
       const { data } = await http.get("/api/me/courses", {
-          params: {
-              email: this.userDetails.email,
-              role: this.userDetails.role,
-          }
+        params: {
+          email: this.userDetails.email,
+          role: this.userDetails.role,
+        },
       })
       this.courses = data.courses
       this.totalCourse = data.total
@@ -246,17 +256,23 @@ export default {
     async getStats() {
       const rv2 = await http.get("/api/me/stats")
       const rv3 = await http.get("/api/me/achievements")
-      this.stats = rv2.data
+      this.stats = rv2.data.stats
       this.achievements = rv3.data
     },
-    getExp() {
+    getExp(role) {
       let maxExp = 100
-      if(this.userDetails.level != 1) {
-        maxExp *= (this.user.userDetails.level) * 1.5
+
+      if (role == "instructor") {
+        if (this.userDetails.level != 1) {
+          maxExp *= this.user.userDetails.level * 2.5
+        }
+      } else {
+        if (this.userDetails.level != 1) {
+          maxExp *= this.user.userDetails.level * 1.5
+        }
       }
       this.progressValue = (this.userDetails.knowledgePoints / maxExp) * 100
-      
-    }
+    },
   },
 }
 </script>
@@ -269,7 +285,7 @@ export default {
 <style scoped>
 .profileContainer {
   width: 90%;
-  margin: auto
+  margin: auto;
 }
 
 .border {
@@ -319,7 +335,7 @@ export default {
 }
 
 .statsBtmRow {
-  margin:2%;
+  margin: 2%;
 }
 
 .statsBtnRow .btn .v-btn__content {
@@ -346,7 +362,7 @@ export default {
 }
 
 .courseRow {
-  display:flex;
+  display: flex;
   flex-direction: row;
   width: 90%;
   margin: auto;

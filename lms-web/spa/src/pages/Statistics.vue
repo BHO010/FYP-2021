@@ -1,7 +1,7 @@
 <template>
   <div id="main">
     <h1>Statistics</h1>
-    <div v-if="user" class="body ">
+    <div v-if="user" class="body">
       <div class="row section">
         <div class="leftCol">
           <v-card class="mx-auto" width="500px" height="250px">
@@ -242,10 +242,11 @@ export default {
       }
 
       var index = this.totalCourseStats.findIndex((p) => p.year == this.year)
-      this.series[0].data = this.totalCourseStats[index].dat
+      this.series[0].data = this.totalCourseStats[index].data
     } else {
       this.userStats = rv.data.stats
     }
+
 
     var index2 = this.userStats.registration.findIndex(
       (p) => p.year == this.year

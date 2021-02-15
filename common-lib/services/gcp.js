@@ -1,44 +1,66 @@
 'use strict'
-
+const path = require('path')
 const {Storage} = require('@google-cloud/storage')
 
 const { GCP_KEY, GCP_DEFAULT_BUCKET = '', CORS_ORIGINS } = require('../config')
 let bucketName = GCP_DEFAULT_BUCKET
 let storage
 
-if (!storage && GCP_KEY && GCP_KEY.project_id) {
-  const { client_email, private_key } = GCP_KEY
-  storage = new Storage({ credentials: {
-    client_email, private_key
+
+ if (!storage && GCP_KEY && GCP_KEY.projectId) {
+  const { client_email, private_key, projectId } = GCP_KEY
+  storage = new Storage({projectId:projectId,  credentials: {
+    client_email,private_key
   } })
 }
 
+    /*   storage.getBuckets().then(x => {
+  console.log("FF",x)
+})       */
+
 exports.gcpSetBucket = async (newBucketName) => bucketName = newBucketName || bucketName
 
-// Set CORs
-// [
-//     {
-//       "origin": ["https://uat.mybot.live"],
-//       "responseHeader": ["*"],
-//       "method": ["GET", "HEAD", "PUT", "DELETE"],
-//       "maxAgeSeconds": 3600
-//     }
-// ]
+//Set CORs
+/* [
+    {
+      "origin": ["http://127.0.0.1:8080"],
+      "responseHeader": ["*"],
+      "method": ["GET", "HEAD", "PUT", "DELETE"],
+      "maxAgeSeconds": 3600
+    }
+]
 
-// gsutil cors set [JSON_FILE_NAME].json gs://[BUCKET_NAME]
-// gsutil cors get gs://[BUCKET_NAME]
+gsutil cors set [JSON_FILE_NAME].json gs://[BUCKET_NAME]
+gsutil cors get gs://[BUCKET_NAME]
 
-// const gcpEnableCors = async (req,res) => {
-//   // const bucket = admin.storage().bucket(bucketName)
-//   const bucket = storage.bucket(bucketName)
-//   await bucket.setCorsConfiguration([{
-//     maxAgeSeconds: 3600,
-//     method: [ 'GET', 'HEAD', 'PUT', 'DELETE' ],
-//     responseHeader: ['*'],
-//     origin: CORS_ORIGINS ? CORS_ORIGINS.split(',') : [ '*' ]
-//   }])
-//   res.status(200).json()
-// }
+const gcpEnableCors = async (req,res) => {
+  // const bucket = admin.storage().bucket(bucketName)
+  const bucket = storage.bucket(bucketName)
+  await bucket.setCorsConfiguration([{
+    maxAgeSeconds: 3600,
+    method: [ 'GET', 'HEAD', 'PUT', 'DELETE' ],
+    responseHeader: ['*'],
+    origin: CORS_ORIGINS ? CORS_ORIGINS.split(',') : [ '*' ]
+  }])
+  res.status(200).json()
+}  */
+
+async function configureBucketCors() {
+    await storage.bucket(bucketName).setCorsConfiguration([
+      {
+        maxAgeSeconds: 3600,
+        method: [ 'GET', 'HEAD', 'PUT', 'DELETE' ],
+        origin: [CORS_ORIGINS],
+        responseHeader: ['*']
+      },
+    ]);
+
+    console.log(`Bucket ${bucketName} was updated with a CORS config`);
+  }
+
+  configureBucketCors();
+  // [END storage_cors_configuration]
+
 
 exports.gcpGetSignedUrl = async (req,res) => { // test upload/get with cloud opject storage using SignedURLs
   // action "read" (HTTP: GET), "write" (HTTP: PUT), or "delete" (HTTP: DELETE),

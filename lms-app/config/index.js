@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 
+const GCP_KEY = require('./' + process.env.NODE_ENV + '.gcp.json') || ''
+
 const JWT_CERTS_PATH = process.env.JWT_CERTS_PATH || '' // RS256
 const HTTPS_CERTS_PATH = process.env.HTTPS_CERTS_PATH || ''
 
@@ -53,6 +55,11 @@ AUTH_USER_FIELD_LOGIN: process.env.AUTH_USER_FIELD_LOGIN || 'email',
 AUTH_USER_FIELD_PASSWORD: process.env.AUTH_USER_FIELD_PASSWORD || 'password', 
 AUTH_USER_FIELD_GAKEY: process.env.AUTH_USER_FIELD_GAKEY || 'gaKey', 
 
+GCP_KEY,
+FCM_SERVER_KEY: process.env.FCM_SERVER_KEY || '',
+GCP_DEFAULT_BUCKET: process.env.GCP_DEFAULT_BUCKET || '',
+GOOGLE_CLOUD_PROJECT: process.env.GOOGLE_CLOUD_PROJECT || GCP_KEY.project_id,
+
 // HTTPONLY COOKIES
 HTTPONLY_TOKEN: true, // true, false (also set the same on FE..., true means place token in HttpOnly cookie) - DO TAKE NOTE OF CORS
 
@@ -69,9 +76,10 @@ CORS_OPTIONS: { // set withCredentials === true at Frontend
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   preflightContinue: false,
   optionsSuccessStatus: 204,
+  responseHeader: ["*"],
   // ALLOW CORS
   credentials: true, // Access-Control-Allow-Credentials value to true
-  origin: process.env.CORS_ORIGINS || 'http://127.0.0.1:8080' // '*'
+  origin: "http://127.0.0.1:8080"
 },
 CORS_ORIGINS: process.env.CORS_ORIGINS || '*', // http://127.0.0.1:8080
 

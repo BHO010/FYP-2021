@@ -15,11 +15,24 @@
               <div class="name">{{ userDetails.name }}</div>
             </v-col>
             <v-col cols="10" class="title">
-              <div class="topRow">{{ new Date(main.created).toLocaleString() }}</div>
+              <div class="topRow">
+                {{ new Date(main.created).toLocaleString() }}
+              </div>
               <div class="content">
                 <p>
                   {{ main.message }}
                 </p>
+              </div>
+              <div v-if="this.main.fileName.length != 0" class="fileRow">
+                <div
+                  class="fileCard"
+                  v-for="file in main.fileName"
+                  :key="file"
+                  @click="downloadFile(file)"
+                >
+                  <v-row class="header">{{ file }}</v-row>
+                  <div class="dlRow">Download</div>
+                </div>
               </div>
             </v-col>
           </v-flex>
@@ -61,6 +74,8 @@
 <script>
 import { mapState } from "vuex"
 import { http } from "@/axios"
+import axios from "axios";
+import { saveAs } from "file-saver";
 
 export default {
   data() {
@@ -76,18 +91,20 @@ export default {
       main: [],
       posts: [],
       type: "message",
-      create: false
+      create: false,
     }
   },
+  computed: {
+    ...mapState(["error", "loading"]),
+  },
   async mounted() {
-
     let rv = await http.get("/api/me/class", {
-        params: {
-          courseRef: this.courseRef,
-          batchID: this.batchID,
-          index: this.id,
-          section: this.section
-        },
+      params: {
+        courseRef: this.courseRef,
+        batchID: this.batchID,
+        index: this.id,
+        section: this.section,
+      },
     })
     this.main = rv.data
     this.posts = rv.data.replies
@@ -115,17 +132,44 @@ export default {
       this.create = true
     },
     async postMsg() {
-       let rv = await http.post('/api/me/classes/post/thread/message', {
+      let rv = await http.post("/api/me/classes/post/thread/message", {
         courseRef: this.courseRef,
         batchID: this.batchID,
         message: this.message,
         index: this.id,
       })
 
-      if(rv) {
+      if (rv) {
         this.$router.go()
-      } 
-    }
+      }
+    },
+    async downloadFile(fileName) {
+      try {
+         const { data } = await http.post(`/api/gcp-sign`, {
+          filename: fileName,
+          action: "read"
+        });
+        const rv = await http.get(data.url, { withCredentials: false });
+        await axios.get(rv.config.url, { responseType: "blob" }).then(response => {
+            // Log somewhat to show that the browser actually exposes the custom HTTP header
+            var FileSaver = require("file-saver");
+            const fileNameHeader = "x-suggested-filename";
+            const suggestedFileName = response.headers[fileName];
+            const effectiveFileName =
+              suggestedFileName === undefined
+                ? fileName
+                : suggestedFileName;
+            FileSaver.saveAs(response.data, effectiveFileName);
+          })
+          .catch(response => {
+            console.error(
+              "Could not Download the Excel report from the backend.",
+              response
+            );
+          });
+
+      }catch(e) {}
+    },
   },
 }
 </script>
@@ -239,5 +283,36 @@ export default {
   margin: auto;
   margin-top: 2%;
   margin-bottom: 2%;
+}
+
+.fileRow {
+  display: flex;
+}
+
+.fileCard {
+  border: 1px solid lightgrey;
+  max-width: 200px;
+  margin-right: 1%;
+}
+
+.fileCard:hover {
+  opacity: 0.55;
+}
+
+.fileCard .header {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 20px;
+  overflow: hidden;
+  max-width: 200px;
+  display: inline-block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 1%;
+}
+
+.fileCard .dlRow {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 14px;
+  line-height: 1;
 }
 </style>

@@ -118,7 +118,6 @@
             </div>
           </div>
           <div v-else-if="type == 'thread'">
-
             <!-- Notice -->
             <div class="row">
               <h1>Notice</h1>
@@ -178,8 +177,8 @@
             </div>
             <div class="discussionContent">
               <!-- component here, feedback -->
-               <classes-card
-                v-for="item in feedback"
+              <classes-card
+                v-for="item in feedbacks"
                 :key="item.id"
                 :block="item"
                 :type="type"
@@ -189,7 +188,6 @@
                 :user="user"
               ></classes-card>
             </div>
-
           </div>
         </div>
       </div>
@@ -222,6 +220,14 @@
                 <div class="inputRow">
                   <h3 class="size-18">Message:</h3>
                   <v-textarea v-model="tMsg" outlined rows="4"></v-textarea>
+                  <v-file-input
+                    show-size
+                    v-model="files"
+                    multiple
+                    label="File input"
+                    outlined
+                    dense
+                  ></v-file-input>
                 </div>
                 <v-btn text outlined @click="postThread">Submit</v-btn>
               </v-form>
@@ -266,6 +272,7 @@ export default {
       user: true,
       title: "",
       tMsg: "",
+      files: [],
       courseRef: this.$route.query.ref,
       batchID: this.$route.query.batch,
       classes: null, //block
@@ -297,6 +304,7 @@ export default {
           batchID: this.batchID,
         },
       })
+      console.log(rv.data.feedback)
       this.notices = rv.data.notice
       this.quizes = rv.data.quiz
       this.feedbacks = rv.data.feedback
@@ -325,17 +333,44 @@ export default {
       this.createType = type
     },
     async postThread(type) {
+      this.$store.commit("setLoading", true)
+      let fileName = []
+      for (var i=0;i<this.files.length; i++) {
+        fileName.push(this.files[i].name)
+        await this.uploadFile(this.files[i])
+        console.log("HERE")
+      }
+
       let rv = await http.post("/api/me/classes/post/thread", {
         createType: this.createType,
         tMsg: this.tMsg, //For Notice section & question section
         title: this.title,
         courseRef: this.courseRef,
         batchID: this.batchID,
+        fileName,
       })
 
       if (rv) {
+        this.$store.commit("setLoading", false)
         this.$router.go()
       }
+    },
+    async uploadFile(JSfile) {
+      try {
+        const { data } = await http.post(`/api/gcp-sign`, {
+          filename: JSfile.name,
+          action: "write",
+        })
+
+        const rv = await http.put(data.url, JSfile, {
+          withCredentials: false,
+          headers: { "Content-Type": "application/octet-stream" },
+        })
+
+        if(rv) {
+          return
+        }
+      } catch (e) {}
     },
   },
 }

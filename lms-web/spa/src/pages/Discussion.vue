@@ -18,6 +18,7 @@
               </discussion-card>
             </div>
           </div>
+          <!-- Thread -->
           <div v-else>
             <v-row>
               <h1>Notice</h1>
@@ -54,6 +55,7 @@
           </div>
         </div>
       </div>
+      <!-- instructor -->
       <div v-else>
         <div id="content">
           <div v-if="type == 'block'">
