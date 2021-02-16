@@ -38,7 +38,21 @@
         </v-toolbar-items>
 
         <!-- user icon + notification bell -->
-        <v-icon large color="green darken-2" class="notification">
+        <v-badge
+          v-if="notice"
+          color="error"
+          :content="notification"
+          overlap
+          offset-x="22"
+          offset-y="26"
+        >
+          <v-btn icon>
+            <v-icon large color="green darken-2" class="notification">
+              mdi-bell
+            </v-icon>
+          </v-btn>
+        </v-badge>
+        <v-icon v-else large color="green darken-2" class="notification">
           mdi-bell
         </v-icon>
         <v-menu :nudge-width="200" offset-y>
@@ -197,6 +211,8 @@ export default {
       userDetails: "",
       profileImage: "",
       isUser: true,
+      notice: false,
+      notification: 5,
       menu: [
         { title: "Browse", route: "/browse" },
         { title: "About Us", route: "/home" },
@@ -226,7 +242,7 @@ export default {
       ongoingItems: [{ title: "Classes", route: "/classes" }],
       ongoingInstructorItems: [
         { title: "Classes", route: "/classes" },
-        { title: "Students", route: "/students" }
+        { title: "Students", route: "/students" },
       ],
       drawer: true,
     }
@@ -356,13 +372,9 @@ input:-internal-autofill-selected {
   color: white !important;
 }
 
-.notification {
-  margin-right: 1%;
-  margin-left: 1%;
-}
-
 .avatar {
   margin-right: 1% !important;
+  margin-left: 1% !important;
 }
 
 .logo {

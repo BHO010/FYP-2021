@@ -28,6 +28,17 @@
                 Edit
               </v-btn>
             </td>
+            <td>
+              <v-btn
+                class="mx-2 btn"
+                text
+                outlined
+                color="blue"
+                @click.stop="editCourse(row.item.reference)"
+              >
+                Edit
+              </v-btn>
+            </td>
           </tr>
         </template>
       </v-data-table>
@@ -56,11 +67,6 @@ export default {
           sortable: false,
           class: "header",
         },
-        /* {
-          text: "Reference ID",
-          sortable: false,
-          class: "header",
-        }, */
         {
           text: "Views",
           sortable: false,
@@ -68,6 +74,11 @@ export default {
         },
         {
           text: "Survey",
+          sortable: false,
+          class: "header",
+        },
+        {
+          text: "Update",
           sortable: false,
           class: "header",
         },
@@ -104,6 +115,11 @@ export default {
     },
     async onCourseView(id) {
       this.$router.push({ path: `/course/${id}` }).catch((err) => {})
+    },
+    editCourse(data) {
+      this.$router
+        .push({ path: "/course/edit", query: { reference: data } })
+        .catch((err) => {})
     },
   },
 }
@@ -156,17 +172,17 @@ export default {
   color: #0d47a1 !important;
 }
 
-.table >>> td{
+.table >>> td {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 22px !important; 
+  font-size: 22px !important;
   border-right: 1px solid lightgrey;
 }
 
-.table >>> td:last-child{
+.table >>> td:last-child {
   border-right: 0;
 }
 
-.table >>> .tableRow:hover{
+.table >>> .tableRow:hover {
   background-color: none !important;
 }
 </style>

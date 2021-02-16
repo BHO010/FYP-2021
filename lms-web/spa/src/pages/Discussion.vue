@@ -175,7 +175,7 @@ export default {
       imptThreads: [],
       type: "block",
       create: false,
-      createType: null,
+      createType: null
     }
   },
   computed: {

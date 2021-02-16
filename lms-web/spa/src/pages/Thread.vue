@@ -1,5 +1,14 @@
 <template>
   <div id="main">
+    <v-snackbar
+      v-model="snackbarShow"
+      :timeout="snackbarTimeout"
+      :color="snackbarColor"
+      absolute
+      top
+      class="snackbar"
+      >{{ snackbarText }}</v-snackbar
+    >
     <div id="body">
       <div id="content">
         <div class="headRow">
@@ -12,21 +21,45 @@
           <v-flex xs12 row>
             <v-col cols="2" class="profile" @click="gotoProfile(main.author)">
               <div class="icon" :id="main._id"></div>
-              <div class="name">{{ userDetails.name }}</div>
+              <div class="name">{{ postUser.name }}</div>
             </v-col>
             <v-col cols="10" class="title">
-              <div class="topRow">{{ new Date(main.created).toLocaleString() }}</div>
+              <div class="topRow">
+                {{ new Date(main.created).toLocaleString() }}
+              </div>
               <div class="content">
                 <p>
                   {{ main.message }}
                 </p>
               </div>
               <div class="btmRow">
-                <v-btn class="Btn" text>Report</v-btn>
+                <v-btn class="Btn" text @click="reportDialog = true"
+                  >Report</v-btn
+                >
                 <v-spacer></v-spacer>
                 <div>
-                  <v-btn class="Btn" text @click="upVote">Upvote</v-btn>
-                  <v-btn class="Btn" text @click="downVote">Downvote</v-btn>
+                  <v-btn
+                    v-if="this.upvote.includes(this.userDetails.name)"
+                    class="Btn"
+                    text
+                    color="success"
+                    @click="vote('upvote')"
+                    >Upvote {{ this.upvote.length }}</v-btn
+                  >
+                  <v-btn v-else class="Btn" text @click="vote('upvote')"
+                    >Upvote {{ this.upvote.length }}</v-btn
+                  >
+                  <v-btn
+                    v-if="this.downvote.includes(this.userDetails.name)"
+                    class="Btn"
+                    text
+                    color="error"
+                    @click="vote('downvote')"
+                    >Downvote {{ this.downvote.length }}</v-btn
+                  >
+                  <v-btn v-else class="Btn" text @click="vote('downvote')"
+                    >Downvote {{ this.downvote.length }}</v-btn
+                  >
                 </div>
               </div>
             </v-col>
@@ -38,10 +71,11 @@
             :block="post"
             :key="post._id"
             :type="type"
+            @emit="postReport"
           ></discussion-card>
         </div>
       </div>
-      <!-- Dialogue-->
+      <!-- New Thread Dialogue-->
       <v-dialog v-model="create" persistent scrollable width="50%">
         <v-card tile>
           <v-toolbar flat dark color="primary">
@@ -62,6 +96,35 @@
           </div>
         </v-card>
       </v-dialog>
+
+      <!-- Report Dialogue-->
+      <v-dialog v-model="reportDialog" persistent scrollable width="50%">
+        <v-card tile>
+          <v-toolbar flat dark color="primary">
+            <v-btn icon dark @click="reportDialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Submit A Report</v-toolbar-title>
+          </v-toolbar>
+          <div id="dialogMain">
+            <div id="dialogBody">
+              <v-form>
+                <div class="inputRow">
+                  <h3 class="size-18">Message:</h3>
+                  <v-textarea
+                    v-model="reportMsg"
+                    outlined
+                    rows="4"
+                  ></v-textarea>
+                </div>
+                <v-btn text outlined @click="postReport(null)"
+                  >Submit</v-btn
+                >
+              </v-form>
+            </div>
+          </div>
+        </v-card>
+      </v-dialog>
     </div>
   </div>
 </template>
@@ -73,7 +136,12 @@ import { http } from "@/axios"
 export default {
   data() {
     return {
-      userDetails: null,
+      snackbarColor: "success",
+      snackbarShow: false,
+      snackbarText: "",
+      snackbarTimeout: 5000,
+      postUser: null, // main post user details
+      userDetails: null, // current user details
       title: "",
       email: "",
       tRef: null,
@@ -82,11 +150,20 @@ export default {
       main: [],
       posts: [],
       type: "message",
-      create: false
+      create: false,
+      upvote: [],
+      downvote: [],
+      reportDialog: false,
+      reportMsg: "",
+      reportTitle: "",
     }
   },
   async mounted() {
     this.tRef = this.$route.query.tRef
+
+    let rv2 = await http.get("/api/me")
+    this.userDetails = rv2.data
+
     let rv = await http.get("/api/me/discussion/thread", {
       params: {
         tRef: this.tRef,
@@ -94,9 +171,12 @@ export default {
     })
 
     this.main = rv.data.mainPost
+    this.upvote = this.main.upvote
+    this.downvote = this.main.downvote
     this.email = this.main.author
     this.posts = rv.data.posts
     this.courseRef = rv.data.courseRef
+
     await this.getUser()
     await this.getImage()
   },
@@ -108,30 +188,64 @@ export default {
             email: this.email,
           },
         })
-        this.userDetails = rv.data
+        this.postUser = rv.data
       } catch (e) {}
     },
     getImage() {
       let d = document.getElementById(this.main._id)
       d.innerHTML = ""
-      d.innerHTML = this.userDetails.profileImage
+      d.innerHTML = this.postUser.profileImage
     },
     async newPost() {
       this.create = true
     },
-    async upVote() {},
-    async downVote() {},
+    async vote(vote) {
+      try {
+        let rv = await http.post("/api/me/discussion/vote", {
+          reference: this.main.reference, //thread reference
+          type: "block",
+          vote,
+        })
+
+        if (rv) {
+          this.upvote = rv.data.upvote
+          this.downvote = rv.data.downvote
+        }
+      } catch (e) {}
+    },
     async postMsg() {
-      let rv = await http.post('/api/me/discussion/post/thread/message', {
+      let rv = await http.post("/api/me/discussion/post/thread/message", {
         courseRef: this.main.courseRef,
         tRef: this.tRef,
         message: this.tMsg,
       })
 
-      if(rv) {
+      if (rv) {
         this.$router.go()
       }
-    }
+    },
+    async postReport(data) {
+      let body = null
+      if(data == null) {
+        body = {
+          msgRef: this.main.reference,
+          courseRef: this.main.courseRef,
+          message: this.reportMsg,
+          type: "threads"
+        }
+      }else {
+        body = data
+      }
+       
+       let rv = await http.post('/api/me/discussion/report', body)
+
+        if(rv) {
+          this.snackbarText = "Report submited successfully"
+          this.snackbarShow = true
+          this.reportDialog = false
+          this.reportMsg = ""
+        }
+    },
   },
 }
 </script>
@@ -140,6 +254,11 @@ export default {
 #main {
   width: 80%;
   margin: auto;
+}
+
+.snackbar {
+  position: sticky;
+  top: 70px;
 }
 
 #body {
@@ -227,7 +346,6 @@ export default {
 
 .btmRow {
   font-family: "DarkerGrotesque-Medium";
-  border-top: 1px solid lightgrey;
   display: flex;
 }
 

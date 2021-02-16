@@ -74,8 +74,11 @@ export default {
       time: ["Oldest", "Latest"],
     }
   },
+  computed: {
+    ...mapState(["error", "loading"]),
+  },
   async mounted() {
-    console.log(this.category, this.date)
+    this.$store.commit("setLoading", true)
     let rv = await http.get("/api/me/browse", {
       params: {
         category: this.category,
@@ -83,7 +86,7 @@ export default {
       },
     })
     this.courses = rv.data.courses
-    console.log("AA", this.courses)
+    this.$store.commit("setLoading", false)
   },
   methods: {
     async updateSearch() {

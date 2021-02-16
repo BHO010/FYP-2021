@@ -3,8 +3,8 @@ let statsTemplate = {
     registered: 0,
     courseCreated: 0,
     reviewsCount: 0,
-    maxLikes: 0,
-    maxDislikes: 0,
+    upvotes: 0,
+    downvotes: 0,
     discussionPoints: 0,
     profileLikes: 0,
     studentsCount: 0,
@@ -40,7 +40,7 @@ let achievementTemplate = {
             nextReq: 5
         },
         {
-            id: "maxLikes",
+            id: "upvotes",
             info: "Number of likes obtained",
             title: "Constructive Learner",
             level: 0,
@@ -48,7 +48,7 @@ let achievementTemplate = {
             nextReq: 10
         },
         {
-            id: "maxDislikes",
+            id: "downvotes",
             info: "Number of dislikes obtained",
             title: "Destructive Learner",
             level: 0,

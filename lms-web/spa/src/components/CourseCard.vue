@@ -8,8 +8,8 @@
       <v-card-title class="py-0 title">{{course.title}}</v-card-title>
       <v-card-actions class="btmRow">
         <v-btn color="orange lighten-2" @click="viewCourse" text> View </v-btn>
-        <v-btn color="orange lighten-2" @click="editCourse" text> Edit </v-btn>
-        <v-btn color="orange lighten-2" @click="survey" text> Survey </v-btn>
+        <!-- <v-btn color="orange lighten-2" @click="editCourse" text> Edit </v-btn>
+        <v-btn color="orange lighten-2" @click="survey" text> Survey </v-btn> -->
       </v-card-actions>
   </v-card>
 </template>
@@ -22,6 +22,9 @@ export default {
   name: "CourseCard",
   props: {
     course: Object,
+  },
+   computed: {
+    ...mapState(["error", "loading"]),
   },
   mounted() {
   },
