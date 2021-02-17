@@ -22,6 +22,17 @@ client.connect(async err => {
       await db.collection('user').createIndex({ active: 1 })
       await db.collection('user').insertMany(user)
 
+     /*  const courses = require('./seed-courses')
+      await db.collection('user').deleteMany({})
+      await db.collection('user').createIndex({ reference: 1 }, { unique: true })
+      await db.collection('user').createIndex({ active: 1 })
+      await db.collection('user').insertMany(courses)
+
+      const classes = require('./seed-classes')
+      await db.collection('user').deleteMany({})
+      await db.collection('user').createIndex({ active: 1 })
+      await db.collection('user').insertMany(classes) */
+
       client.close()
       process.exit(0)
     } catch (e) {

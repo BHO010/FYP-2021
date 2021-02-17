@@ -27,7 +27,16 @@ export default new Vuetify({
   lang: {
     t: (key, ...params) => i18n.t(key, params)
   },
+  breakpoint: {
+    thresholds: {
+      xs: 600,
+      sm: 960,
+      md: 1280,
+      lg: 1920,
+    },
+  },
   icons: {
     iconfont: 'mdiSvg', // 'faSvg',
   },
+
 })

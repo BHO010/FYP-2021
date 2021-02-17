@@ -75,4 +75,13 @@ export default {
   bottom: 0;
   padding: 0;
 }
+
+@media screen and (max-width: 1280px) {
+.card {
+  position: relative;
+  min-height: 350px;
+
+}
+
+}
 </style>

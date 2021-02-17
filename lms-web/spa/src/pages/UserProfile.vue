@@ -11,7 +11,10 @@
           <v-row>
             <v-col cols="9">
               <div class="statsContent">
-                <h1>Student Level 1</h1>
+                <h1>
+                  {{ rank[index] }} Student Level
+                  {{ userDetails.level }}
+                </h1>
                 <div>
                   <v-progress-linear
                     v-model="progressValue"
@@ -27,7 +30,7 @@
                   >
                 </div>
                 <div class="exp">
-                  <h1>200</h1>
+                  <h1>{{userDetails.knowledgePoints}}</h1>
                 </div>
               </v-row>
             </v-col>
@@ -36,15 +39,15 @@
           <v-row>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Courses: 2</v-row>
-                <v-row class="statsItem">Accounting</v-row>
+                <v-row class="statsItem">Courses: {{stats.registered}}</v-row>
+                <v-row class="statsItem">Discussion Points: {{stats.discussionPoints}}</v-row>
                 <v-row class="statsItem">Accounting</v-row>
               </div>
             </v-col>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Comments: 20</v-row>
-                <v-row class="statsItem">Accounting</v-row>
+                <v-row class="statsItem">Comment Upvotes: {{stats.upvotes}}</v-row>
+                <v-row class="statsItem">Comment Downvotes: {{stats.downvotes}}</v-row>
                 <v-row class="statsItem">Accounting</v-row>
               </div>
             </v-col>
@@ -54,30 +57,57 @@
     </v-row>
 
     <div class="courseContainer">
-      <h1>Your Courses</h1>
-      <div>course</div>
+      <div class="topRow">
+        <h1>Your Courses</h1>
+        <v-btn class="btn" color="#E1F5FE" @click="coursesAll('user')">See All</v-btn>
+      </div>
+      <div v-if="courses.length > 0" class="courseRow">
+        <course-card
+          v-for="course in courses"
+          :key="course._id"
+          :course="course"
+        >
+        </course-card>
+      </div>
+      <div v-else>
+        <p>You do not have any courses yet</p>
+      </div>
     </div>
 
     <div class="achievementContainer">
-      <h1>Your Achievement</h1>
-      <div>...</div>
+      <div class="topRow">
+        <h1>Your Achievement</h1>
+        <v-btn class="btn" color="#E1F5FE" @click="achieveAll()">See All</v-btn>
+      </div>
+      <div v-if="achievements.length > 0" class="achieveRow">
+        <achievement-card
+          v-for="achievement in achievements"
+          :key="achievement.id"
+          :achievement="achievement"
+          type="profile"
+        >
+        </achievement-card>
+      </div>
+      <div v-else>
+        <p>You do not have nay achievements yet</p>
+      </div>
     </div>
   </v-container>
 
   <v-container fluid v-else class="profileContainer">
     <v-row>
       <!-- avatar -->
-      <v-col cols="12" xs="12" md="5">
+      <v-col cols="12" md="12" lg="5">
         <div class="profileImg"></div>
       </v-col>
       <!-- Stats -->
-      <v-col cols="12" xs="12" md="7">
+      <v-col cols="12" md="12" lg="7">
         <div class="stats">
           <v-row>
             <v-col cols="9">
               <div class="statsContent">
                 <h1>
-                  {{ userDetails.rank }} Instructor Level
+                  {{ rank[index] }} Instructor Level
                   {{ userDetails.level }}
                 </h1>
                 <div>
@@ -105,24 +135,24 @@
             <v-col cols="6">
               <div class="leftStats">
                 <v-row class="statsItem"
-                  >Students: {{ this.stats.studentsCount }}</v-row
+                  >Students: {{ stats.studentsCount }}</v-row
                 >
                 <v-row class="statsItem"
-                  >Courses: {{ this.stats.courseCreated }}</v-row
+                  >Courses: {{ stats.courseCreated }}</v-row
                 >
                 <v-row class="statsItem"
-                  >Registered: {{ this.stats.registered }}</v-row
+                  >Registered: {{ stats.registered }}</v-row
                 >
               </div>
             </v-col>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Rating: 4.5/5</v-row>
+                <v-row class="statsItem">Rating:{{userDetails.rating/userDetails.rateCount}}/5</v-row>
                 <v-row class="statsItem"
-                  >Comments: {{ this.stats.discussionPoints }}</v-row
+                  >Comments: {{ stats.discussionPoints }}</v-row
                 >
                 <v-row class="statsItem"
-                  >Discussion Points: {{ this.stats.discussionPoints }}</v-row
+                  >Discussion Points: {{ stats.discussionPoints }}</v-row
                 >
               </div>
             </v-col>
@@ -134,10 +164,10 @@
     <div class="courseContainer">
       <div class="topRow">
         <h1>Your Courses</h1>
-        <v-btn class="btn" color="#E1F5FE" @click="coursesAll()">See All</v-btn>
+        <v-btn class="btn" color="#E1F5FE" @click="coursesAll('instructor')">See All</v-btn>
       </div>
 
-      <div class="courseRow">
+      <div v-if="courses.length > 0" class="courseRow">
         <course-card
           v-for="course in courses"
           :key="course._id"
@@ -145,6 +175,10 @@
         >
         </course-card>
       </div>
+
+      <div v-else>
+          <p>You do not have any courses yet</p>
+        </div>
     </div>
 
     <div class="achievementContainer">
@@ -153,7 +187,19 @@
         <v-btn class="btn" color="#E1F5FE" @click="achieveAll()">See All</v-btn>
       </div>
 
-      <div>...</div>
+      <div v-if="achievements.length > 0" class="achieveRow">
+        <achievement-card
+          v-for="achievement in achievements"
+          :key="achievement.id"
+          :achievement="achievement"
+          type="profile"
+        >
+        </achievement-card>
+      </div>
+
+       <div v-else>
+          <p>You do not have any courses yet</p>
+        </div>
     </div>
 
     <div class="reviewContainer">
@@ -188,7 +234,7 @@ export default {
     return {
       userDetails: "",
       stats: "",
-      achievements: "",
+      achievements: [],
       user: true,
       profileImage: "",
       progressValue: 0,
@@ -199,6 +245,10 @@ export default {
       reviewsTotalPages: 0,
       courses: [],
       totalCourse: "",
+      rank: [
+        "Novice", "Apprentice", "Master", "GrandMaster", "Sage"
+      ],
+      index: 0
     }
   },
   created() {},
@@ -216,6 +266,7 @@ export default {
         this.user = false
         this.getReviews()
       }
+      this.getRank()
       this.insertImage()
       this.getCourses()
       this.getExp(this.userDetails.role)
@@ -244,18 +295,17 @@ export default {
       }
     },
     async getCourses() {
-      const { data } = await http.get("/api/me/courses", {
-        params: {
-          email: this.userDetails.email,
-          role: this.userDetails.role,
-        },
-      })
+      const { data } = await http.get("/api/me/courses")
+
       this.courses = data.courses
-      this.totalCourse = data.total
     },
     async getStats() {
       const rv2 = await http.get("/api/me/stats")
-      const rv3 = await http.get("/api/me/achievements")
+      const rv3 = await http.get("/api/me/achievements", {
+        params: {
+          type: "profile"
+        }
+      })
       this.stats = rv2.data.stats
       this.achievements = rv3.data
     },
@@ -273,18 +323,47 @@ export default {
       }
       this.progressValue = (this.userDetails.knowledgePoints / maxExp) * 100
     },
+    getRank() {
+      this.index = (this.userDetails.level %10) - 1
+    },
+    achieveAll() {
+      this.$router.push({path: '/achievements'})
+    },
+    coursesAll(type) {
+      if(type == "user") {
+        this.$router.push({path: '/courses-taken'})
+      }else {
+        this.$router.push({path: '/courses-created'})
+      }
+    }
   },
 }
 </script>
+
+
 <style>
+@media screen and (max-width: 1480px) {
+.profileImg {
+  width: 90%;
+  margin: auto;
+  height: 300px;
+  background-color: burlywood;
+  outline: 15px solid brown;
+}
+
+
+
+}
+
 .profileImg svg {
-  width: 600px;
-  height: 380px;
+  width: 85%;
+  height: 98%;
+  padding-left: 15%;
 }
 </style>
 <style scoped>
 .profileContainer {
-  width: 90%;
+  width: 80%;
   margin: auto;
 }
 
@@ -296,6 +375,7 @@ export default {
   width: 90%;
   margin: auto;
   height: 400px;
+  min-width: 400px;
   background-color: burlywood;
   outline: 15px solid brown;
 }
@@ -305,6 +385,7 @@ export default {
   border: 1px solid black;
   margin: auto;
   height: 400px;
+  min-width: 660px;
   background-color: white;
 }
 
@@ -347,6 +428,10 @@ export default {
   margin-top: 4%;
 }
 
+.achievementContainer {
+  margin-bottom: 5%;
+}
+
 .reviewContainer {
   height: auto;
   margin-top: 4%;
@@ -361,12 +446,22 @@ export default {
   margin-left: 1%;
 }
 
-.courseRow {
+.courseContainer p,
+.achievementContainer p {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 30px;
+  color: black;
+  margin-left: 1%;
+}
+
+.courseRow,
+.achieveRow {
   display: flex;
   flex-direction: row;
-  width: 90%;
-  margin: auto;
+  width: 100%;
+   flex-wrap: wrap;
 }
+
 
 .topRow h1 {
   float: left;
@@ -381,5 +476,21 @@ export default {
 
 .topRow .v-btn--contained {
   box-shadow: none;
+}
+
+.achieveRow .card {
+  width: auto;
+  margin: 2%;
+  margin-left: 3%;
+  padding-top: 1%;
+  border-radius: 50px;
+}
+
+.achieveRow .card .row {
+  margin: 1%;
+}
+
+.achieveRow .card .leftCol {
+  width: 30%;
 }
 </style>

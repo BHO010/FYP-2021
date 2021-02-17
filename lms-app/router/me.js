@@ -132,9 +132,6 @@ meRoutes
       } else {
         return res.status(200).json({ stats }) //success
       }
-
-
-
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
@@ -142,10 +139,59 @@ meRoutes
 
   .get('/achievements', authUser, async (req, res) => {
     let user = null
+    let {type} = req.query
     try {
       user = await findUser({ id: req.decoded.id })
       const { email } = user
-      let rv = await mongo.db.collection('achievements').findOne({ email: email })
+
+      if(type=="profile") {
+        let rv = await mongo.db.collection('achievements').findOne({ email: email })
+        let achieve = []
+
+        for(var item of rv.achievements) {
+          if(item.level > 0) {
+            achieve.push(item)
+          }
+        }
+        return res.status(200).json(achieve)
+      }else {
+        let rv = await mongo.db.collection('achievements').findOne({ email: email })
+        return res.status(200).json(rv.achievements)
+      }
+      
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .post('/achievement/stats', authUser, async (req, res) => {
+    let user = null
+    let rv = null
+    try {
+      user = await findUser({ id: req.decoded.id })
+      let rv0 = await mongo.db.collection('achievements').findOne({ email: user.email })
+      let stats = await mongo.db.collection('statistics').findOne({ email: user.email })
+      let update = false
+      for (var achievement of rv0.achievements) {
+        let points = stats[achievement.id]
+        if (achievement.nextReq < points) {
+          achievement.level++
+          achievement.nextReq += achievement.level * achievement.multiplier
+          update = true
+        }
+      }
+
+      if (update) {
+        rv = await mongo.db.collection('achievements').findOneAndUpdate({ email: user.email, "achievements.id": achievement.id }, {
+          $set: {
+            achievements: rv0.achievements
+          }
+        },
+          { returnNewDocument: true })
+      }else {
+        rv = await mongo.db.collection('achievements').findOne({email: user.email})
+      }
+
       return res.status(200).json(rv)
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
@@ -312,12 +358,21 @@ meRoutes
     }
   })
 
-  .get('/courses', async (req, res) => {
-    let { email, role } = req.query
+  .get('/courses', authUser, async (req, res) => {
+    let total = null
+    let courses = null
+    let user = null
     try {
-      const total = await mongo.db.collection('courses').find({ createdBy: email }).count()
-      const courses = await mongo.db.collection('courses').find({ createdBy: email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
-      return res.status(200).json({ courses, total })
+      user = await findUser({ id: req.decoded.id })
+
+      if(user.role == "instructor") {
+        //const total = await mongo.db.collection('courses').find({ createdBy: email }).count()
+         courses = await mongo.db.collection('courses').find({ createdBy: user.email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
+      }else {
+        courses = await mongo.db.collection('registrations').find({ email: user.email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
+      }
+      
+      return res.status(200).json({ courses })
     } catch (e) {
       return res.status(400).json({ e })
     }
@@ -905,10 +960,10 @@ meRoutes
         rv = await mongo.db.collection('threads').findOne({ reference: reference }, { projection: { upvote: 1, downvote: 1, author: 1 } })
       }
 
-       //Transaction
+      //Transaction
       const { defaultTransactionOptions, client } = mongo
       const session = client.startSession({ defaultTransactionOptions }) // for transactions
-      session.startTransaction() 
+      session.startTransaction()
       try {
 
         //update votes
@@ -919,9 +974,9 @@ meRoutes
             rv.upvote.push(user.name)
 
             //update author stats
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {discussionPoints: 1}}, {session})
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {upvotes: 1}}, {session})
-            await mongo.db.collection('user').updateOne({email: rv.author}, {$inc: {knowledgePoints: 3}}, {session})
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { discussionPoints: 1 } }, { session })
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { upvotes: 1 } }, { session })
+            await mongo.db.collection('user').updateOne({ email: rv.author }, { $inc: { knowledgePoints: 3 } }, { session })
 
 
           } else if (rv.upvote.includes(user.name)) { //remove from upvote
@@ -929,16 +984,16 @@ meRoutes
             rv.upvote.splice(index, 1)
 
             //update author stats
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {discussionPoints: -1}}, {session})
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {upvotes: -1}}, {session})
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { discussionPoints: -1 } }, { session })
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { upvotes: -1 } }, { session })
 
 
           } else {
             rv.upvote.push(user.name)  //add to upvote
             //update author stats
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {discussionPoints: 1}}, {session})
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {upvotes: 1}}, {session})
-            await mongo.db.collection('user').updateOne({email: rv.author}, {$inc: {knowledgePoints: 3}}, {session})
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { discussionPoints: 1 } }, { session })
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { upvotes: 1 } }, { session })
+            await mongo.db.collection('user').updateOne({ email: rv.author }, { $inc: { knowledgePoints: 3 } }, { session })
           }
 
         } else {
@@ -949,30 +1004,30 @@ meRoutes
             rv.downvote.push(user.name)
 
             //update author stats
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {discussionPoints: -2}}, {session})
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {downvotes: 1}}, {session})
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { discussionPoints: -2 } }, { session })
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { downvotes: 1 } }, { session })
 
           } else if (rv.downvote.includes(user.name)) {
             var index = rv.downvote.findIndex(p => p == user.name)
             rv.downvote.splice(index, 1)
 
             //update author stats
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {discussionPoints: 2}}, {session})
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {downvotes: -1}}, {session})
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { discussionPoints: 2 } }, { session })
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { downvotes: -1 } }, { session })
 
           } else {
             rv.downvote.push(user.name)
 
             //update author stats
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {discussionPoints: -2}}, {session})
-            await mongo.db.collection('statistics').updateOne({email: rv.author}, {$inc: {downvotes: 1}}, {session})
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { discussionPoints: -2 } }, { session })
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { downvotes: 1 } }, { session })
           }
 
         }
 
       } catch (e) {
         await session.abortTransaction()
-          res.status(500).json({ e: e.toString() })
+        res.status(500).json({ e: e.toString() })
       }
 
 
@@ -985,7 +1040,7 @@ meRoutes
             downvote: rv.downvote
           }
         },
-          { returnOriginal: false }, {session})
+          { returnOriginal: false }, { session })
 
       } else {
         rv0 = await mongo.db.collection('threads').findOneAndUpdate({ reference: reference }, {
@@ -994,7 +1049,7 @@ meRoutes
             downvote: rv.downvote
           }
         },
-          { returnOriginal: false }, {session})
+          { returnOriginal: false }, { session })
       }
 
       await session.commitTransaction()
@@ -1004,12 +1059,12 @@ meRoutes
     }
   })
 
-  .post('/discussion/report', authUser, async (req,res) => {
+  .post('/discussion/report', authUser, async (req, res) => {
     let { msgRef, courseRef, message, type } = req.body
     let user = null
     try {
       user = await findUser({ id: req.decoded.id })
-      if(user) {
+      if (user) {
         let body = {
           reference: uuidv4(),
           courseRef,
@@ -1023,7 +1078,7 @@ meRoutes
         let rv = mongo.db.collection('reports').insertOne(body)
       }
       return res.status(200).json('success')
-    }catch(e) {
+    } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
   })
@@ -1167,6 +1222,42 @@ meRoutes
         return res.status(200).json('success')
 
       }
+
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .post('/classes/closed', authUser, async (req, res) => {
+    let { courseRef, batchID } = req.body
+    let user = null
+    try {
+      //close class document and students
+      user = await findUser({ id: req.decoded.id })
+      //Transaction
+      const { defaultTransactionOptions, client } = mongo
+      const session = client.startSession({ defaultTransactionOptions }) // for transactions
+      session.startTransaction()
+      try {
+        await mongo.db.collection('classes').updateOne({ courseRef: courseRef, batchID: batchID }, {
+          $set: {
+            active: false
+          }
+        }, { session })
+        await mongo.db.collection('registrations').update({ courseRef: courseRef, batchID: batchID }, {
+          $set: {
+            active: false
+          }
+        }, { session })
+
+
+        await session.commitTransaction()
+        return res.status(200).json("success") //success
+      } catch (e) {
+        await session.abortTransaction()
+        res.status(500).json({ e: e.toString() })
+      }
+
 
     } catch (e) {
       return res.status(500).json({ e: e.toString() })

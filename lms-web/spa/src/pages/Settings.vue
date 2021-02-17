@@ -57,7 +57,7 @@
           <!-- Change Active Tags -->
           <div class="inputRow">
             <h3>Interested Categories:</h3>
-            <div class="chipSheet">
+            <div class="pa-4 chipSheet">
               <v-chip-group
                 v-model="userDetails.activeTags"
                 column
@@ -645,5 +645,10 @@ export default {
   margin-top: 3%;
   margin-left: 2%;
   width: 80%;
+}
+
+.v-chip-group .v-chip--active,
+.v-chip-group .v-chip:hover {
+  color: red;
 }
 </style>

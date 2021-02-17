@@ -22,6 +22,7 @@ import SurveyViewer from './components/SurveyViewer.vue'
 import SurveyAnalysis from './components/SurveyAnalysis.vue'
 import QuizMarker from './components/QuizMarker.vue'
 import QuizAnalysis from './components/QuizAnalysis.vue'
+import AchievementCard from './components/AchievementCard.vue'
 
 
 Vue.config.productionTip = false
@@ -51,6 +52,7 @@ Vue.component('review-section', ReviewSection)
 Vue.component('course-card', CourseCard)
 Vue.component('discussion-card', DiscussionCard)
 Vue.component('classes-card', ClassesCard)
+Vue.component('achievement-card', AchievementCard)
 
 Vue.component('survey-builder', SurveyBuilder)
 Vue.component('survey-viewer', SurveyViewer)

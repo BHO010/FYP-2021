@@ -43,7 +43,7 @@
         >
         <div class="btmRow">{{ block.author }}, {{ new Date(block.created).toLocaleString() }}</div>
       </v-col>
-      <v-col cols="2" class="stats padTop">
+      <v-col cols="2" class="tStats padTop">
          <div>{{ latest.author }}</div>
           <div>{{ latest.date }}</div> 
       </v-col>
@@ -75,11 +75,11 @@
         <v-btn v-if="!user" icon color="indigo" @click="quizEditDialog(block.id)"><v-icon>mdi-pencil</v-icon></v-btn>
         <div class="btmRow">{{ block.author }}, {{ new Date(block.created).toLocaleString() }}</div>
       </v-col>
-      <v-col v-if="user" cols="1.5" class="stats">
+      <v-col v-if="user" cols="1.5" class="tStats">
         <div>Status</div>
         <div>{{quizStatus}}</div>
       </v-col>
-      <v-col v-else cols="1.5" class="stats">
+      <v-col v-else cols="1.5" class="tStats">
         <div>
           <v-btn text @click="viewQuizResults">View</v-btn>
            <v-btn text @click="viewQuizStats">Statistics</v-btn>
@@ -104,7 +104,7 @@
         >
         <div class="btmRow">{{ block.author }}, {{ new Date(block.created).toLocaleString() }}</div>
       </v-col>
-      <v-col cols="2" class="stats padTop">
+      <v-col cols="2" class="tStats padTop">
         <div>{{ latest.title }}</div>
           <div>{{ latest.author }}</div>
       </v-col>
@@ -238,7 +238,17 @@ export default {
     ...mapState(["error", "loading"]),
   },
   methods: {
-    async deleteClass() {},
+    async deleteClass() {
+      try {
+        let rv = await http.post('/api/me/classes/closed', {
+          courseRef: this.block.courseRef,
+          batchID: this.block.batchID
+        })
+        if(rv) [
+          this.$router.go()
+        ]
+      }catch(e) {}
+    },
     async getUser() {
       try {
         let rv = await http.get("api/me/user", {
@@ -295,7 +305,8 @@ export default {
 }
 
 .title,
-.stats {
+.stats,
+.tStats {
   border-left: 1px solid blue;
   font-family: "DarkerGrotesque-Medium";
   padding-bottom: 0;
@@ -310,6 +321,10 @@ export default {
 .title .btmRow {
   font-family: "DarkerGrotesque-Medium";
   display: flex;
+}
+
+.tStats {
+  font-weight: bold;
 }
 
 .stats h2 {

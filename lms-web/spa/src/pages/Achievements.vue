@@ -1,60 +1,57 @@
 <template>
-    <div id="main">
-        <div id="body">
-            <h1>Achievements List</h1>
-            <div class="flex-row wrap center">
-                <v-card
-                  v-for="item in achievements.achievements"
-                  :key="item.id"
-                  class="card"
-                >
-                <div class="row">
-                    <div class="leftCol">
-                        ICON
-                    </div>
-                    <div class="rightCol">
-                        <h2>{{item.title}}</h2>
-                        <div>Level: {{item.level}}</div>
-                        <div>Points: {{item.points}}</div>
-                    </div>
-                    
-                </div>
-                   
-                
-                    
-                </v-card>
-            </div>
-        </div>
+  <div id="main">
+    <div id="body">
+      <h1>Achievements List</h1>
+      <div class="flex-row wrap center">
+        <achievement-card v-for="achievement in achievements" :key="achievement.id" :achievement="achievement"></achievement-card>
+      </div>
     </div>
+  </div>
 </template>
 
 <script>
 import { mapState } from "vuex"
 import { http } from "@/axios"
+import AchievementCard from "../components/AchievementCard.vue"
 
 export default {
-    data() {
-        return {
-            achievements: null
+  components: { AchievementCard },
+  data() {
+    return {
+      achievements: []
+    }
+  },
+  computed: {
+    ...mapState(["error", "loading"]),
+  },
+  async mounted() {
+    try {
+      let rv0 = await http.get('/api/me')
+      let rv = await http.post('/api/me/achievement/stats')
+
+      rv.data.achievements.sort((a,b) => (a.level > b.level) ? -1 : ((b.level > a.level) ? 1 : 0))
+
+      if(rv0.data.role == "user") {
+        for(var item of rv.data.achievements) {
+          if(item.role == "user") {
+            this.achievements.push(item)
+          }
         }
-    },
-    computed: {
-        ...mapState(["error", "loading"]),
-    },
-    async mounted() {
-        let rv = await http.get('/api/me/achievements')
-        
-        this.achievements = rv.data
-        console.log(rv.data)
-    },
-    methods: {}
+      }else {
+        this.achievements = rv.data.achievements
+
+      }
+      
+    } catch (e) {}
+  },
+  methods: {},
 }
 </script>
 
 <style scoped>
 #main {
-    width: 80%;
-    margin: auto;
+  width: 80%;
+  margin: auto;
 }
 
 #body {
@@ -76,21 +73,21 @@ export default {
 }
 
 .center {
-    margin: auto;
+  margin: auto;
 }
 
 .card {
-    width: 40%;
-    height: 200px;
-    margin: 2%;
-    margin-left: 3%;
+  width: 40%;
+  height: 200px;
+  margin: 2%;
+  margin-left: 3%;
 }
 
 .card .row {
-    margin: 1%;
+  margin: 1%;
 }
 
 .card .leftCol {
-    width: 30%;
+  width: 30%;
 }
 </style>

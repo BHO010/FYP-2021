@@ -1,12 +1,115 @@
 <template>
   <v-app class="app">
-    <v-overlay :value="loading">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
+    <v-navigation-drawer
+      v-if="isUser"
+      class="sideBar"
+      v-model="drawer"
+      color="#ededed"
+      temporary
+    >
+      <v-list nav dense>
+        <v-list-item-group active-class="red lighten-5--text text--accent-4">
+          <h3 class="listTitle">Account</h3>
+          <v-list-item
+            v-for="actItem in accountItems"
+            :key="actItem.title"
+            :to="actItem.route"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ actItem.title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <h3 class="listTitle">Course</h3>
+          <v-list-item
+            v-for="courseItem in userCourseItems"
+            :key="courseItem.title"
+            :to="courseItem.route"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ courseItem.title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <h3 class="listTitle">Community</h3>
+          <v-list-item
+            v-for="item in communityItems"
+            :key="item.title"
+            :to="item.route"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <h3 class="listTitle">Classes</h3>
+          <v-list-item
+            v-for="item in ongoingItems"
+            :key="item.title"
+            :to="item.route"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
 
-    <div class="topBar">
-      <v-app-bar height="74" fixed color="blue darken-4">
-        <v-app-bar-nav-icon @click="toggle"></v-app-bar-nav-icon>
+    <v-navigation-drawer
+      v-else
+      class="sideBar"
+      color="#ededed"
+      v-model="drawer"
+      fixed
+      temporary
+    >
+      <v-list nav dense>
+        <v-list-item-group active-class="red lighten-5--text text--accent-4">
+          <h3 class="listTitle">Account</h3>
+          <v-list-item
+            v-for="actItem in accountItems"
+            :key="actItem.title"
+            :to="actItem.route"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ actItem.title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <h3 class="listTitle">Course</h3>
+          <v-list-item
+            v-for="courseItem in instructorCourseItems"
+            :key="courseItem.title"
+            :to="courseItem.route"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ courseItem.title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <h3 class="listTitle">Community</h3>
+          <v-list-item
+            v-for="item in communityItems"
+            :key="item.title"
+            :to="item.route"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <h3 class="listTitle">Ongoing</h3>
+          <v-list-item
+            v-for="item in ongoingInstructorItems"
+            :key="item.title"
+            :to="item.route"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-main class="body">
+      <v-app-bar class="topBar" fixed height="74" color="blue darken-4">
+        <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
         <v-menu offset-y>
           <v-list class="hidden-md-and-up">
             <v-list-item v-for="item in menu" :key="item.icon">
@@ -19,19 +122,9 @@
 
         <v-toolbar-title class="color logo">NTU-LMS</v-toolbar-title>
 
-        <!-- <v-text-field
-          class="searchInput"
-          type="text"
-          label="Search"
-          background-color="blue accent-2"
-          dense
-          outlined
-          prepend-inner-icon="mdi-magnify"
-        ></v-text-field> -->
-
         <v-spacer></v-spacer>
 
-        <v-toolbar-items class="hidden-sm-and-down">
+       <v-toolbar-items class="hidden-sm-and-down">
           <v-btn v-for="(item, i) in menu" :key="i" :to="item.route" text>{{
             item.title
           }}</v-btn>
@@ -73,131 +166,11 @@
           </v-list>
         </v-menu>
       </v-app-bar>
-    </div>
-
-    <div class="body">
-      <div v-if="isUser">
-        <v-navigation-drawer
-          class="sideBar"
-          v-model="drawer"
-          color="#ededed"
-          fixed
-          clipped
-          style="padding-top: 74px"
-        >
-          <v-list nav dense>
-            <v-list-item-group
-              active-class="red lighten-5--text text--accent-4"
-            >
-              <h3 class="listTitle">Account</h3>
-              <v-list-item
-                v-for="actItem in accountItems"
-                :key="actItem.title"
-                :to="actItem.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ actItem.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Course</h3>
-              <v-list-item
-                v-for="courseItem in userCourseItems"
-                :key="courseItem.title"
-                :to="courseItem.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ courseItem.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Community</h3>
-              <v-list-item
-                v-for="item in communityItems"
-                :key="item.title"
-                :to="item.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Classes</h3>
-              <v-list-item
-                v-for="item in ongoingItems"
-                :key="item.title"
-                :to="item.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-navigation-drawer>
+      <div id="main">
+        <router-view :key="$route.fullPath"></router-view>
       </div>
-
-      <div v-else>
-        <v-navigation-drawer
-          class="sideBar"
-          color="#ededed"
-          style="padding-top: 74px"
-          v-model="drawer"
-          fixed
-          clipped
-        >
-          <v-list nav dense>
-            <v-list-item-group
-              active-class="red lighten-5--text text--accent-4"
-            >
-              <h3 class="listTitle">Account</h3>
-              <v-list-item
-                v-for="actItem in accountItems"
-                :key="actItem.title"
-                :to="actItem.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ actItem.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Course</h3>
-              <v-list-item
-                v-for="courseItem in instructorCourseItems"
-                :key="courseItem.title"
-                :to="courseItem.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ courseItem.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Community</h3>
-              <v-list-item
-                v-for="item in communityItems"
-                :key="item.title"
-                :to="item.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Ongoing</h3>
-              <v-list-item
-                v-for="item in ongoingInstructorItems"
-                :key="item.title"
-                :to="item.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-navigation-drawer>
-      </div>
-
-      <div id="main" class="main">
-        <v-main>
-          <router-view :key="$route.fullPath"></router-view>
-        </v-main>
-      </div>
-    </div>
+      
+    </v-main>
   </v-app>
 </template>
  
@@ -275,7 +248,7 @@ export default {
       if (this.drawer == false) {
         this.drawer = true
         let d = document.getElementById("main")
-        d.style.transform = "translate3d(0px, 0px, 0px)"
+        d.style.transform = "translate3d(100px, 0px, 0px)"
       } else {
         this.drawer = false
         let d = document.getElementById("main")
@@ -343,14 +316,17 @@ input:-internal-autofill-selected {
   margin-left: 2%;
 }
 
-.main {
+/* .main {
   transform: translate3d(0px, 0px, 0px);
   transition-duration: 300ms;
   background-color: #e1f5fe;
   z-index: 0;
   order: 1;
   flex: 1 1 0%;
-  padding-left: 260px;
+} */
+
+#main {
+  margin-top: 5%;
 }
 
 .color {
@@ -433,5 +409,12 @@ input:-internal-autofill-selected {
   font-family: "DarkerGrotesque-Medium";
   font-size: 32px;
   color: #0d47a1;
+}
+
+@media screen and (max-width: 1280px) {
+  .main {
+    padding-left: 0;
+    transform: translate3d(-100px, 0px, 0px);
+  }
 }
 </style>

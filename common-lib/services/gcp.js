@@ -55,7 +55,7 @@ async function configureBucketCors() {
       },
     ]);
 
-    console.log(`Bucket ${bucketName} was updated with a CORS config`);
+    console.log(`Google Cloud Bucket ${bucketName} was updated with a CORS config`);
   }
 
   configureBucketCors();
