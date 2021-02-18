@@ -19,14 +19,14 @@
         <div v-else>Will be open 7 days before course start</div>
         <div v-if="ongoing">Available</div>
       </v-col>
-      <v-col cols="1" class="stats" v-if="ended">
+      <v-col cols="1" class="stats" v-if="ended && !user">
         <v-btn icon color="red" @click="deleteClass">
           <v-icon>mdi-window-close</v-icon>
         </v-btn>
       </v-col>
     </v-flex>
 
-    <v-flex xs12 row v-else-if="(type == 'thread') & (type2 == 'notice' )">
+    <v-flex xs12 row v-else-if="(type == 'thread') & (type2 == 'notice')">
       <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
         <div class="icon" :id="block.id"></div>
         <div class="name">{{ this.userDetails.name }}</div>
@@ -37,32 +37,38 @@
           class="link"
           :to="{
             path: `/classes/thread/notice`,
-            query: { courseRef: this.courseRef,batch: this.batchID,id:this.block.id },
+            query: {
+              courseRef: this.courseRef,
+              batch: this.batchID,
+              id: this.block.id,
+            },
           }"
           >{{ block.title }}</router-link
         >
-        <div class="btmRow">{{ block.author }}, {{ new Date(block.created).toLocaleString() }}</div>
+        <div class="btmRow">
+          {{ block.author }}, {{ new Date(block.created).toLocaleString() }}
+        </div>
       </v-col>
       <v-col cols="2" class="tStats padTop">
-         <div>{{ latest.author }}</div>
-          <div>{{ latest.date }}</div> 
+        <div>{{ latest.author }}</div>
+        <div>{{ latest.date }}</div>
       </v-col>
     </v-flex>
 
     <v-flex xs12 row v-else-if="type == 'message'">
-        <v-col cols="2" class="profile" @click="gotoProfile(block.email)">
-          <div class="icon" :id="block.id"></div>
-          <div class="name">{{userDetails.name}}</div>
-        </v-col>
-        <v-col cols="10" class="title">
-          <div class="topRow">{{new Date(block.created).toLocaleString()}}</div>
-          <div class="content">
-            <p>
-              {{block.message}}
-            </p>
-          </div>
-        </v-col>
-      </v-flex>
+      <v-col cols="2" class="profile" @click="gotoProfile(block.email)">
+        <div class="icon" :id="block.id"></div>
+        <div class="name">{{ userDetails.name }}</div>
+      </v-col>
+      <v-col cols="10" class="title">
+        <div class="topRow">{{ new Date(block.created).toLocaleString() }}</div>
+        <div class="content">
+          <p>
+            {{ block.message }}
+          </p>
+        </div>
+      </v-col>
+    </v-flex>
 
     <v-flex xs12 row v-else-if="(type == 'thread') & (type2 == 'quiz')">
       <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
@@ -71,18 +77,28 @@
         <div></div>
       </v-col>
       <v-col cols="9" class="title">
-        <v-btn text class="quizBtn" @click="quizDialog = true">{{block.title}}</v-btn>
-        <v-btn v-if="!user" icon color="indigo" @click="quizEditDialog(block.id)"><v-icon>mdi-pencil</v-icon></v-btn>
-        <div class="btmRow">{{ block.author }}, {{ new Date(block.created).toLocaleString() }}</div>
+        <v-btn text class="quizBtn" @click="quizDialog = true">{{
+          block.title
+        }}</v-btn>
+        <v-btn
+          v-if="!user"
+          icon
+          color="indigo"
+          @click="quizEditDialog(block.id)"
+          ><v-icon>mdi-pencil</v-icon></v-btn
+        >
+        <div class="btmRow">
+          {{ block.author }}, {{ new Date(block.created).toLocaleString() }}
+        </div>
       </v-col>
       <v-col v-if="user" cols="1.5" class="tStats">
         <div>Status</div>
-        <div>{{quizStatus}}</div>
+        <div>{{ quizStatus }}</div>
       </v-col>
       <v-col v-else cols="1.5" class="tStats">
         <div>
           <v-btn text @click="viewQuizResults">View</v-btn>
-           <v-btn text @click="viewQuizStats">Statistics</v-btn>
+          <v-btn text @click="viewQuizStats">Statistics</v-btn>
         </div>
       </v-col>
     </v-flex>
@@ -98,49 +114,67 @@
           class="link"
           :to="{
             path: `/classes/thread/question`,
-             query: { courseRef: this.courseRef,batch: this.batchID,id:this.block.id },
+            query: {
+              courseRef: this.courseRef,
+              batch: this.batchID,
+              id: this.block.id,
+            },
           }"
           >{{ block.title }}</router-link
         >
-        <div class="btmRow">{{ block.author }}, {{ new Date(block.created).toLocaleString() }}</div>
+        <div class="btmRow">
+          {{ block.author }}, {{ new Date(block.created).toLocaleString() }}
+        </div>
       </v-col>
       <v-col cols="2" class="tStats padTop">
         <div>{{ latest.title }}</div>
-          <div>{{ latest.author }}</div>
+        <div>{{ latest.author }}</div>
       </v-col>
     </v-flex>
 
     <!-- Dialog -->
     <!-- View Quiz -->
     <v-dialog v-model="quizDialog" persistent scrollable>
-        <v-card tile  height="100%" color="#e1f5fe">
-          <v-toolbar  fixed dark color="primary">
-            <v-btn icon dark @click="quizDialog = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-            <v-toolbar-title>Complete The Quiz.</v-toolbar-title>
-          </v-toolbar>
-          <!-- Quiz component -->
-          <div id="dialogContent">
-              <survey-viewer type="quiz" :quiz="this.block" :quizID='this.quizID' :courseRef='this.courseRef' :batchID='this.batchID'></survey-viewer>
-          </div>
-        </v-card>
+      <v-card tile height="100%" color="#e1f5fe">
+        <v-toolbar fixed dark color="primary">
+          <v-btn icon dark @click="quizDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Complete The Quiz.</v-toolbar-title>
+        </v-toolbar>
+        <!-- Quiz component -->
+        <div id="dialogContent">
+          <survey-viewer
+            type="quiz"
+            :quiz="this.block"
+            :quizID="this.quizID"
+            :courseRef="this.courseRef"
+            :batchID="this.batchID"
+          ></survey-viewer>
+        </div>
+      </v-card>
     </v-dialog>
 
-     <!-- Edit Quiz -->
+    <!-- Edit Quiz -->
     <v-dialog v-model="quizEdit" persistent scrollable>
-        <v-card tile  height="100%" color="#e1f5fe">
-          <v-toolbar  fixed dark color="primary">
-            <v-btn icon dark @click="quizEdit = false">
-              <v-icon>mdi-close</v-icon>
-            </v-btn>
-            <v-toolbar-title>Update The Quiz.</v-toolbar-title>
-          </v-toolbar>
-          <!-- Quiz component -->
-          <div id="dialogContent">
-              <survey-builder type="quizEdit" :quiz="this.block" :quizID='this.quizID' :courseRef='this.courseRef' :batchID='this.batchID'></survey-builder>
-          </div>
-        </v-card>
+      <v-card tile height="100%" color="#e1f5fe">
+        <v-toolbar fixed dark color="primary">
+          <v-btn icon dark @click="quizEdit = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+          <v-toolbar-title>Update The Quiz.</v-toolbar-title>
+        </v-toolbar>
+        <!-- Quiz component -->
+        <div id="dialogContent">
+          <survey-builder
+            type="quizEdit"
+            :quiz="this.block"
+            :quizID="this.quizID"
+            :courseRef="this.courseRef"
+            :batchID="this.batchID"
+          ></survey-builder>
+        </div>
+      </v-card>
     </v-dialog>
   </div>
 </template>
@@ -148,7 +182,7 @@
 <script>
 import { http } from "@/axios"
 import { mapState } from "vuex"
-import SurveyViewer from './SurveyViewer.vue'
+import SurveyViewer from "./SurveyViewer.vue"
 
 export default {
   components: { SurveyViewer },
@@ -159,7 +193,7 @@ export default {
     type2: String,
     courseRef: String,
     batchID: String,
-    user: Boolean
+    user: Boolean,
   },
   data() {
     return {
@@ -174,15 +208,17 @@ export default {
       quizID: null,
       latest: {
         author: "No Post",
-        date: ""
-      }
+        date: "",
+      },
     }
   },
   async mounted() {
     if (this.type != "block") {
       await this.getUser()
       await this.getImage()
-    } else { //type=block
+    } else {
+      //type=block
+      console.log(this.user)
       let rv = await http.get("/api/me/course", {
         params: {
           courseRef: this.block.courseRef,
@@ -192,13 +228,16 @@ export default {
       let currentDate = new Date().toISOString()
       let currentTime = new Date(currentDate).getTime() / 1000
       let startTime = new Date(this.block.startDate).getTime() / 1000
+      let endTime = new Date(this.block.endDate).getTime() / 1000
 
       let dayDiff = Math.ceil((startTime - currentTime) / 86400)
 
-      if (this.block.startDate < currentDate) {
+      if (startTime < currentDate && currentTime < endTime) {
         this.ongoing = true
       } else if (dayDiff < 7) {
         this.status = true
+      } else if (endTime < currentTime) {
+        this.ended = true
       }
 
       if (currentDate > this.block.endDate) {
@@ -206,32 +245,29 @@ export default {
       }
     }
 
-    if(this.type2 == "quiz") {
+    if (this.type2 == "quiz") {
       console.log(this.type2, this.courseRef, this.batchID)
-      let result = await http.get('/api/me/quizResult', {
+      let result = await http.get("/api/me/quizResult", {
         params: {
           courseRef: this.courseRef,
           batchID: this.batchID,
-          quizID: this.block.id
-        }
+          quizID: this.block.id,
+        },
       })
 
-      if(result.data.found) {
+      if (result.data.found) {
         this.quizStatus = "Completed"
-      }else {
+      } else {
         this.quizStatus = "Incomplete"
       }
+    } else if ((this.type2 == "notice")) {
+      let index = this.block.replies.length
+      if (index > 0) {
+        this.latest.author = this.block.replies[index - 1].author
+        let date = this.block.replies[index - 1].created
 
-    }else {
-      console.log(this.type2, this.courseRef, this.batchID)
-    let index = this.block.replies.length
-    if(index >0) {
-      this.latest.author = this.block.replies[index-1].author
-      let date = this.block.replies[index-1].created
-     
-      this.latest.date = new Date(date).toLocaleString()
-    }
-   
+        this.latest.date = new Date(date).toLocaleString()
+      }
     }
   },
   computed: {
@@ -240,14 +276,12 @@ export default {
   methods: {
     async deleteClass() {
       try {
-        let rv = await http.post('/api/me/classes/closed', {
+        let rv = await http.post("/api/me/classes/closed", {
           courseRef: this.block.courseRef,
-          batchID: this.block.batchID
+          batchID: this.block.batchID,
         })
-        if(rv) [
-          this.$router.go()
-        ]
-      }catch(e) {}
+        if (rv) [this.$router.go()]
+      } catch (e) {}
     },
     async getUser() {
       try {
@@ -265,22 +299,28 @@ export default {
       d.innerHTML = this.userDetails.profileImage
     },
     quizEditDialog(id) {
-        this.quizID = id
-        this.quizEdit = true
+      this.quizID = id
+      this.quizEdit = true
     },
     viewQuizResults() {
-      this.$router.push({path: '/classes/quiz/list', query: {
-        ref: this.courseRef,
-        batchID: this.batchID,
-        quizID: this.block.id
-      }})
+      this.$router.push({
+        path: "/classes/quiz/list",
+        query: {
+          ref: this.courseRef,
+          batchID: this.batchID,
+          quizID: this.block.id,
+        },
+      })
     },
     viewQuizStats() {
-      this.$router.push({path: '/classes/quiz/stats', query: {
-        ref: this.courseRef,
-        batchID: this.batchID,
-        quizID: this.block.id
-      }})
+      this.$router.push({
+        path: "/classes/quiz/stats",
+        query: {
+          ref: this.courseRef,
+          batchID: this.batchID,
+          quizID: this.block.id,
+        },
+      })
     },
   },
 }
@@ -381,14 +421,13 @@ export default {
 }
 
 #dialogContent {
-    width: 80%;
-    margin: auto;
-    margin-top: 2%;
-    margin-bottom: 2%;
+  width: 80%;
+  margin: auto;
+  margin-top: 2%;
+  margin-bottom: 2%;
 }
 
 .fileRow {
   display: flex;
 }
-
 </style>

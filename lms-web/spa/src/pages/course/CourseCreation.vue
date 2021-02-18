@@ -70,15 +70,6 @@
               dense
             ></v-select>
 
-            <!-- <h2>Course Type</h2>
-            <v-select
-              v-model="type"
-              :items="types"
-              label="Type"
-              outlined
-              dense
-            ></v-select> -->
-
             <h2 id="Venue">Course Venue</h2>
             <v-text-field
               v-model="venue"
@@ -104,6 +95,9 @@
 
             <h2 id="Duration">
               Duration
+              <span style="font-weight: regular; font-size: 18px"
+                >(Number of days)</span
+              >
             </h2>
             <v-text-field
               v-model.number="duration"

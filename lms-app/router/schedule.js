@@ -31,7 +31,7 @@ cron.schedule('0 0 * * *', async function() {
 
                 let templateII = {
                     title: item.title, //course title
-                    instructor: course.createdBy,
+                    instructor: course.createdBy, //instructor email
                     type: "review"
                 }
 

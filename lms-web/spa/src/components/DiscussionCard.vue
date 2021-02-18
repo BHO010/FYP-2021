@@ -81,7 +81,7 @@
           </v-row>
         </v-col>
         <v-col cols="1.5" class="tStats">
-          <div>{{ new Date(block.latest.created).toLocaleString() }}</div>
+          <div v-if="block.latest.created">{{ new Date(block.latest.created).toLocaleString()}}</div>
           <div>{{ block.latest.name }}</div>
         </v-col>
       </v-flex>

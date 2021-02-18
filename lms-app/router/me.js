@@ -139,26 +139,26 @@ meRoutes
 
   .get('/achievements', authUser, async (req, res) => {
     let user = null
-    let {type} = req.query
+    let { type } = req.query
     try {
       user = await findUser({ id: req.decoded.id })
       const { email } = user
 
-      if(type=="profile") {
+      if (type == "profile") {
         let rv = await mongo.db.collection('achievements').findOne({ email: email })
         let achieve = []
 
-        for(var item of rv.achievements) {
-          if(item.level > 0) {
+        for (var item of rv.achievements) {
+          if (item.level > 0) {
             achieve.push(item)
           }
         }
         return res.status(200).json(achieve)
-      }else {
+      } else {
         let rv = await mongo.db.collection('achievements').findOne({ email: email })
         return res.status(200).json(rv.achievements)
       }
-      
+
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
@@ -188,8 +188,8 @@ meRoutes
           }
         },
           { returnNewDocument: true })
-      }else {
-        rv = await mongo.db.collection('achievements').findOne({email: user.email})
+      } else {
+        rv = await mongo.db.collection('achievements').findOne({ email: user.email })
       }
 
       return res.status(200).json(rv)
@@ -365,13 +365,13 @@ meRoutes
     try {
       user = await findUser({ id: req.decoded.id })
 
-      if(user.role == "instructor") {
+      if (user.role == "instructor") {
         //const total = await mongo.db.collection('courses').find({ createdBy: email }).count()
-         courses = await mongo.db.collection('courses').find({ createdBy: user.email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
-      }else {
+        courses = await mongo.db.collection('courses').find({ createdBy: user.email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
+      } else {
         courses = await mongo.db.collection('registrations').find({ email: user.email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
       }
-      
+
       return res.status(200).json({ courses })
     } catch (e) {
       return res.status(400).json({ e })
@@ -846,28 +846,38 @@ meRoutes
   })
 
   .get('/discussion', authUser, async (req, res) => {
-    let { reference } = req.query
+    let { type, reference, currentPage } = req.query
     let user = null
+    let pageSize = 4
     let template = {
-      title: "No post",
-      author: ""
+      name: "No post",
+      created: ""
     }
     try {
-      let imptThreads = await mongo.db.collection('threads').find({ courseRef: reference, type: "notice" }).sort({ "_id": -1 }).toArray()
-      let threads = await mongo.db.collection('threads').find({ courseRef: reference, type: "discussion" }).sort({ "_id": -1 }).toArray()
-      for (var i = 0; i < threads.length; i++) {
-        let rCount = await mongo.db.collection('messages').find({ tRef: threads[i].reference }).count()
-        let latest = await mongo.db.collection('messages').find({ tRef: threads[i].reference }).sort({ "_id": -1 }).skip(0).limit(1).toArray()
-        threads[i].rCount = rCount || 0
-        threads[i].latest = latest[0] || template
+
+      if (type == "imptThreads") {
+        let imptThreadsCount = await mongo.db.collection('threads').find({ courseRef: reference, type: "notice" }).count()
+        let imptThreads = await mongo.db.collection('threads').find({ courseRef: reference, type: "notice" }).sort({ "_id": 1 }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
+        
+        for (var i = 0; i < imptThreads.length; i++) {
+          let rCount = await mongo.db.collection('messages').find({ tRef: imptThreads[i].reference }).count()
+          let latest = await mongo.db.collection('messages').find({ tRef: imptThreads[i].reference }).sort({ "_id": -1 }).skip(0).limit(1).toArray()
+          imptThreads[i].rCount = rCount || 0
+          imptThreads[i].latest = latest[0] || template
+        }
+        return res.status(200).json({ imptThreads, imptThreadsCount })
+      } else {
+        let threadsCount = await mongo.db.collection('threads').find({ courseRef: reference, type: "discussion" }).count()
+        let threads = await mongo.db.collection('threads').find({ courseRef: reference, type: "discussion" }).sort({ "_id": 1 }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
+        for (var i = 0; i < threads.length; i++) {
+          let rCount = await mongo.db.collection('messages').find({ tRef: threads[i].reference }).count()
+          let latest = await mongo.db.collection('messages').find({ tRef: threads[i].reference }).sort({ "_id": -1 }).skip(0).limit(1).toArray()
+          threads[i].rCount = rCount || 0
+          threads[i].latest = latest[0] || template
+        }
+
+        return res.status(200).json({ threads, threadsCount })
       }
-      for (var i = 0; i < imptThreads.length; i++) {
-        let rCount = await mongo.db.collection('messages').find({ tRef: imptThreads[i].reference }).count()
-        let latest = await mongo.db.collection('messages').find({ tRef: imptThreads[i].reference }).sort({ "_id": -1 }).skip(0).limit(1).toArray()
-        imptThreads[i].rCount = rCount || 0
-        imptThreads[i].latest = latest[0] || template
-      }
-      return res.status(200).json({ imptThreads, threads })
     } catch (e) {
       return res.status(500).json({ e })
     }

@@ -23,7 +23,7 @@
                   {{ main.message }}
                 </p>
               </div>
-              <div v-if="this.main.fileName.length != 0" class="fileRow">
+              <div v-if="files" class="fileRow">
                 <div
                   class="fileCard"
                   v-for="file in main.fileName"
@@ -89,6 +89,7 @@ export default {
       id: this.$route.query.id,
       section: this.$route.params.type,
       main: [],
+      files: false,
       posts: [],
       type: "message",
       create: false,
@@ -107,6 +108,11 @@ export default {
       },
     })
     this.main = rv.data
+    if(this.main.fileName) {
+      if(this.main.fileName.length != 0) {
+        this.files = true
+      }
+    }
     this.posts = rv.data.replies
 
     await this.getUser()

@@ -3,7 +3,7 @@
     <div id="body">
       <h1>Achievements List</h1>
       <div class="flex-row wrap center">
-        <achievement-card v-for="achievement in achievements" :key="achievement.id" :achievement="achievement"></achievement-card>
+        <achievement-card v-for="achievement in achievements" :key="achievement.id" :achievement="achievement" type="null"></achievement-card>
       </div>
     </div>
   </div>

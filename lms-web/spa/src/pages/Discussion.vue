@@ -102,6 +102,14 @@
                 :key="thread._id"
                 :type="type"
               ></discussion-card>
+              <v-pagination
+                v-if="imptPageCount > 1"
+                v-model="imptCurrentPage"
+                :length="this.imptPageCount"
+                :total-visible="7"
+                circle
+                @input="getImptThreads()"
+              ></v-pagination>
             </div>
             <div class="row">
               <h1>Discussion</h1>
@@ -117,6 +125,14 @@
                 :key="thread._id"
                 :type="type"
               ></discussion-card>
+              <v-pagination
+                v-if="threadsPageCount > 1"
+                v-model="threadsCurrentPage"
+                :length="this.threadsPageCount"
+                :total-visible="7"
+                circle
+                @input="getDscussionThreads()"
+              ></v-pagination>
             </div>
           </div>
         </div>
@@ -172,7 +188,11 @@ export default {
       courses: [],
       regCourses: [],
       threads: [],
+      threadsCurrentPage: 1,
+      threadsPageCount: 0,
       imptThreads: [],
+      imptCurrentPage: 1,
+      imptPageCount: 0,
       type: "block",
       create: false,
       createType: null
@@ -191,19 +211,13 @@ export default {
 
     if (this.ref) {
       this.type = "thread"
-      let rv = await http.get("/api/me/discussion", {
-        params: {
-          reference: this.ref,
-        },
-      })
-      this.imptThreads = rv.data.imptThreads //notice section
-      this.threads = rv.data.threads  // discussion section
+      this.getImptThreads()
+      this.getDscussionThreads()
     } else {
       let rv = await http.get("/api/me/discussion/list")
 
       if (this.user) {
         this.regCourses = rv.data
-        console.log("USER", this.regCourses)
       } else {
         this.courses = rv.data.courses
         this.regCourses = rv.data.regCourses
@@ -227,6 +241,31 @@ export default {
         this.$router.go()
       }
     },
+    async getImptThreads() {
+      let rv = await http.get("/api/me/discussion", {
+        params: {
+          type: "imptThreads",
+          reference: this.ref,
+          currentPage: this.imptCurrentPage
+        },
+      })
+
+      this.imptThreads = rv.data.imptThreads
+      this.imptPageCount = Math.ceil(rv.data.imptThreadsCount / 4)
+
+    },
+    async getDscussionThreads() {
+      let rv = await http.get("/api/me/discussion", {
+        params: {
+          type: "threads",
+          reference: this.ref,
+          currentPage: this.threadsCurrentPage
+        },
+      })
+
+      this.threads = rv.data.threads
+      this.threadsPageCount = Math.ceil(rv.data.threadsCount / 4)
+    }
   },
 }
 </script>

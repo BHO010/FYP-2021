@@ -16,6 +16,7 @@
                     :key="course._id"
                     :block="course"
                     :type="type"
+                    :user="user"
                   ></classes-card>
                 </div>
                 <div v-else>
@@ -43,8 +44,16 @@
                 :batchID="batchID"
                 type2="notice"
               ></classes-card>
+              <v-pagination
+                v-if="noticePage > 1"
+                v-model="noticePage"
+                :length="this.noticeTotal"
+                :total-visible="7"
+                circle
+                @input="noticePagination(this.classDetails.notice)"
+              ></v-pagination>
             </div>
-            <h1>Quiz</h1>
+            <h1>Assessment</h1>
             <div id="discussionContent">
               <!-- component here, quiz -->
               <classes-card
@@ -57,20 +66,27 @@
                 :courseRef="courseRef"
                 :batchID="batchID"
               ></classes-card>
+              <v-pagination
+                v-if="quizPage > 1"
+                v-model="quizPage"
+                :length="this.quizTotal"
+                :total-visible="7"
+                circle
+                @input="quizPagination(this.classDetails.quiz)"
+              ></v-pagination>
             </div>
             <div class="row">
-              <h1>Question</h1>
+              <h1>Discussion</h1>
               <v-spacer></v-spacer>
-              <v-btn
-                v-if="!user"
-                class="Btn"
-                text
-                outlined
-                @click="newQuestion()"
+              <v-btn class="Btn" text outlined @click="newQuestion()"
                 >New Question</v-btn
               >
             </div>
             <div id="discussionContent">
+              <p>
+                Ask a question here if you are unsure about certain content
+                taught in class.
+              </p>
               <!-- component here, feedback -->
               <classes-card
                 v-for="item in feedbacks"
@@ -82,6 +98,14 @@
                 :user="user"
                 type2="feedback"
               ></classes-card>
+              <v-pagination
+                v-if="feedbackPage > 1"
+                v-model="feedbackPage"
+                :length="this.feedbackTotal"
+                :total-visible="7"
+                circle
+                @input="feedbackPagination(this.classDetails.feedback)"
+              ></v-pagination>
             </div>
           </div>
         </div>
@@ -143,11 +167,19 @@
                 :user="user"
                 type2="notice"
               ></classes-card>
+              <v-pagination
+                v-if="noticePage > 1"
+                v-model="noticePage"
+                :length="this.noticeTotal"
+                :total-visible="7"
+                circle
+                @input="noticePagination(this.classDetails.notice)"
+              ></v-pagination>
             </div>
 
             <!-- Quiz -->
             <div class="row">
-              <h1>Quiz</h1>
+              <h1>Assessment</h1>
               <v-spacer></v-spacer>
               <v-btn class="Btn" text outlined @click="newQuiz('quiz')"
                 >Create Quiz</v-btn
@@ -165,17 +197,29 @@
                 :batchID="batchID"
                 :user="user"
               ></classes-card>
+              <v-pagination
+                v-if="quizPage > 1"
+                v-model="quizPage"
+                :length="this.quizTotal"
+                :total-visible="7"
+                circle
+                @input="quizPagination(this.classDetails.quiz)"
+              ></v-pagination>
             </div>
 
             <!-- Questions -->
             <div class="row">
-              <h1>Questions</h1>
+              <h1>Discussion</h1>
               <v-spacer></v-spacer>
               <v-btn class="Btn" text outlined @click="newQuestion('feedback')"
                 >New Question</v-btn
               >
             </div>
             <div class="discussionContent">
+              <p>
+                Ask a question here if you are unsure about certain content
+                taught in class.
+              </p>
               <!-- component here, feedback -->
               <classes-card
                 v-for="item in feedbacks"
@@ -187,6 +231,14 @@
                 :batchID="batchID"
                 :user="user"
               ></classes-card>
+              <v-pagination
+                v-if="feedbackPage > 1"
+                v-model="feedbackPage"
+                :length="this.feedbackTotal"
+                :total-visible="7"
+                circle
+                @input="feedbackPagination(this.classDetails.feedback)"
+              ></v-pagination>
             </div>
           </div>
         </div>
@@ -221,9 +273,9 @@
                   <h3 class="size-18">Message:</h3>
                   <v-textarea v-model="tMsg" outlined rows="4"></v-textarea>
                   <v-file-input
-                    show-size
                     v-model="files"
                     multiple
+                    small-chips
                     label="File input"
                     outlined
                     dense
@@ -273,18 +325,25 @@ export default {
       title: "",
       tMsg: "",
       files: [],
+      classDetails: [],
       courseRef: this.$route.query.ref,
       batchID: this.$route.query.batch,
       classes: null, //block
       regClasses: null, //block
       notices: null, //Threads
-      quizes: null,
-      quizContent: null,
-      feedbacks: null,
+      quizes: null,  //array to push to component
+      quizContent: null,  //array to push to component
+      feedbacks: null,  //array to push to component
       type: "block",
       cr8Thread: false,
       cr8Quiz: false,
       createType: null,
+      noticePage: 0,  //current page
+      noticeTotal: 0,  //total pages
+      quizPage: 0,
+      quizTotal: 0,
+      feedbackPage: 0,
+      feedbackTotal: 0,
     }
   },
   computed: {
@@ -304,10 +363,12 @@ export default {
           batchID: this.batchID,
         },
       })
-      console.log(rv.data.feedback)
-      this.notices = rv.data.notice
-      this.quizes = rv.data.quiz
-      this.feedbacks = rv.data.feedback
+
+      this.classDetails = rv.data
+
+      await this.getNotice(rv.data.notice)
+      await this.getQuiz(rv.data.quiz)
+      await this.getFeedback(rv.data.feedback)
     } else {
       let rv = await http.get("/api/me/classes/list")
 
@@ -332,13 +393,45 @@ export default {
       this.cr8Thread = true
       this.createType = type
     },
+    getNotice(data) {
+      this.noticePage = 1
+      this.noticeTotal = Math.ceil(data.length / 4)
+      this.notices = []
+      for(var i=0; i<4;i++) {
+        if(data[i]) {
+          this.notices.push(data[i])
+        }
+      }
+
+    },
+    getQuiz(data) {
+      this.quizPage = 1
+      this.quizTotal = Math.ceil(data.length / 4)
+      this.quizes = []
+      for(var i=0; i<4;i++) {
+        if(data[i]) {
+          this.quizes.push(data[i])
+        }
+      }
+    },
+    getFeedback(data) {
+      this.feedbackPage = 1
+      this.feedbackTotal = Math.ceil(data.length / 4)
+      this.feedbacks = []
+      for(var i=0; i<4;i++) {
+        if(data[i]) {
+          this.feedbacks.push(data[i])
+        }
+      }
+      console.log("BB", this.feedbacks)
+    },
     async postThread(type) {
       this.$store.commit("setLoading", true)
       let fileName = []
-      for (var i=0;i<this.files.length; i++) {
+      for (var i = 0; i < this.files.length; i++) {
         fileName.push(this.files[i].name)
         await this.uploadFile(this.files[i])
-        console.log("HERE")
+        console.log(this.files)
       }
 
       let rv = await http.post("/api/me/classes/post/thread", {
@@ -367,10 +460,40 @@ export default {
           headers: { "Content-Type": "application/octet-stream" },
         })
 
-        if(rv) {
+        if (rv) {
           return
         }
       } catch (e) {}
+    },
+    async noticePagination(data) {
+      let end = (this.noticePage * 4) 
+      let start = end - 4
+       this.notices = []
+      for(var i=start; i<end;i++) {
+        if(data[i]) {
+          this.notices.push(data[i])
+        }
+      }
+    },
+    async quizPagination(data) {
+      let end = (this.quizPage * 4) 
+      let start = end - 4
+       this.quizes = []
+      for(var i=start; i<end;i++) {
+        if(data[i]) {
+          this.quizes.push(data[i])
+        }
+      }
+    },
+    async feedbackPagination(data) {
+      let end = (this.feedbackPage * 4) 
+      let start = end - 4
+       this.feedbacks = []
+      for(var i=start; i<end;i++) {
+        if(data[i]) {
+          this.feedbacks.push(data[i])
+        }
+      }
     },
   },
 }

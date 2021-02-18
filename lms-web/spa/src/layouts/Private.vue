@@ -5,6 +5,7 @@
       class="sideBar"
       v-model="drawer"
       color="#ededed"
+      fixed
       temporary
     >
       <v-list nav dense>

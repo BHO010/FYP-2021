@@ -1,6 +1,6 @@
 <template>
   <v-card v-if="achievement.level != 0" class="card">
-    <div v-if="(type = 'profile')" class="row">
+    <div v-if="type == 'profile'" class="row">
       <div class="topRow">
         <v-img class="svg" width="100px" :src="imgURL"></v-img>
       </div>
