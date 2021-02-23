@@ -1,20 +1,17 @@
 <template>
-  <v-container fluid>
-    <v-overlay :value="loading">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
-    <!-- Banner -->
-    <v-container class="bannerContainer">
-      <v-carousel cycle height="500" hide-delimiter-background show-arrows-on-hover>
-        <v-carousel-item v-for="(slide, i) in slides" :key="i">
-          <v-sheet :color="background[i]" height="100%">
-            <v-row class="fill-height" align="center" justify="center">
-              <div class="display-3">{{ slide }} Slide</div>
-            </v-row>
-          </v-sheet>
-        </v-carousel-item>
-      </v-carousel>
-    </v-container>
+  <v-container fluid class="background">
+   <section id="sectionI">
+     <div class="leftCol">
+       <div class="content">
+           <h1 class="header">
+         Life Long Learning
+       </h1>
+       </div>
+     </div>
+     <div class="rightCol">
+
+     </div>
+   </section>
 
   </v-container>
 </template>
@@ -23,14 +20,7 @@
 export default {
   data() {
     return {
-      background: [
-        "indigo",
-        "warning",
-        "pink darken-2",
-        "red lighten-1",
-        "deep-purple accent-4",
-      ],
-      slides: ["First", "Second", "Third", "Fourth", "Fifth"],
+   
     }
   },
   created() {},
@@ -58,6 +48,14 @@ a {
   margin-right: 1%;
 }
 
+.background {
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background: url('../../public/img/background.jpg') no-repeat center center fixed;
+}
+
 .logo {
   display: flex;
   padding-left: 13%;
@@ -77,5 +75,30 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+#sectionI {
+  display: flex;
+}
+
+#sectionI .leftCol {
+  width: 50%;
+  border: 1px solid black;
+}
+
+.leftCol .content {
+  width: 60%;
+  margin: auto;
+  border: 1px solid black;
+}
+
+#sectionI .rightCol {
+  width: 50%;
+  border: 1px solid black;
+}
+
+#sectionI .header {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 100px !important;
 }
 </style>

@@ -1,63 +1,67 @@
 <template>
-  <div class="center">
-    <v-row xs12 class="center-all logo">
-      <h1><a href="/">Logo</a></h1>
-    </v-row>
+  <div class="background">
+    <div class="loginContainer">
+      <v-row xs12 class="center-all logo">
+        <h1><a href="/">Logo</a></h1>
+      </v-row>
 
-    <v-card flat class="loginCard">
-      <v-form>
-        <div style="border-bottom: 1px solid #b8bdc2">
-          <v-row xs12 class="center-all size23">Login</v-row>
-          <v-row xs12 class="center-all size11 margin color2"
-            >Access Your Account</v-row
-          >
-        </div>
+      <v-card flat class="loginCard">
+        <v-form>
+          <div style="border-bottom: 1px solid #b8bdc2">
+            <v-row xs12 class="center-all size23">Login</v-row>
+            <v-row xs12 class="center-all size11 margin color2"
+              >Access Your Account</v-row
+            >
+          </div>
 
-        <div class="inputBox">
-          <div class="size14 color2 margin-btm">YOUR EMAIL ADDRESS:</div>
-          <v-text-field
-            type="email"
-            v-model="email"
-            dense
-            outlined
-            label="Your email address"
-            prepend-inner-icon="mdi-email-outline"
-          ></v-text-field>
-          <div class="size14 color2 margin-btm">YOUR PASSWORD:</div>
-          <v-text-field
-            type="password"
-            v-model="password"
-            dense
-            outlined
-            label="Your password"
-            prepend-inner-icon="mdi-lock-outline"
-          ></v-text-field>
-          <div class="errorColor" v-if="!!error">{{ error.message }}</div>
-          <v-btn type="button" color="#FF5252" @click.prevent="onSignin" block>Login</v-btn>
+          <div class="inputBox">
+            <div class="size14 color2 margin-btm">YOUR EMAIL ADDRESS:</div>
+            <v-text-field
+              type="email"
+              v-model="email"
+              dense
+              outlined
+              label="Your email address"
+              prepend-inner-icon="mdi-email-outline"
+            ></v-text-field>
+            <div class="size14 color2 margin-btm">YOUR PASSWORD:</div>
+            <v-text-field
+              type="password"
+              v-model="password"
+              dense
+              outlined
+              label="Your password"
+              prepend-inner-icon="mdi-lock-outline"
+            ></v-text-field>
+            <div class="errorColor" v-if="!!error">{{ error.message }}</div>
+            <v-btn type="button" color="#FF5252" @click.prevent="onSignin" block
+              >Login</v-btn
+            >
+            <br />
+            <v-row class="center-all forgotPW">
+              <a>Forgot password?</a>
+            </v-row>
+          </div>
+
           <br />
-          <v-row class="center-all forgotPW">
-            <a>Forgot password?</a>
-          </v-row>
-        </div>
+          <hr />
 
-        <br />
-        <hr />
-
-        <div class="footer">
-          <v-row xs12 class="center-all">
-            <span class="createAct">Do not have an account?</span>
-            <a href="/signup" class="createAct">Sign up?</a>
-          </v-row>
-        </div>
-      </v-form>
-    </v-card>
+          <div class="footer">
+            <v-row xs12 class="center-all">
+              <span class="createAct">Do not have an account?</span>
+              <a href="/signup" class="createAct">Sign up?</a>
+            </v-row>
+          </div>
+        </v-form>
+      </v-card>
+    </div>
   </div>
 </template>
 
 <script>
 import { mapState } from "vuex"
 import { http } from "@/axios"
-//import { APP_VERSION } from '@/config'
+
 export default {
   data() {
     return {
@@ -69,8 +73,7 @@ export default {
       snackbarTimeout: 5000,
     }
   },
-  created() {
-  },
+  created() {},
   mounted() {
     this.$store.commit("setLayout", "layout-default")
   },
@@ -86,30 +89,27 @@ export default {
           password: this.password,
         })
         .catch((err) => {})
-    }
+    },
   },
 }
 </script>
 
 <style scoped>
-@media screen and (max-width: 450px) {
-  #rc-imageselect,
-  .g-recaptcha {
-    transform: scale(0.77);
-    -webkit-transform: scale(0.77);
-    transform-origin: 0 0;
-    -webkit-transform-origin: 0 0;
-  }
+.background {
+  background: url("../../public/img/background06.svg") no-repeat center fixed;
+  background-size: cover;
+  height: 100%;
 }
 
-.bgColor {
-  background-color: #f5f6f7;
+.loginContainer {
+  width: 40%;
+  padding: 4%;
+  padding-top: 10%;
 }
 
 .center {
   margin: auto;
-  margin-top: 8%;
-  width: 50%;
+  width: 80%;
   padding: 10px;
 }
 
@@ -119,19 +119,19 @@ export default {
   justify-content: center;
 }
 
-.logo {
-  margin-bottom: 2%;
-}
-
 .color2 {
   color: #b8bdc2;
+}
+
+.logo {
+  padding-bottom: 4%;
 }
 
 .loginCard {
   margin: auto;
   max-width: 550px;
-  border: 1px solid #b8bdc2;
-  border-radius: 0.1875rem;
+  border: 5px solid lightgrey;
+  border-radius: 10px;
 }
 
 .size23 {
@@ -190,5 +190,17 @@ hr {
 
 .errorColor {
   color: red;
+}
+
+@media screen and (max-width: 1100px) {
+  .background {
+    background: none !important;
+    height: 100%;
+  }
+
+  .loginContainer {
+    width: 80%;
+    margin: auto;
+  }
 }
 </style>

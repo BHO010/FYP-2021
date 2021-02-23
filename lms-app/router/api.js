@@ -18,7 +18,7 @@ apiRoutes
 .post('/userObj', async (req, res) => {
   try {
     const user = await mongo.db.collection('user').findOne({ email: req.body.email })
-    // console.log("333", user.active)
+    // console.log("333", user)
     if (user) { // remove password
       return res.status(200).json({ user })
     }

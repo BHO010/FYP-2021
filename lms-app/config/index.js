@@ -79,7 +79,7 @@ CORS_OPTIONS: { // set withCredentials === true at Frontend
   responseHeader: ["*"],
   // ALLOW CORS
   credentials: true, // Access-Control-Allow-Credentials value to true
-  origin: "http://127.0.0.1:8080"
+  origin: "http://127.0.0.1:8080,http://127.0.0.1:8081"
 },
 CORS_ORIGINS: process.env.CORS_ORIGINS || '*', // http://127.0.0.1:8080
 

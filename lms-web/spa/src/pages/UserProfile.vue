@@ -13,7 +13,7 @@
               <div class="statsContent">
                 <h1>
                   {{ rank[index] }} Student Level
-                  {{ userDetails.level }}
+                  {{ userLevel }}
                 </h1>
                 <div>
                   <v-progress-linear
@@ -66,6 +66,7 @@
           v-for="course in courses"
           :key="course._id"
           :course="course"
+          type="registered"
         >
         </course-card>
       </div>
@@ -147,7 +148,7 @@
             </v-col>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Rating:{{userDetails.rating/userDetails.rateCount}}/5</v-row>
+                <v-row class="statsItem">Rating: {{(userDetails.rating/userDetails.rateCount) || 0}}/5</v-row>
                 <v-row class="statsItem"
                   >Comments: {{ stats.discussionPoints }}</v-row
                 >
@@ -237,6 +238,7 @@ export default {
       achievements: [],
       user: true,
       profileImage: "",
+      userLevel: 1,
       progressValue: 0,
       reviews: [],
       reviewsCurrentPage: 1,
@@ -309,18 +311,47 @@ export default {
       this.stats = rv2.data.stats
       this.achievements = rv3.data
     },
-    getExp(role) {
+    async getExp(role) {
       let maxExp = 100
-
+      let i = this.userDetails.level
       if (role == "instructor") {
-        if (this.userDetails.level != 1) {
-          maxExp *= this.user.userDetails.level * 2.5
-        }
+          maxExp *= this.userDetails.level * 2.5
+          if(this.userDetails.knowledgePoints > maxExp) {
+            for(i=i+1;i<100;i++) {
+              let exp = 100 * i *2.5
+              if(this.userDetails.knowledgePoints < exp) {
+                 maxExp = exp
+                 break
+              }
+            }
+          }
+          //update user level
+          let rv = await http.post('/api/me/level-update', {
+            level: i
+          }) 
+        
       } else {
-        if (this.userDetails.level != 1) {
-          maxExp *= this.user.userDetails.level * 1.5
-        }
+        console.log("HERE")
+          maxExp *= this.userDetails.level * 1.5
+          if(this.userDetails.knowledgePoints > maxExp) {
+            for(i=i+1;i<100;i++) {
+              let exp = 100 * i *1.5
+              if(this.userDetails.knowledgePoints < exp) {
+                maxExp = exp
+                break
+              }
+            }
+          }
+          console.log("FF", i)
+
+          //update user level
+           let rv = await http.post('/api/me/level-update', {
+            level: i
+          }) 
+
+
       }
+      this.userLevel = i
       this.progressValue = (this.userDetails.knowledgePoints / maxExp) * 100
     },
     getRank() {

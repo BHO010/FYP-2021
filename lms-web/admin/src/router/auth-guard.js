@@ -1,35 +1,36 @@
 import { store } from '@/store'
+import permissions from '@/permissions'
 
-const permissions = {
-  'all': ['/test'],
-  'rest': ['/home'],
-
+const routeGroups = {
+  // '/authors', '/categories', '/books', '/pages', '/books/:id/pages'
+  '/test': ['TestGroup'] //
 }
 
 export default (to, from, next) => {
-    //console.log('route', to.matched[0].path, store.state.user)
-   if (store.state.user && store.state.user.verified) { // has user && otp is verified
-     const { loginType } = store.state.user
-     let idx = -1
-     if (permissions[loginType]) idx = permissions[loginType].indexOf(to.matched[0].path)
-     if (idx === -1) idx = permissions['all'].indexOf(to.matched[0].path) // try again
-     if (idx === -1) { // Forbidden
-       alert('Forbidden... Check Page Permissions')
-       //next('/')
-     } else {
-       next()
-     }
-   } else {
-     // TBD save / restore last path
-     const item = localStorage.getItem('session') // survive a refresh - POTENTIAL SECURITY RISK - TO REVIEW AND CHANGE USE HTTPONLY COOKIES
-     if (item) {
-       const user = JSON.parse(item)
-       if (user.verified) {
-         store.commit('setUser', user) // need user.token only
-         store.commit('setLayout', 'layout-private')
-         return next()
-       }
-     }
-     return next('/')
-   }
- }
+  // console.log('route', to.matched[0].path, store.state.user)
+  if (store.state.user && store.state.user.verified) { // has user && otp is verified
+    const { groups } = store.state.user
+
+    
+    if (routeGroups[to.matched[0].path]) {
+      let found = permissions.allowed(routeGroups[to.matched[0].path], groups.split(','))
+      if (!found) {
+        alert('Forbidden... Check Page Permissions')
+        return next('/')  
+      }
+    }
+    return next()
+  } else {
+    // TBD save / restore last path
+    const item = localStorage.getItem('session') // survive a refresh - POTENTIAL SECURITY RISK - TO REVIEW AND CHANGE USE HTTPONLY COOKIES
+    if (item) {
+      const user = JSON.parse(item)
+      if (user.verified) {
+        store.commit('setUser', user) // need user.token only
+        store.commit('setLayout', 'layout-private')
+        return next()
+      }
+    }
+    return next('/')
+  }
+}

@@ -36,8 +36,6 @@ export default {
       this.reference = this.$route.query.reference
       let rv = await http.get(`/api/me/survey/${this.reference}`)
       this.survey = rv.data.survey
-        console.log("A", this.survey)
-        console.log("B", this.reference)
     } catch (e) {}
   },
   methods: {},

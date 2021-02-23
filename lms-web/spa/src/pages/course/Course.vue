@@ -321,7 +321,7 @@ export default {
     this.category = this.splited[0]
     this.imageURL = "/img/" + this.category + ".svg"
     this.fee = Number(this.course.fee)
-    this.rating = this.course.ratingScore / this.course.ratingCount
+    this.rating = this.course.totalRate / this.course.rateCount
 
     let regStart = new Date(this.course.regStart).getTime() / 1000
     let regEnd = new Date(this.course.regEnd).getTime() / 1000

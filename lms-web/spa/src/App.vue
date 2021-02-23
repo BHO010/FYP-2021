@@ -57,7 +57,7 @@ export default {
 }
 
 .v-application--wrap {
-  background-color: #e1f5fe
+  background-color: white
 }
 
 .v-dialog {

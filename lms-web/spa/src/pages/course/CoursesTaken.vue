@@ -16,6 +16,7 @@
           v-for="course in courses"
           :key="course._id"
           :course="course"
+          type="registered"
           >
          </course-card>
       </div>

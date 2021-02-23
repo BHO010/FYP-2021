@@ -1,7 +1,7 @@
 <template>
   <div class="template">
     <v-flex xs12 row v-if="type == 'block'">
-      <v-col cols="8" class="title">
+      <v-col cols="7" class="title">
         <router-link
           v-if="status"
           class="link"
@@ -13,11 +13,16 @@
         >
         <div v-else>{{ course.title }}</div>
       </v-col>
-      <v-col cols="3" class="stats">
+      <v-col cols="2" class="stats">
+        <h2>Batch</h2>
+        <div>{{this.block.batchID}}</div>
+      </v-col>
+      <v-col cols="2" class="stats">
         <h2>Status</h2>
-        <div v-if="status">Available</div>
-        <div v-else>Will be open 7 days before course start</div>
-        <div v-if="ongoing">Available</div>
+        <div v-if="status && !ended">Available</div>
+        <div v-else-if ="!status && !ended">Will be open 7 days before course start</div>
+        <div v-else-if ="status && ended && !user">Course have ended. Click on the red cross to closed the class.</div>
+        <div v-else-if ="status && ended && user">Course have ended.</div>
       </v-col>
       <v-col cols="1" class="stats" v-if="ended && !user">
         <v-btn icon color="red" @click="deleteClass">
@@ -198,7 +203,7 @@ export default {
   data() {
     return {
       course: null,
-      status: true, //more than 7 days to start = false
+      status: false, //more than 7 days to start = false
       ongoing: false,
       ended: false,
       userDetails: null,
@@ -218,7 +223,6 @@ export default {
       await this.getImage()
     } else {
       //type=block
-      console.log(this.user)
       let rv = await http.get("/api/me/course", {
         params: {
           courseRef: this.block.courseRef,
@@ -229,14 +233,12 @@ export default {
       let currentTime = new Date(currentDate).getTime() / 1000
       let startTime = new Date(this.block.startDate).getTime() / 1000
       let endTime = new Date(this.block.endDate).getTime() / 1000
-
       let dayDiff = Math.ceil((startTime - currentTime) / 86400)
 
-      if (startTime < currentDate && currentTime < endTime) {
-        this.ongoing = true
-      } else if (dayDiff < 7) {
+      if (dayDiff < 7) {
         this.status = true
-      } else if (endTime < currentTime) {
+      } 
+      if (endTime < currentTime) {
         this.ended = true
       }
 

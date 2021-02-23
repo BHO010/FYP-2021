@@ -279,7 +279,6 @@ meRoutes
 
           var index = userStats.registration.findIndex(p => p.year == year)  //add user registration
           var index2 = course.registration.findIndex(p => p.year == year)  // add course registration stats
-
           //user
           if (index < 0) {
             let template = {
@@ -340,6 +339,91 @@ meRoutes
         return session.endSession()
       }
     } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .post('/level-update', authUser, async (req, res) => {
+    let { level } = req.body
+    let user = null
+    try {
+      user = await findUser({ id: req.decoded.id })
+      await mongo.db.collection('user').updateOne({ email: user.email }, {
+        $set: {
+          level: level
+        }
+      })
+      return res.status(200).json("success")
+    } catch (e) {
+      return res.status(400).json({ e })
+    }
+  })
+
+  .get('/review', authUser, async (req, res) => {
+    let { reference } = req.query
+    try {
+      let rv = await mongo.db.collection('survey').findOne({ reference: reference, type: "review" })
+      console.log(rv)
+      return res.status(200).json(rv)
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+  })
+
+  .post('/review/completed', authUser, async (req,res) => {
+    let {reference, review, notificationIndex, courseRef} = req.body
+    let user = null
+    try {
+      user = await findUser({ id: req.decoded.id })
+      //Transaction
+      const { defaultTransactionOptions, client } = mongo
+      const session = client.startSession({ defaultTransactionOptions }) // for transactions
+      session.startTransaction()
+      try {
+        let instructorRating = review[1].rating
+        let courseRating = review[2].rating
+
+
+        await mongo.db.collection('statistics').updateOne({email: reference}, {
+          $inc: {
+            rateCount: 1,
+            totalRate: instructorRating,
+            reviewsCount: 1
+          } 
+        }, {session})
+
+        await mongo.db.collection('courses').updateOne({reference: courseRef}, {
+          $inc: {
+            totalRate: courseRating,
+            rateCount: 1
+          }
+        }, {session})
+
+        user.notifications.splice(notificationIndex,1)
+
+        await mongo.db.collection('user').updateOne({email: user.email}, {
+          $set: {
+            notifications: user.notifications
+          }
+        }, {session})
+
+        await mongo.db.collection('reviews').insertOne({
+          author: user.email,
+          name: user.name,
+          joined: user.signupDate,
+          date: new Date(),
+          instructor: reference,
+          review:  review[0].answer
+        }, {session})
+
+        await session.commitTransaction()
+        return res.status(200).json({ success: true, msg: 'Review Completed Successfully!' }) //success
+      }catch(e) {
+        await session.abortTransaction()
+        res.status(500).json({ e: e.toString() })
+      }
+      return session.endSession() 
+    }catch(e) {
       return res.status(500).json({ e: e.toString() })
     }
   })
@@ -523,6 +607,7 @@ meRoutes
         try {
           course = await mongo.db.collection('courses').insertOne({
             reference,
+            active: true,
             createdBy: user.email,
             createdOn: new Date().toISOString(),
             batchID,
@@ -542,7 +627,9 @@ meRoutes
             views: 0,
             regStart,
             regEnd,
-            regstration: []
+            totalRate: 0,
+            rateCount: 0,
+            registration: []
           }, { session })
 
           let rv = await mongo.db.collection('classes').insertOne({
@@ -767,15 +854,37 @@ meRoutes
     let user = null
     try {
       user = await findUser({ id: req.decoded.id })
-      if (user) {
-        let rv = mongo.db.collection('surveyResults').insertOne({
-          completedBy: user.email,
-          completedOn: new Date().toISOString(),
-          reference,
-          result: survey,
-        })
+      //Transaction
+      const { defaultTransactionOptions, client } = mongo
+      const session = client.startSession({ defaultTransactionOptions }) // for transactions
+      session.startTransaction()
+      try {
+        if (user) {
+          let rv = await mongo.db.collection('surveyResults').insertOne({
+            completedBy: user.email,
+            completedOn: new Date().toISOString(),
+            reference,
+            result: survey,
+          }, { session })
+
+          var index = user.notifications.findIndex(p => p.reference == reference)
+          user.notifications.splice(index, 1)
+
+          await mongo.db.collection('user').updateOne({ email: user.email }, {
+            $set: {
+              notifications: user.notifications
+            }
+          }, { session })
+
+          await session.commitTransaction()
+          return res.status(200).json({ success: true, msg: 'Survey Completed Successfully!' }) //success
+
+        }
+      } catch (e) {
+        await session.abortTransaction()
+        res.status(500).json({ e: e.toString() })
       }
-      return res.status(200).json()
+      return session.endSession()
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
@@ -858,7 +967,7 @@ meRoutes
       if (type == "imptThreads") {
         let imptThreadsCount = await mongo.db.collection('threads').find({ courseRef: reference, type: "notice" }).count()
         let imptThreads = await mongo.db.collection('threads').find({ courseRef: reference, type: "notice" }).sort({ "_id": 1 }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
-        
+
         for (var i = 0; i < imptThreads.length; i++) {
           let rCount = await mongo.db.collection('messages').find({ tRef: imptThreads[i].reference }).count()
           let latest = await mongo.db.collection('messages').find({ tRef: imptThreads[i].reference }).sort({ "_id": -1 }).skip(0).limit(1).toArray()
@@ -1074,10 +1183,12 @@ meRoutes
     let user = null
     try {
       user = await findUser({ id: req.decoded.id })
+      let course = await mongo.db.collection('courses').findOne({reference: courseRef})
       if (user) {
         let body = {
           reference: uuidv4(),
           courseRef,
+          title: course.title,
           msgRef,
           active: true,
           message,
@@ -1130,12 +1241,12 @@ meRoutes
       const { email, role } = user
       if (role == "user") {
         //Registered classes
-        let rv = await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).toArray()
+        let rv = await mongo.db.collection('registrations').find({ email: email, active: true }).toArray()
         regClasses = rv
         return res.status(200).json({ regClasses })
       } else {
         //Own course classes
-        let rv = await mongo.db.collection('classes').find({ instructor: email, endDate: { $gte: new Date() } }).toArray()
+        let rv = await mongo.db.collection('classes').find({ instructor: email, active: true }).toArray()
 
         //Reg Course classes
         let rv2 = await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).toArray()
@@ -1254,7 +1365,7 @@ meRoutes
             active: false
           }
         }, { session })
-        await mongo.db.collection('registrations').update({ courseRef: courseRef, batchID: batchID }, {
+        await mongo.db.collection('registrations').updateMany({ courseRef: courseRef, batchID: batchID }, {
           $set: {
             active: false
           }

@@ -1,5 +1,5 @@
 <template>
-  <div id="survey">
+  <div v-if="type != 'review'" id="survey">
     <div v-if="!type" id="body">
       <div class="questionDiv" v-for="(item, index) in survey" :key="item.id">
         <div class="textInput" v-if="item.type == 'text'">
@@ -59,7 +59,7 @@
       </v-row>
     </div>
 
-    <div v-else-if="type='quiz'" id="body">
+    <div v-else-if="type=='quiz'" id="body">
       <div class="questionDiv" v-for="(item, index) in quiz.content" :key="item.id">
         <div class="textInput" v-if="item.type == 'text'">
           <h3>Question {{ index + 1 }}: {{ item.title }}</h3>
@@ -118,6 +118,40 @@
       </v-row>
     </div>
   </div>
+
+  <div v-else id="review">
+     <div id="body">
+      <div class="reviewDiv" v-for="(item, index) in review" :key="item.id">
+        <div class="textInput" v-if="item.type == 'text'">
+          <h3>Question {{ index + 1 }}: {{ item.title }}</h3>
+          <v-textarea v-model="item.answer" outlined rows="4"></v-textarea>
+        </div>
+
+         <div v-if="item.type == 'rate'">
+          <h3>Question {{ index + 1 }}: {{ item.title }}</h3>
+          <v-rating
+            v-model="item.rating"
+            background-color="red lighten-2"
+            color="red"
+            size="64"
+            hover
+            length="5"
+          ></v-rating>
+        </div>
+      </div>
+       <v-row id="btnRow" align="end">
+        <v-spacer></v-spacer>
+        <v-btn
+          class="button"
+          color="#69F0AE"
+          :loading="loading"
+          @click="onCompleteReview"
+          >Complete</v-btn
+        >
+      </v-row>
+    </div>
+
+  </div>
 </template>
 
 <script>
@@ -129,6 +163,8 @@ export default {
   props: {
     survey: Array,
     quiz: Object,
+    review: Array,
+    reviewIndex: Number,
     reference: String,
     type: String,
     courseRef: String,
@@ -142,6 +178,7 @@ export default {
     ...mapState(["error", "loading"]),
   },
   mounted() {
+    console.log(this.type)
   },
   methods: {
     async onComplete() {
@@ -175,6 +212,21 @@ export default {
       } catch (e) {
 
       }
+    },
+    async onCompleteReview() {
+      try {
+        this.$store.commit("setLoading", true)
+        let rv = await http.post('/api/me/review/completed', {
+          reference: this.reference,
+          review: this.review,
+          notificationIndex: this.notificationIndex,
+          courseRef: this.courseRef
+        })
+        if (rv) {
+          this.$store.commit("setLoading", false)
+          this.$router.go().catch((err) => {})
+        }
+      }catch(e) {}
     }
   },
 }
@@ -208,6 +260,25 @@ export default {
   overflow-y: auto;
 }
 
+#review {
+  font-family: "DarkerGrotesque-Medium";
+  border: 10px solid lightgrey;
+  border-radius: 80px;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  width: 80%;
+  margin: auto;
+  margin-top: 4%;
+  margin-bottom: 4%;
+}
+
+#review #body {
+  width: 90%;
+  margin: auto;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
 .questionDiv {
   width: 90%;
   margin-left: 5%;
@@ -225,5 +296,10 @@ export default {
   line-height: 2rem;
   font-size: 24px;
   text-align: center;
+}
+
+.reviewDiv {
+  width: 80%;
+  margin: auto;
 }
 </style>

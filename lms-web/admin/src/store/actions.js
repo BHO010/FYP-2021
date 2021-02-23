@@ -33,11 +33,10 @@ export default {
       const { data } = rv
       userObj = await http.post("/api/userObj", { email });
       const { userObj_data } = userObj
-
       //checking if role is admin, if it's not, show error.
       if (!(userObj.data.user.role == "admin")) {
         await dispatch('autoSignIn', userObj_data) // token
-        commit('setError', { message: 'Invalid Login. Please login via https://uat.viow.co/login' })
+        commit('setError', { message: 'Invalid Login. Admin only.' })
         await router.push("/login").catch(err => { });
       } else {
         await dispatch('autoSignIn', data) // token
@@ -79,10 +78,11 @@ export default {
 
   // TBD fix broken promises here... actions return a promise...
   // layout-secure, layout-public, setSecure payload is route instead of layout name..., setPublic
-  autoSignIn({ commit }, payload) { // payload.token only
-    commit('setUser', payload)
-    if (!USE_OTP) {
-      commit('setLayout', 'layout-private')
+  autoSignIn({ commit }, payload) {
+    // payload.token only
+    commit("setUser", payload);
+    if (USE_OTP) {
+      commit("setLayout", "layout-default");
     }
   },
 

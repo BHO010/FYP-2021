@@ -50,19 +50,17 @@
   </v-app>
 </template>
  
-<script  scoped >
+<script>
 export default {
   data() {
     return {
       menu: [
         { title: "Browse", route: "/" },
-        { title: "Category", route: "/" },
         { title: "About Us", route: "/" },
         { title: "Help", route: "/" },
       ],
     }
   },
-  created() {},
   computed: {
     user() {
       return this.$store.state.user
@@ -92,7 +90,6 @@ export default {
 
 .body {
   display: flex;
-  background-color: bisque;
 }
 
 .topBar {

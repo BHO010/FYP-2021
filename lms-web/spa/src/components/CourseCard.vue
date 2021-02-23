@@ -22,6 +22,7 @@ export default {
   name: "CourseCard",
   props: {
     course: Object,
+    type: String
   },
    computed: {
     ...mapState(["error", "loading"]),
@@ -30,9 +31,16 @@ export default {
   },
   methods: {
       viewCourse() {
-        this.$router
+        if(this.type == "registered") {
+          this.$router
+        .push({ path: `/course/${this.course.courseRef}`})
+        .catch(err => {});
+        }else {
+          this.$router
         .push({ path: `/course/${this.course.reference}`})
         .catch(err => {});
+        }
+        
       },
       editCourse() {
         this.$router

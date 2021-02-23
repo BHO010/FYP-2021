@@ -125,30 +125,50 @@
 
         <v-spacer></v-spacer>
 
-       <v-toolbar-items class="hidden-sm-and-down">
+        <v-toolbar-items class="hidden-sm-and-down">
           <v-btn v-for="(item, i) in menu" :key="i" :to="item.route" text>{{
             item.title
           }}</v-btn>
         </v-toolbar-items>
 
         <!-- user icon + notification bell -->
-        <v-badge
-          v-if="notice"
-          color="error"
-          :content="notification"
-          overlap
-          offset-x="22"
-          offset-y="26"
-        >
-          <v-btn icon>
-            <v-icon large color="green darken-2" class="notification">
-              mdi-bell
-            </v-icon>
-          </v-btn>
-        </v-badge>
+        <v-menu v-if="isNoticfication" :nudge-width="200" offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-badge
+              color="error"
+              :content="notificationCount"
+              overlap
+              offset-x="22"
+              offset-y="26"
+            >
+              <v-btn v-bind="attrs" v-on="on" icon>
+                <v-icon large color="green darken-2" class="notification">
+                  mdi-bell
+                </v-icon>
+              </v-btn>
+            </v-badge>
+          </template>
+          <v-list>
+            <v-list-item
+              v-for="(item, i) in notificationsList"
+              :key="i"
+              @click="selectNotification(item, i)"
+            >
+              <v-list-item-content class="listItem">
+                <v-list-item-title id="header">{{
+                  item.header
+                }}</v-list-item-title>
+                <v-list-item-subtitle id="content">{{
+                  item.content
+                }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
         <v-icon v-else large color="green darken-2" class="notification">
           mdi-bell
         </v-icon>
+
         <v-menu :nudge-width="200" offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-btn dark icon v-bind="attrs" v-on="on" class="avatar">
@@ -170,7 +190,37 @@
       <div id="main">
         <router-view :key="$route.fullPath"></router-view>
       </div>
-      
+
+      <!-- Notification dialog -->
+      <v-dialog v-model="notificationReview" persistent scrollable width="70%">
+        <v-card tile height="100%" color="#e1f5fe" class="reviewCard">
+          <v-toolbar fixed dark color="primary">
+            <v-btn icon dark @click="notificationReview = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Submit Review.</v-toolbar-title>
+          </v-toolbar>
+          <!-- Survey component -->
+          <div id="dialogContent">
+            <survey-viewer :review="this.review" type="review" :reviewIndex="reviewIndex" :courseRef="courseRef" :reference="reference"></survey-viewer>
+          </div>
+        </v-card>
+      </v-dialog>
+
+       <v-dialog v-model="notificationSurvey" persistent scrollable width="70%">
+        <v-card tile height="100%" color="#e1f5fe" class="reviewCard">
+          <v-toolbar fixed dark color="primary">
+            <v-btn icon dark @click="notificationSurvey = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title>Submit Review.</v-toolbar-title>
+          </v-toolbar>
+          <!-- Survey component -->
+          <div id="dialogContent">
+            <survey-viewer :review="this.review" type="review" :notificationIndex="notificationIndex" :courseRef="courseRef" :reference="reference"></survey-viewer>
+          </div>
+        </v-card>
+      </v-dialog>
     </v-main>
   </v-app>
 </template>
@@ -185,8 +235,16 @@ export default {
       userDetails: "",
       profileImage: "",
       isUser: true,
-      notice: false,
-      notification: 5,
+      isNoticfication: false,
+      notificationReview: false,
+      notificationSurvey: false,
+      review: [],
+      notificationIndex: 0,
+      survey: [],
+      reference: "",
+      courseRef: "",
+      notificationCount: 5,
+      notificationsList: [],
       menu: [
         { title: "Browse", route: "/browse" },
         { title: "About Us", route: "/home" },
@@ -229,6 +287,11 @@ export default {
       if (this.userDetails.role != "user") {
         this.isUser = false
       }
+      if (this.userDetails.notifications.length > 0) {
+        this.isNoticfication = true
+        this.notificationCount = this.userDetails.notifications.length
+        this.notificationsList = this.userDetails.notifications
+      }
       this.profileImage = this.userDetails.profileImage
       this.insertIcon()
     } catch (e) {}
@@ -264,6 +327,26 @@ export default {
       d.innerHTML = ""
       d.innerHTML = this.profileImage
     },
+    async selectNotification(data, index) {
+      console.log("JJ", data, index)
+      if(data.type == "survey") {
+         this.$router
+        .push({ path: "/survey", query: { reference: data.reference } })
+        .catch(err => {});
+      
+      }else {
+        let rv = await http.get('/api/me/review', {
+          params: {
+            reference: data.instructor
+          }
+        })
+        this.courseRef = data.courseRef
+        this.reference = data.instructor
+        this.notificationIndex = index
+        this.review = rv.data.survey
+        this.notificationReview = true
+      }
+    }
   },
 }
 </script>
@@ -354,15 +437,25 @@ input:-internal-autofill-selected {
   margin-left: 1% !important;
 }
 
+.listItem {
+  padding-top: 0;
+  border-bottom: 1px solid lightgrey;
+}
+
+.listItem #header {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 28px;
+  color: darkblue;
+}
+
+.listItem #content {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: 20px;
+}
+
 .logo {
   width: 150px;
   margin-left: 2%;
-  color: white;
-}
-
-.searchInput {
-  height: 40px;
-  width: 220px;
   color: white;
 }
 

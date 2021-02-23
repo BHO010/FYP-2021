@@ -104,9 +104,9 @@ module.exports = function(app, config) {
   // Access-Control-Allow-Methods=GET,POST,PUT,PATCH,DELETE,OPTIONS
   // Access-Control-Allow-Headers=Content-Type
   const cors = require('cors')
-  const  { CORS_OPTIONS } = config
+  const  { CORS_OPTIONS } = config 
   let { origin, ...options } = CORS_OPTIONS  // origin = ['http://example1.com', 'http://example2.com']
-
+  console.log("AA", origin)
   let whitelist = origin.split(',')
   if (whitelist.length === 1) origin = whitelist[0]
   else if (whitelist.length > 1) {

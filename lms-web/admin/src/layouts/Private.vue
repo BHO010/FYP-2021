@@ -1,189 +1,95 @@
 <template>
   <v-app class="app">
-    <v-overlay :value="loading">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
+    <v-navigation-drawer v-model="drawer" app>
+      <div class="flex-container">
+        <div class="v-navigation-drawer__content">
+          <v-col>
+            <br />
+            <img class="logo-private" src="../../public/img/logo.png" />
+            <br />
+          </v-col>
+          <v-col col="3" class="navCol">
+            <v-list>
+              <!--Home -->
+              <v-list-item-group v-model="item" color="#009cdc">
+                <v-list-item
+                  v-for="(item, i) in itemHome"
+                  :key="i"
+                  :to="item.route"
+                  class="listItem hover"
+                >
+                  <v-list-item-content class="hover">
+                    <v-list-item-title v-text="item.text" class="size-28 bold hover listText"></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
 
-    <div class="topBar">
-      <v-app-bar height="74" fixed color="blue darken-4">
-        <v-app-bar-nav-icon @click="toggle"></v-app-bar-nav-icon>
-        <v-menu offset-y>
-          <v-list class="hidden-md-and-up">
-            <v-list-item v-for="item in menu" :key="item.icon">
-              <v-list-item-content>
-                <v-list-item-title>{{ item.title }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+              <!--Accounts -->
+              <v-list-group color="#009cdc" class="margin-btm">
+                <template v-slot:activator>
+                  <v-list-item-icon>
+                    <v-icon>mdi-account</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title class="size-28 bold">Accounts</v-list-item-title>
+                </template>
+                <v-list-item
+                  v-for="(item, i) in items"
+                  :key="i"
+                  :to="item.route"
+                  color="#009cdc"
+                  class="listItem hover"
+                  v-model="active_list"
+                >
+                  <v-list-item-content class="hover listText size-28">
+                    <v-list-item-title v-text="item.text"></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-group>
 
-        <v-toolbar-title class="color logo">NTU-LMS</v-toolbar-title>
+              <!--Reports -->
+              <v-list-item-group v-model="item" color="#009cdc">
+                <v-list-item
+                  v-for="(item, i) in itemReports"
+                  :key="i"
+                  :to="item.route"
+                  class="listItem hover"
+                >
+                  <v-list-item-content class="hover">
+                    <v-list-item-title v-text="item.text" class="size-28 hover bold listText"></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </v-col>
+        </div>
 
-        <!-- <v-text-field
-          class="searchInput"
-          type="text"
-          label="Search"
-          background-color="blue accent-2"
-          dense
-          outlined
-          prepend-inner-icon="mdi-magnify"
-        ></v-text-field> -->
+        <div class="misc">
+          <div class="v-navigation-drawer__append">
+            <v-list flat>
+              <!-- logout -->
+              <v-list-item :disabled="$store.state.loading" @click="onLogout" color="#009cdc">
+                <v-list-item-content>
+                  <v-list-item-title class="size-28">Logout</v-list-item-title>
+                  <!-- <v-list-item :disabled="$store.state.loading" @click="onLogout"> -->
+                    </v-list-item-content>
+              </v-list-item>
+            </v-list>
+          </div>
+        </div>
+      </div>
+    </v-navigation-drawer>
 
+    <v-main class="body">
+      <v-flex xs12 row color class="appBar align-left" hide-on-scroll height="100">
+        <v-app-bar-nav-icon class="hidden-lg-and-up" @click.stop="drawer = !drawer" />
         <v-spacer></v-spacer>
-
-        <v-toolbar-items class="hidden-sm-and-down">
-          <v-btn v-for="(item, i) in menu" :key="i" :to="item.route" text>{{
-            item.title
-          }}</v-btn>
-        </v-toolbar-items>
-
-        <!-- user icon + notification bell -->
-        <v-icon large color="green darken-2" class="notification">
-          mdi-bell
-        </v-icon>
-        <v-menu :nudge-width="200" offset-y>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn dark icon v-bind="attrs" v-on="on" class="avatar">
-              <v-avatar size="48" id="icomImg"> </v-avatar>
-            </v-btn>
-          </template>
-
-          <v-list>
-            <v-list-item v-for="(item, i) in items" :key="i" :to="item.route">
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item @click="onLogout">
-              <v-list-item-title>Logout</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </v-app-bar>
-    </div>
-
-    <div class="body">
-      <div v-if="isUser">
-        <v-navigation-drawer
-          class="sideBar"
-          v-model="drawer"
-          color="#ededed"
-          fixed
-          clipped
-          style="padding-top: 74px"
-        >
-          <v-list nav dense>
-            <v-list-item-group
-              active-class="red lighten-5--text text--accent-4"
-            >
-              <h3 class="listTitle">Account</h3>
-              <v-list-item
-                v-for="actItem in accountItems"
-                :key="actItem.title"
-                :to="actItem.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ actItem.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Course</h3>
-              <v-list-item
-                v-for="courseItem in userCourseItems"
-                :key="courseItem.title"
-                :to="courseItem.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ courseItem.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Community</h3>
-              <v-list-item
-                v-for="item in communityItems"
-                :key="item.title"
-                :to="item.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Classes</h3>
-              <v-list-item
-                v-for="item in ongoingItems"
-                :key="item.title"
-                :to="item.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-navigation-drawer>
-      </div>
-
-      <div v-else>
-        <v-navigation-drawer
-          class="sideBar"
-          color="#ededed"
-          style="padding-top: 74px"
-          v-model="drawer"
-          fixed
-          clipped
-        >
-          <v-list nav dense>
-            <v-list-item-group
-              active-class="red lighten-5--text text--accent-4"
-            >
-              <h3 class="listTitle">Account</h3>
-              <v-list-item
-                v-for="actItem in accountItems"
-                :key="actItem.title"
-                :to="actItem.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ actItem.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Course</h3>
-              <v-list-item
-                v-for="courseItem in instructorCourseItems"
-                :key="courseItem.title"
-                :to="courseItem.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ courseItem.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Community</h3>
-              <v-list-item
-                v-for="item in communityItems"
-                :key="item.title"
-                :to="item.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <h3 class="listTitle">Ongoing</h3>
-              <v-list-item
-                v-for="item in ongoingItems"
-                :key="item.title"
-                :to="item.route"
-              >
-                <v-list-item-content>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-navigation-drawer>
-      </div>
-
-      <div id="main" class="main">
-        <v-main>
-          <router-view :key="$route.fullPath"></router-view>
-        </v-main>
-      </div>
-    </div>
+        <v-avatar color="#009cdc" size="36">
+          <span class="white--text headline">A</span>
+        </v-avatar>
+        <div class="center-all welcome">Hi, Admin!</div>
+      </v-flex>
+      <router-view :key="$route.fullPath"></router-view>
+    </v-main>
   </v-app>
 </template>
  
@@ -196,48 +102,30 @@ export default {
     return {
       userDetails: "",
       profileImage: "",
-      isUser: true,
-      menu: [
-        { title: "Browse", route: "/browse" },
-        { title: "About Us", route: "/home" },
-        { title: "Help", route: "/home" },
-      ],
-      items: [
-        { title: "Profile", route: "/profile" },
-        { title: "Settings", route: "/settings" },
-      ],
-      accountItems: [
-        { title: "Profile", route: "/profile" },
-        { title: "Achievement", route: "/achievements" },
-        { title: "Statistics", route: "/statistics" },
-        { title: "Settings", route: "/settings" },
-      ],
-      instructorCourseItems: [
-        { title: "Browse", route: "/browse" },
-        { title: "Registered", route: "/courses-taken" },
-        { title: "Your Course", route: "/courses-created" },
-        { title: "Course Creation", route: "/course/create" },
-      ],
-      userCourseItems: [
-        { title: "Browse", route: "/browse" },
-        { title: "Course Taken", route: "/courses-taken" },
-      ],
-      communityItems: [{ title: "Discussion", route: "/discussion" }],
-      ongoingItems: [{ title: "Classes", route: "/classes" }],
       drawer: true,
+      active_list: "",
+      admin: true,
+      item: 1,
+      items: [
+         {
+          id: "Users",
+          text: "Users",
+          icon: "",
+          route: { path: "/users" }
+        },
+        { id: "Instructors", text: "Instructors", icon: "", route: { path: "/instructors" } },
+        { text: "Awaiting Approval", icon: "", route: { path: "/instructorStatus" } }
+      ],
+      itemHome: [{ text: "Home", icon: "mdi-home", route: "/home" }],
+      itemReports: [
+        { id: "Report", text: "Reports", icon: "", route: { path: "/reports" } },
+      ]
     }
   },
   created() {},
   async mounted() {
-    try {
-      const rv = await http.get("/api/me")
-      this.userDetails = rv.data
-      if (this.userDetails.role != "user") {
-        this.isUser = false
-      }
-      this.profileImage = this.userDetails.profileImage
-      this.insertIcon()
-    } catch (e) {}
+   
+    
   },
   computed: {
     user() {
@@ -248,28 +136,7 @@ export default {
     },
   },
   methods: {
-    menuItems() {
-      return this.menu
-    },
-    toggle() {
-      if (this.drawer == false) {
-        this.drawer = true
-        let d = document.getElementById("main")
-        d.style.transform = "translate3d(0px, 0px, 0px)"
-      } else {
-        this.drawer = false
-        let d = document.getElementById("main")
-        d.style.transform = "translate3d(-100px, 0px, 0px)"
-      }
-    },
-    onLogout() {
-      this.$store.dispatch("logout", { user: this.$store.state.user })
-    },
-    insertIcon() {
-      let d = document.getElementById("icomImg")
-      d.innerHTML = ""
-      d.innerHTML = this.profileImage
-    },
+    onLogout() {}
   },
 }
 </script>
@@ -303,119 +170,137 @@ export default {
   src: url("../../public/fonts/DarkerGrotesque-Medium.ttf");
 }
 
-input:-internal-autofill-selected {
-  background-color: transparent !important;
+.v-navigation-drawer__content {
+  max-height: 100% !important;
 }
 
-.body {
-  position: relative;
+.flex-container {
   display: flex;
-  background-color: #e1f5fe;
-}
-
-.theme--light.v-btn--active::before {
-  opacity: 0;
-}
-
-.header {
-  color: white;
-  font-size: 30px;
-  margin-left: 2%;
-}
-
-.main {
-  transform: translate3d(0px, 0px, 0px);
-  transition-duration: 300ms;
-  background-color: #e1f5fe;
-  z-index: 0;
-  order: 1;
-  flex: 1 1 0%;
-  padding-left: 260px;
-}
-
-.color {
-  color: white !important;
-}
-
-.topBar {
-  height: 74px;
+  flex-direction: column;
+  align-content: center;
   width: 100%;
+  height: 100%;
+}
+.misc {
+  display: flex;
+}
+.logo-private {
+  display: flex;
+  height: 100px;
+}
+.v-navigation-drawer__border {
+  width: null;
+  height: null;
 }
 
-.topBar .v-btn,
-.topBar .v-text-field {
-  color: white;
+.bold {
+  font-weight: bold;
 }
 
-.topBar .theme--light.v-input input,
-.theme--light.v-input textarea {
-  color: white !important;
+.size-22 {
+  font-size: 22px;
 }
-
-.notification {
-  margin-right: 1%;
-  margin-left: 1%;
+.size-20 {
+  font-size: 20px;
 }
-
-.avatar {
-  margin-right: 1% !important;
+.size-28 {
+  font-size: 28px;
 }
-
-.logo {
-  width: 150px;
-  margin-left: 2%;
-  color: white;
+.appBar {
+  margin-top: 1.5em !important;
+  width: 95%;
 }
-
-.searchInput {
-  height: 40px;
-  width: 220px;
-  color: white;
+.align-left {
+  margin-left: 5px;
 }
-
-.navItems {
-  font-size: 16px !important;
-  margin-left: 1%;
-  text-decoration: none;
+.divContent {
+  margin-left: 4%;
+  margin-right: 4%;
 }
-
-.navBtn {
-  margin-left: 1%;
-  text-transform: none;
-  color: black !important;
+.appColor {
+  background-color: #f8f8f8;
 }
-
-.navSign {
-  margin-right: 1%;
-}
-
-.spaceWidth {
-  width: 600px;
-}
-
 .center-all {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.sideBar {
-  padding-left: 1%;
-  padding-right: 1%;
-  background: #ededed;
-  padding-top: 74px !important;
-  border: 2px solid black;
+.margin-top {
+  margin-top: 15em;
+  position: fixed !important;
 }
-
-.sideBar .v-list-item__title {
-  font-family: "DarkerGrotesque-Medium";
+.margin-top-partner {
+  margin-top: 22em;
+}
+.margin-btm {
+  margin-bottom: 20px;
+}
+.margin-left {
+  margin-left: 70em;
+}
+.align-list {
+  margin-left: 3.5em;
   font-size: 20px;
-  line-height: 1.5rem;
+}
+.listItem {
+  margin-bottom: 20px;
+}
+.listSubItem {
+  padding-right: 0;
+}
+.listText:hover {
+  color: white;
+  padding: 0;
+}
+.listItem:hover {
+  background-color: #009cdc;
+  color: white !important;
+}
+.listSubItem:hover {
+  background-color: #009cdc;
+  color: white !important;
+}
+.drawerItems {
+  color: black;
+}
+.drawerItems:hover {
+  color: #009cdc;
+}
+.welcome {
+  margin-left: 2em;
+  font-size: 22px;
+  font-weight: bolder;
+}
+.homeIcon {
+  color: black;
+}
+.navCol {
+  padding: 0;
+}
+.listItemTrial {
+  background-color: grey;
+  color: white;
+}
+.hover:hover {
+  color: white;
+}
+.listTop {
+  margin-top: 3%;
+}
+.listBtm {
+  margin-bottom: 3%;
+}
+.v-list-item__content {
+  padding: 0% !important;
+  height: 56px;
+  width: 220px !important;
 }
 
-.sideBar .listTitle {
-  font-family: "DarkerGrotesque-Medium";
-  font-size: 32px;
-  color: #0d47a1;
+.v-list-item__title {
+  font-size: 24px;
+}
+
+.textAlign {
+  padding-left: 35% !important;
 }
 </style>

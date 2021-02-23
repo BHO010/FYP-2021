@@ -22,8 +22,28 @@ export default {
 </script>
 
 <style>
+@font-face {
+  font-family: "Allstar";
+  src: url("../public/fonts/AllStar.ttf");
+}
+
+@font-face {
+  font-family: "DMSans-Bold";
+  src: url("../public/fonts/DMSans-Bold.ttf");
+}
+
+@font-face {
+  font-family: "DarkerGrotesque-Medium";
+  src: url("../public/fonts/DarkerGrotesque-Medium.ttf");
+}
+
+@font-face {
+  font-family: "DarkerGrotesque-Bold";
+  src: url("../public/fonts/DarkerGrotesque-Bold.ttf");
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: "DarkerGrotesque-Medium";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
