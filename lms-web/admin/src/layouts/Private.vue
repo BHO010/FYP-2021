@@ -46,10 +46,10 @@
                 </v-list-item>
               </v-list-group>
 
-              <!--Reports -->
+              <!--Others -->
               <v-list-item-group v-model="item" color="#009cdc">
                 <v-list-item
-                  v-for="(item, i) in itemReports"
+                  v-for="(item, i) in itemOthers"
                   :key="i"
                   :to="item.route"
                   class="listItem hover"
@@ -117,7 +117,8 @@ export default {
         { text: "Awaiting Approval", icon: "", route: { path: "/instructorStatus" } }
       ],
       itemHome: [{ text: "Home", icon: "mdi-home", route: "/home" }],
-      itemReports: [
+      itemOthers: [
+        { id: "Courses", text: "Courses", icon: "", route: { path: "/courses" } },
         { id: "Report", text: "Reports", icon: "", route: { path: "/reports" } },
       ]
     }
@@ -276,6 +277,7 @@ export default {
 }
 .navCol {
   padding: 0;
+  text-align: center;
 }
 .listItemTrial {
   background-color: grey;

@@ -33,14 +33,10 @@
                 :type="type"
               ></discussion-card>
             </div>
-             <v-row>
+            <v-row>
               <h1>Discussion</h1>
               <v-spacer></v-spacer>
-              <v-btn
-                class="Btn"
-                text
-                outlined
-                @click="newThread('discussion')"
+              <v-btn class="Btn" text outlined @click="newThread('discussion')"
                 >New Thread</v-btn
               >
             </v-row>
@@ -138,7 +134,6 @@
         </div>
       </div>
 
-
       <!-- Dialogue-->
       <v-dialog v-model="create" persistent scrollable width="50%">
         <v-card tile>
@@ -195,7 +190,7 @@ export default {
       imptPageCount: 0,
       type: "block",
       create: false,
-      createType: null
+      createType: null,
     }
   },
   computed: {
@@ -246,26 +241,25 @@ export default {
         params: {
           type: "imptThreads",
           reference: this.ref,
-          currentPage: this.imptCurrentPage
+          currentPage: this.imptCurrentPage,
         },
       })
 
       this.imptThreads = rv.data.imptThreads
       this.imptPageCount = Math.ceil(rv.data.imptThreadsCount / 4)
-
     },
     async getDscussionThreads() {
       let rv = await http.get("/api/me/discussion", {
         params: {
           type: "threads",
           reference: this.ref,
-          currentPage: this.threadsCurrentPage
+          currentPage: this.threadsCurrentPage,
         },
       })
 
       this.threads = rv.data.threads
       this.threadsPageCount = Math.ceil(rv.data.threadsCount / 4)
-    }
+    },
   },
 }
 </script>
@@ -282,19 +276,19 @@ export default {
 
 #body h1 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 42px;
+  font-size: calc(34px + (42 - 34) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
 }
 
 #body p {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 24px;
+  font-size: calc(18px + (24 - 18) * ((100vw - 300px) / (1920 - 300)));
   margin-left: 0%;
 }
 
 .v-label {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 32px;
+  font-size: calc(24px + (32 - 24) * ((100vw - 300px) / (1920 - 300)));
   font-weight: bold;
   color: black;
   margin-right: 1%;
@@ -326,5 +320,28 @@ export default {
 
 v.application-wrap >>> .v-dialog {
   width: 50%;
+}
+
+@media screen and (max-width: 1280px) {
+  #main {
+    width: 95% !important;
+    margin: auto;
+  }
+  #body {
+    margin-top: 5%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  #content {
+    border: none;
+    border-radius: 50px;
+    padding: 2%;
+  }
+
+  
+   #body {
+    margin-top: 10%;
+  }
 }
 </style>

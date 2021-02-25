@@ -19,11 +19,17 @@
 
         <div id="mainPost">
           <v-flex xs12 row>
-            <v-col cols="2" class="profile" @click="gotoProfile(main.author)">
+            <v-col
+              cols="3"
+              md="3"
+              lg="2"
+              class="profile"
+              @click="gotoProfile(main.author)"
+            >
               <div class="icon" :id="main._id"></div>
               <div class="name">{{ postUser.name }}</div>
             </v-col>
-            <v-col cols="10" class="title">
+            <v-col cols="9" md="9" lg="10" class="title">
               <div class="topRow">
                 {{ new Date(main.created).toLocaleString() }}
               </div>
@@ -117,9 +123,7 @@
                     rows="4"
                   ></v-textarea>
                 </div>
-                <v-btn text outlined @click="postReport(null)"
-                  >Submit</v-btn
-                >
+                <v-btn text outlined @click="postReport(null)">Submit</v-btn>
               </v-form>
             </div>
           </div>
@@ -226,25 +230,25 @@ export default {
     },
     async postReport(data) {
       let body = null
-      if(data == null) {
+      if (data == null) {
         body = {
           msgRef: this.main.reference,
           courseRef: this.main.courseRef,
           message: this.reportMsg,
-          type: "threads"
+          type: "threads",
         }
-      }else {
+      } else {
         body = data
       }
-       
-       let rv = await http.post('/api/me/discussion/report', body)
 
-        if(rv) {
-          this.snackbarText = "Report submited successfully"
-          this.snackbarShow = true
-          this.reportDialog = false
-          this.reportMsg = ""
-        }
+      let rv = await http.post("/api/me/discussion/report", body)
+
+      if (rv) {
+        this.snackbarText = "Report submited successfully"
+        this.snackbarShow = true
+        this.reportDialog = false
+        this.reportMsg = ""
+      }
     },
   },
 }
@@ -267,19 +271,19 @@ export default {
 
 #body h1 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 42px;
+  font-size: calc(34px + (42 - 34) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
 }
 
 #body p {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 24px;
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
   margin-left: 0%;
 }
 
 .v-label {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 32px;
+  font-size: calc(24px + (32 - 24) * ((100vw - 300px) / (1920 - 300)));
   font-weight: bold;
   color: black;
   margin-right: 1%;
@@ -329,7 +333,7 @@ export default {
 
 .link {
   font-family: "DarkerGrotesque-Bold";
-  font-size: 28px;
+  font-size: calc(14px + (28 - 14) * ((100vw - 300px) / (1920 - 300)));
   text-decoration: underline;
 }
 
@@ -340,6 +344,7 @@ export default {
 
 .content {
   font-family: "DarkerGrotesque-Medium";
+  font-size: calc(16px + (20 - 16) * ((100vw - 300px) / (1920 - 300)));
   margin-top: 1%;
   margin-bottom: 1%;
 }
@@ -347,11 +352,13 @@ export default {
 .btmRow {
   font-family: "DarkerGrotesque-Medium";
   display: flex;
+  font-size: calc(12px + (16 - 12) * ((100vw - 300px) / (1920 - 300)));
 }
 
 .Btn {
   font-family: "DarkerGrotesque-Bold";
   text-transform: none;
+  font-size: calc(12px + (16 - 12) * ((100vw - 300px) / (1920 - 300)));
 }
 
 #dialogBody {
@@ -359,5 +366,33 @@ export default {
   margin: auto;
   margin-top: 2%;
   margin-bottom: 2%;
+}
+
+@media screen and (max-width: 1400px) {
+  #main {
+    margin-top: 10%;
+  }
+}
+
+@media screen and (max-width: 1265px) {
+  #main {
+    width: 95% !important;
+    margin: auto;
+    margin-top: 8%;
+  }
+
+  #content {
+    border: none;
+    border-radius: 50px;
+    padding: 2%;
+  }
+
+}
+
+
+@media screen and (max-width: 600px) {
+   #main {
+    margin-top: 14%;
+  }
 }
 </style>

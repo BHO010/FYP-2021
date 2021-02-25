@@ -22,18 +22,22 @@
         </v-row>
       </div>
       <div id="content">
-        <v-data-table :headers="headers" :items="students" class="table">
+        <v-data-table :headers="headers" :items="students" mobile class="table">
           <template v-slot:item="row">
             <tr class="tableRow">
               <td>{{ row.item.name }}</td>
               <td>{{ row.item.email }}</td>
               <td>{{ formatDate(row.item.regDate) }}</td>
               <td>
-                <v-btn v-if="checkDate(row.item.startDate)" icon @click.stop="removeUser(row.item)">
+                <v-btn
+                  v-if="checkDate(row.item.startDate)"
+                  icon
+                  @click.stop="removeUser(row.item)"
+                >
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
                 <div v-else>
-                    Not able to delete student, course has started.
+                  Not able to delete student, course has started.
                 </div>
               </td>
             </tr>
@@ -139,17 +143,17 @@ export default {
       } catch (e) {}
     },
     formatDate(date) {
-        return new Date(date).toLocaleString()
+      return new Date(date).toLocaleString()
     },
     checkDate(start) {
-        let today =  Date.now()
-        let date = new Date(start).getTime()
+      let today = Date.now()
+      let date = new Date(start).getTime()
 
-        if(date - today > 0) {
-            return true
-        }else {
-            return false
-        }
+      if (date - today > 0) {
+        return true
+      } else {
+        return false
+      }
     },
   },
 }
@@ -163,7 +167,7 @@ export default {
 
 #body h1 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 48px;
+  font-size: calc(34px + (48 - 34) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
   margin-bottom: 1%;
 }
@@ -180,14 +184,14 @@ export default {
 
 .v-label {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 32px;
+  font-size: calc(24px + (32 - 24) * ((100vw - 300px) / (1920 - 300)));
   font-weight: bold;
   color: black;
   margin-right: 1%;
 }
 
 .v-input {
-  width: 300px !important;
+  max-width: 400px !important;
 }
 
 #content {
@@ -203,13 +207,17 @@ export default {
 
 .table >>> .header {
   font-family: "DarkerGrotesque-Bold";
-  font-size: 30px !important;
+  font-size: calc(
+    14px + (30 - 14) * ((100vw - 300px) / (1920 - 300))
+  ) !important;
   color: #0d47a1 !important;
 }
 
 .table >>> td {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 22px !important;
+  font-size: calc(
+    14px + (22 - 14) * ((100vw - 300px) / (1920 - 300))
+  ) !important;
   border-right: 1px solid lightgrey;
 }
 
@@ -219,5 +227,30 @@ export default {
 
 .table >>> .tableRow:hover {
   background-color: none !important;
+}
+
+@media screen and (max-width: 1400px) {
+  #main {
+    margin-top: 10%;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .table {
+    background-color: transparent;
+    border: none;
+    border-radius: none;
+    padding: 1%;
+  }
+
+  .row {
+    display: block;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  #main {
+    margin-top: 14%;
+  }
 }
 </style>

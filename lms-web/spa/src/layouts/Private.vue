@@ -1,6 +1,6 @@
 <template>
   <v-app class="app">
-    <v-navigation-drawer
+    <!-- <v-navigation-drawer
       v-if="isUser"
       class="sideBar"
       v-model="drawer"
@@ -52,10 +52,196 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
+    </v-navigation-drawer> -->
+
+    <v-navigation-drawer v-model="drawer" app v-if="isUser">
+      <div class="flex-container">
+        <div class="v-navigation-drawer__content">
+          <!-- logo -->
+          <v-col id="logoCol">
+            <br />
+            <img class="logo-private" src="../../public/img/logo.png" />
+            <br />
+          </v-col>
+          <v-col col="3" class="navCol">
+            <v-list>
+              <!--Accounts -->
+              <v-list-item-group color="#009cdc" class="margin-btm">
+                <h2 class="sideHeader">
+                  Account
+                </h2>
+                <v-list-item
+                  v-for="(item, i) in accountItems"
+                  :key="i"
+                  :to="item.route"
+                  color="#009cdc"
+                  v-model="active_list"
+                >
+                  <v-list-item-content class="hover listText size-28">
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+
+              <!--Courses -->
+              <v-list-item-group v-model="item2" color="#009cdc">
+                 <h2 class="sideHeader">
+                  Courses
+                </h2>
+                <v-list-item
+                  v-for="(item, i) in userCourseItems"
+                  :key="i"
+                  :to="item.route"
+                  color="#009cdc"
+                  v-model="course_active_list"
+                >
+                  <v-list-item-content class="hover">
+                    <v-list-item-title
+                      v-text="item.title"
+                    ></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+
+              <!--Community -->
+              <v-list-item-group v-model="item3" color="#009cdc">
+                  <h2 class="sideHeader">
+                  Community
+                </h2>
+                <v-list-item
+                  v-for="(item, i) in communityItems"
+                  :key="i"
+                  :to="item.route"
+                  v-model="community_active_list"
+                  class="listItem hover"
+                >
+                  <v-list-item-content class="hover">
+                    <v-list-item-title
+                      v-text="item.title"
+                    ></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+
+              <!--Ongoing -->
+              <v-list-item-group v-model="item4" color="#009cdc">
+                  <h2 class="sideHeader">
+                  Ongoing
+                </h2>
+                <v-list-item
+                  v-for="(item, i) in ongoingItems"
+                  :key="i"
+                  :to="item.route"
+                  v-model="ongoing_active_list"
+                >
+                  <v-list-item-content class="hover">
+                    <v-list-item-title
+                      v-text="item.title"
+                    ></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </v-col>
+        </div>
+      </div>
     </v-navigation-drawer>
 
-    <v-navigation-drawer
-      v-else
+    <v-navigation-drawer v-model="drawer" app v-else>
+      <div class="flex-container">
+        <div class="v-navigation-drawer__content">
+          <!-- logo -->
+          <v-col id="logoCol">
+            <br />
+            <img class="logo-private" src="../../public/img/logo.png" />
+            <br />
+          </v-col>
+          <v-col col="3" class="navCol">
+            <v-list>
+              <!--Accounts -->
+              <v-list-item-group color="#009cdc" class="margin-btm">
+                <h2 class="sideHeader">
+                  Account
+                </h2>
+                <v-list-item
+                  v-for="(item, i) in accountItems"
+                  :key="i"
+                  :to="item.route"
+                  color="#009cdc"
+                  v-model="active_list"
+                >
+                  <v-list-item-content class="hover listText size-28">
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+
+              <!--Courses -->
+              <v-list-item-group v-model="item2" color="#009cdc">
+                 <h2 class="sideHeader">
+                  Courses
+                </h2>
+                <v-list-item
+                  v-for="(item, i) in instructorCourseItems"
+                  :key="i"
+                  :to="item.route"
+                  color="#009cdc"
+                  v-model="course_active_list"
+                >
+                  <v-list-item-content class="hover">
+                    <v-list-item-title
+                      v-text="item.title"
+                    ></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+
+              <!--Community -->
+              <v-list-item-group v-model="item3" color="#009cdc">
+                  <h2 class="sideHeader">
+                  Community
+                </h2>
+                <v-list-item
+                  v-for="(item, i) in communityItems"
+                  :key="i"
+                  :to="item.route"
+                  v-model="community_active_list"
+                  class="listItem hover"
+                >
+                  <v-list-item-content class="hover">
+                    <v-list-item-title
+                      v-text="item.title"
+                    ></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+
+              <!--Ongoing -->
+              <v-list-item-group v-model="item4" color="#009cdc">
+                  <h2 class="sideHeader">
+                  Ongoing
+                </h2>
+                <v-list-item
+                  v-for="(item, i) in ongoingInstructorItems"
+                  :key="i"
+                  :to="item.route"
+                  v-model="ongoing_active_list"
+                >
+                  <v-list-item-content class="hover">
+                    <v-list-item-title
+                      v-text="item.title"
+                    ></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </v-col>
+        </div>
+      </div>
+    </v-navigation-drawer>
+
+    <!--   <v-navigation-drawer
+      v-else-if=""
       class="sideBar"
       color="#ededed"
       v-model="drawer"
@@ -107,10 +293,13 @@
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
-
+ -->
     <v-main class="body">
-      <v-app-bar class="topBar" fixed height="74" color="blue darken-4">
-        <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar xs12 row color="blue darken-4" fixed class="appBar" height="60%">
+        <v-app-bar-nav-icon
+          @click="drawer = !drawer"
+          class="hidden-lg-and-up"
+        ></v-app-bar-nav-icon>
         <v-menu offset-y>
           <v-list class="hidden-md-and-up">
             <v-list-item v-for="item in menu" :key="item.icon">
@@ -172,7 +361,7 @@
         <v-menu :nudge-width="200" offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-btn dark icon v-bind="attrs" v-on="on" class="avatar">
-              <v-avatar size="48" id="icomImg"> </v-avatar>
+              <v-avatar size="48" id="iconImg"> </v-avatar>
             </v-btn>
           </template>
 
@@ -187,6 +376,7 @@
           </v-list>
         </v-menu>
       </v-app-bar>
+
       <div id="main">
         <router-view :key="$route.fullPath"></router-view>
       </div>
@@ -202,12 +392,18 @@
           </v-toolbar>
           <!-- Survey component -->
           <div id="dialogContent">
-            <survey-viewer :review="this.review" type="review" :reviewIndex="reviewIndex" :courseRef="courseRef" :reference="reference"></survey-viewer>
+            <survey-viewer
+              :review="this.review"
+              type="review"
+              :reviewIndex="reviewIndex"
+              :courseRef="courseRef"
+              :reference="reference"
+            ></survey-viewer>
           </div>
         </v-card>
       </v-dialog>
 
-       <v-dialog v-model="notificationSurvey" persistent scrollable width="70%">
+      <v-dialog v-model="notificationSurvey" persistent scrollable width="70%">
         <v-card tile height="100%" color="#e1f5fe" class="reviewCard">
           <v-toolbar fixed dark color="primary">
             <v-btn icon dark @click="notificationSurvey = false">
@@ -217,7 +413,13 @@
           </v-toolbar>
           <!-- Survey component -->
           <div id="dialogContent">
-            <survey-viewer :review="this.review" type="review" :notificationIndex="notificationIndex" :courseRef="courseRef" :reference="reference"></survey-viewer>
+            <survey-viewer
+              :review="this.review"
+              type="review"
+              :notificationIndex="notificationIndex"
+              :courseRef="courseRef"
+              :reference="reference"
+            ></survey-viewer>
           </div>
         </v-card>
       </v-dialog>
@@ -234,11 +436,20 @@ export default {
     return {
       userDetails: "",
       profileImage: "",
+      active_list: "",
+      course_active_list: "",
+      ongoing_active_list: "",
+      community_active_list: "",
+      item: 1,
+      item2: 1,
+      item3: 1,
+      item4: 1,
       isUser: true,
       isNoticfication: false,
       notificationReview: false,
       notificationSurvey: false,
       review: [],
+      reviewIndex: 0,
       notificationIndex: 0,
       survey: [],
       reference: "",
@@ -323,22 +534,21 @@ export default {
       this.$store.dispatch("logout", { user: this.$store.state.user })
     },
     insertIcon() {
-      let d = document.getElementById("icomImg")
+      let d = document.getElementById("iconImg")
       d.innerHTML = ""
       d.innerHTML = this.profileImage
     },
     async selectNotification(data, index) {
       console.log("JJ", data, index)
-      if(data.type == "survey") {
-         this.$router
-        .push({ path: "/survey", query: { reference: data.reference } })
-        .catch(err => {});
-      
-      }else {
-        let rv = await http.get('/api/me/review', {
+      if (data.type == "survey") {
+        this.$router
+          .push({ path: "/survey", query: { reference: data.reference } })
+          .catch((err) => {})
+      } else {
+        let rv = await http.get("/api/me/review", {
           params: {
-            reference: data.instructor
-          }
+            reference: data.instructor,
+          },
         })
         this.courseRef = data.courseRef
         this.reference = data.instructor
@@ -346,7 +556,7 @@ export default {
         this.review = rv.data.survey
         this.notificationReview = true
       }
-    }
+    },
   },
 }
 </script>
@@ -380,6 +590,21 @@ export default {
   src: url("../../public/fonts/DarkerGrotesque-Medium.ttf");
 }
 
+.appBar {
+  margin-left: 250px;;
+  border-bottom: 1px solid lightgrey;
+}
+
+.appBar .v-btn,
+.appBar .v-text-field {
+  color: white;
+}
+
+.appBar .theme--light.v-input input,
+.theme--light.v-input textarea {
+  color: white !important;
+}
+
 input:-internal-autofill-selected {
   background-color: transparent !important;
 }
@@ -387,7 +612,6 @@ input:-internal-autofill-selected {
 .body {
   position: relative;
   display: flex;
-  background-color: #e1f5fe;
 }
 
 .theme--light.v-btn--active::before {
@@ -399,15 +623,6 @@ input:-internal-autofill-selected {
   font-size: 30px;
   margin-left: 2%;
 }
-
-/* .main {
-  transform: translate3d(0px, 0px, 0px);
-  transition-duration: 300ms;
-  background-color: #e1f5fe;
-  z-index: 0;
-  order: 1;
-  flex: 1 1 0%;
-} */
 
 #main {
   margin-top: 5%;
@@ -437,7 +652,7 @@ input:-internal-autofill-selected {
   margin-left: 1% !important;
 }
 
-.listItem {
+/* .listItem {
   padding-top: 0;
   border-bottom: 1px solid lightgrey;
 }
@@ -451,12 +666,16 @@ input:-internal-autofill-selected {
 .listItem #content {
   font-family: "DarkerGrotesque-Medium";
   font-size: 20px;
-}
+} */
 
 .logo {
   width: 150px;
   margin-left: 2%;
-  color: white;
+}
+
+.logo-private {
+  display: flex;
+  height: 100px;
 }
 
 .navItems {
@@ -485,7 +704,7 @@ input:-internal-autofill-selected {
   justify-content: center;
 }
 
-.sideBar {
+/* .sideBar {
   padding-left: 1%;
   padding-right: 1%;
   background: #ededed;
@@ -503,12 +722,55 @@ input:-internal-autofill-selected {
   font-family: "DarkerGrotesque-Medium";
   font-size: 32px;
   color: #0d47a1;
+} */
+
+.navCol,
+#logoCol {
+  padding: 0;
+  text-align: center;
 }
 
-@media screen and (max-width: 1280px) {
-  .main {
-    padding-left: 0;
-    transform: translate3d(-100px, 0px, 0px);
+.sideHeader {
+  color: #0d47a1;
+  font-size: 30px;
+}
+
+.listItem:hover {
+  background-color: #009cdc;
+  color: white !important;
+}
+.listSubItem:hover {
+  background-color: #009cdc;
+  color: white !important;
+}
+.drawerItems {
+  color: black;
+}
+.drawerItems:hover {
+  color: #009cdc;
+}
+
+.v-list-item__title {
+  font-size: calc(14px + (20 - 14) * ((100vw - 300px) / (1920 - 300)));
+}
+
+a:hover {
+  color: white
+}
+
+.v-list-item__content {
+  padding: 0% !important;
+  height: 56px;
+  width: 220px !important;
+}
+
+
+@media screen and (max-width: 1264px) {
+  .appBar {
+    width: 100%;
+    margin-left:0;
+    border-bottom: 1px solid lightgrey;
   }
 }
+
 </style>

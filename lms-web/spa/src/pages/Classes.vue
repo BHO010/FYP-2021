@@ -517,7 +517,7 @@ export default {
 
 #body p {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 24px;
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
   margin-left: 0%;
 }
 
@@ -560,5 +560,29 @@ export default {
 
 v.application-wrap >>> .v-dialog {
   width: 50%;
+}
+
+
+@media screen and (max-width: 1280px) {
+  #main {
+    width: 95% !important;
+    margin: auto;
+  }
+  #body {
+    margin-top: 8%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  #content {
+    border: none;
+    border-radius: 50px;
+    padding: 2%;
+  }
+
+  
+   #body {
+    margin-top: 14%;
+  }
 }
 </style>

@@ -10,11 +10,11 @@
 
         <div id="mainPost">
           <v-flex xs12 row>
-            <v-col cols="2" class="profile" @click="gotoProfile(main.author)">
+            <v-col  cols="3" md="3" lg="2"  class="profile" @click="gotoProfile(main.author)">
               <div class="icon" :id="main.id"></div>
               <div class="name">{{ userDetails.name }}</div>
             </v-col>
-            <v-col cols="10" class="title">
+            <v-col cols="9" md="9" lg="10" class="title">
               <div class="topRow">
                 {{ new Date(main.created).toLocaleString() }}
               </div>
@@ -192,19 +192,19 @@ export default {
 
 #body h1 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 42px;
+  font-size: calc(34px + (42 - 34) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
 }
 
 #body p {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 24px;
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
   margin-left: 0%;
 }
 
 .v-label {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 32px;
+  font-size: calc(24px + (32 - 24) * ((100vw - 300px) / (1920 - 300)));
   font-weight: bold;
   color: black;
   margin-right: 1%;
@@ -273,6 +273,7 @@ export default {
   margin-bottom: 1%;
 }
 
+
 .btmRow {
   font-family: "DarkerGrotesque-Medium";
   border-top: 1px solid lightgrey;
@@ -320,5 +321,32 @@ export default {
   font-family: "DarkerGrotesque-Medium";
   font-size: 14px;
   line-height: 1;
+}
+
+@media screen and (max-width: 1400px) {
+  #main {
+    margin-top: 10%;
+  }
+}
+
+@media screen and (max-width: 1265px) {
+  #main {
+    width: 95% !important;
+    margin: auto;
+    margin-top: 10%;
+  }
+
+  #content {
+    border: none;
+    border-radius: 50px;
+    padding: 2%;
+  }
+
+}
+
+@media screen and (max-width: 600px) {
+   #main {
+    margin-top: 14%;
+  }
 }
 </style>

@@ -363,7 +363,6 @@ meRoutes
     let { reference } = req.query
     try {
       let rv = await mongo.db.collection('survey').findOne({ reference: reference, type: "review" })
-      console.log(rv)
       return res.status(200).json(rv)
     } catch (e) {
       return res.status(500).json({ e: e.toString() })

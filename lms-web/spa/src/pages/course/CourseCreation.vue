@@ -10,19 +10,19 @@
     <div v-if="auth" class="main">
       <v-stepper v-model="step">
         <v-stepper-header>
-          <v-stepper-step :complete="step > 1" step="1" @click="nextStep(1)">
+          <v-stepper-step class="stepHeader" :complete="step > 1" step="1" @click="nextStep(1)">
             Course Information
           </v-stepper-step>
 
           <v-divider></v-divider>
 
-          <v-stepper-step :complete="step > 2" step="2" @click="nextStep(2)">
+          <v-stepper-step class="stepHeader" :complete="step > 2" step="2" @click="nextStep(2)">
             Trainers Information
           </v-stepper-step>
 
           <v-divider></v-divider>
 
-          <v-stepper-step :complete="step > 3" step="3" @click="nextStep(3)">
+          <v-stepper-step class="stepHeader" :complete="step > 3" step="3" @click="nextStep(3)">
             Registration Info
           </v-stepper-step>
 
@@ -528,12 +528,15 @@ export default {
 .v-stepper__header,
 .theme--light.v-stepper {
   box-shadow: none;
-  background: #e1f5fe !important;
+}
+
+.stepHeader {
+  font-size: calc(18px + (24 - 18) * ((100vw - 300px) / (1920 - 300)));
 }
 
 h2 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 28px;
+  font-size: calc(22px + (28 - 22) * ((100vw - 300px) / (1920 - 300)));
   margin-bottom: 1%;
   color: #0d47a1;
 }
@@ -557,7 +560,7 @@ h2 {
   border-radius: 50px;
   padding: 2%;
   width: 80%;
-  min-width: 1280px;
+  min-width: 350px;
   margin: auto;
 }
 
@@ -573,7 +576,6 @@ h2 {
   width: 100%;
   margin-bottom: 2%;
   overflow-y: auto;
-  background: #e1f5fe !important;
   border: 1px solid gray;
   border-radius: 5px;
 }

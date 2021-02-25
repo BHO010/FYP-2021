@@ -90,4 +90,10 @@ export default {
 .card .leftCol {
   width: 30%;
 }
+
+@media screen and (max-width: 1000px) {
+   #main {
+    margin-top: 14%;
+  }
+}
 </style>

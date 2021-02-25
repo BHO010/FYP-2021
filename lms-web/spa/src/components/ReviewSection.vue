@@ -1,7 +1,7 @@
 <template>
   <div class="template">
     <v-row class="sheetRow">
-      <v-col cols="2">
+      <v-col cols="3" md="3" lg="2">
         <v-container class="user" @click="gotoProfile(review.author)">
           <div :id="review._id" class="icon"></div>
           <div>
@@ -10,7 +10,7 @@
           </div>
         </v-container>
       </v-col>
-      <v-col cols="10" class="reviewTxtContainer">
+      <v-col cols="9" md="9" lg="10" class="reviewTxtContainer">
         <div class="reviewTxt">
           {{ review.review }}
         </div>
@@ -118,6 +118,7 @@ export default {
 .reviewTxt {
   display: flex;
   align-content: center;
+  font-size: calc(20px + (22 - 20) * ((100vw - 300px) / (1600 - 300)));;
   max-height: 100px;
   overflow-y: auto;
 }

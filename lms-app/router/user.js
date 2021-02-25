@@ -17,7 +17,7 @@ const multer = require('multer')
 
 userRoutes
     .get('/', authUser, authIsAdmin, async (req, res) => {
-        let {role, options} = req.query
+        let {role, options, search} = req.query
         /* try {
             const filter = {}
             let attr = "email"
@@ -44,14 +44,20 @@ userRoutes
 
         try {
             options = JSON.parse(options)
+            let filter = {
+                role: role
+            }
+            if(search) {
+                filter.email = { $regex: search, $options: 'i' }
+            }
             let page = options.page
             let limit = options.itemsPerPage
             let results = null
-            const total = await mongo.db.collection('user').find({role: role}).count()
+            const total = await mongo.db.collection('user').find(filter).count()
             if(limit > 0) {
-               results = await mongo.db.collection('user').find({role: role}).skip((Number(page) - 1) * Number(limit)).limit(Number(limit)).toArray()
+               results = await mongo.db.collection('user').find(filter).skip((Number(page) - 1) * Number(limit)).limit(Number(limit)).toArray()
             }else {
-               results = await mongo.db.collection('user').find({role: role}).toArray()
+               results = await mongo.db.collection('user').find(filter).toArray()
             }
             
             res.status(200).json({ results, total })
@@ -59,6 +65,20 @@ userRoutes
             res.status(500).json({ e: e.toString() })
         }
 
+    })
+
+    .post('/delete',authUser, authIsAdmin, async (req,res) => {
+        let {data} = req.body
+        try {
+            await mongo.db.collection('user').updateOne({email: data.email}, {
+                $set: {
+                    active: false
+                }
+            })
+            res.status(200).json({msg: "Deleted Successfully"})
+        }catch(e) {
+            res.status(500).json({ e: e.toString() })
+        }
     })
 
 module.exports = userRoutes

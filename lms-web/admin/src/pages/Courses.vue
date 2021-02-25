@@ -10,19 +10,29 @@
     >
     <!-- Top row -->
     <v-flex row xs12 class="tagRow">
-      <h1 class="header">Instructors</h1>
+      <h1 class="header">Courses</h1>
     </v-flex>
 
     <v-flex row xs12 class="tagRow">
       <v-data-table
         :headers="headers"
-        :items="users"
+        :items="courses"
         :options.sync="options"
         :server-items-length="total"
         :loading="loading"
         class="table"
       >
         <template v-slot:top>
+          <v-row class="searchRow">
+            <h2>Search By:</h2>
+            <v-select
+              v-model="searchCategory"
+              class="mx-4"
+              outlined
+              dense
+              :items="searchFields"
+            ></v-select>
+          </v-row>
           <v-row class="searchRow">
             <h2>Search:</h2>
             <v-text-field
@@ -36,45 +46,28 @@
             ></v-text-field>
           </v-row>
         </template>
+
         <template v-slot:item="row">
           <tr class="tableRow">
-            <td>{{ row.item.email }}</td>
-            <td>{{ row.item.name }}</td>
-            <td>{{ row.item.contactNumber }}</td>
-            <td>{{ available(row.item.active) }}</td>
+            <td>{{ row.item.title }}</td>
+            <td>{{ row.item.createdBy }}</td>
+            <td>{{ row.item.category }}</td>
+            <td>{{ rating(row.item.rateCount, row.item.totalRate) }}/5</td>
+            <td>{{available(row.item.active)}}</td>
             <td>
-              <v-btn class="mx-2 btn" text outlined color="blue" @click="editUser(row.item)"> Edit </v-btn>
-              <v-btn class="mx-2 btn" text outlined color="blue" @click="deleteUser(row.item)">
-                Delete
-              </v-btn>
+                <v-btn
+                  class="mx-2 btn"
+                  text
+                  outlined
+                  color="blue"
+                >
+                  Delete
+                </v-btn>
             </td>
           </tr>
         </template>
       </v-data-table>
     </v-flex>
-
-    <!-- Dialog -->
-     <v-dialog v-model="editDialog" scrollable width="70%">
-      <v-card tile height="100%" class="reviewCard">
-        <v-toolbar fixed dark color="primary">
-          <!--  <v-btn icon dark @click="reportDialog = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn> -->
-          <v-toolbar-title>Review Report.</v-toolbar-title>
-        </v-toolbar>
-        <div id="dialogContent">
-
-          <v-row justify="end">
-            <v-btn class="btn" text outlined color="blue"
-              >Approve</v-btn
-            >
-            <v-btn text outlined color="blue"
-              >Ignore</v-btn
-            >
-          </v-row>
-        </div>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -89,41 +82,50 @@ export default {
       snackbarShow: false,
       snackbarText: "",
       snackbarTimeout: 5000,
-      users: [],
-      total: 0,
       search: "",
+      searchCategory: "Title",
       loading: false,
-      editDialog: false,
+      courses: [],
+      total: 0,
       options: {},
       headers: [
         {
-          text: "Email",
+          text: "Course Title",
           align: "start",
-          sortable: false,
-          value: "email",
+          sortable: true,
+          value: "title",
           class: "header",
         },
         {
-          text: "Name",
+          text: "Instructor",
           sortable: false,
+          value: "createdBy",
           class: "header",
         },
         {
-          text: "Contact Number",
+          text: "Category",
           sortable: false,
+          value: "category",
           class: "header",
         },
         {
-          text: "Account status",
+          text: "Rating",
           sortable: false,
           class: "header",
         },
+         {
+          text: "Status",
+          sortable: false,
+          value: "active",
+          class: "header",
+        }, 
         {
           text: "Manage",
           sortable: false,
           class: "header",
         },
       ],
+      searchFields: ["Title", "Instructor", "Category"],
     }
   },
   async mounted() {
@@ -133,7 +135,6 @@ export default {
   watch: {
     options: {
       handler() {
-        console.log("HERE")
         this.updatePage()
       },
       deep: true,
@@ -150,40 +151,31 @@ export default {
         return "Inactive"
       }
     },
+    rating(count, rate) {
+      if (count == 0) {
+        return 0
+      } else {
+        return rate / count
+      }
+    },
     updatePage() {
-      this.getUser()
+      this.getCourses()
     },
-    async getUser() {
-      this.loading = true
-      let rv = await http.get("/api/admin/user", {
-        params: {
-          role: "instructor",
-          options: this.options,
-          search: this.search,
-        },
-      })
-
-      this.users = rv.data.results
-      this.total = rv.data.total
-      this.loading = false
-    },
-    async deleteUser(data) {
+    async getCourses() {
       try {
-        let rv = await http.post("/api/admin/user/delete", {
-          data: data,
+        this.loading = true
+        let rv = await http.get("/api/admin/courses", {
+          params: {
+            search: this.search,
+            searchCategory: this.searchCategory,
+            options: this.options,
+          },
         })
 
-        if (rv) {
-          this.snackbarText = rv.data.msg
-          this.snackbarShow = true
-          setTimeout(() => {
-            this.$router.go()
-          }, 500)
-        }
+        this.courses = rv.data.results
+        this.total = rv.data.total
+        this.loading = false
       } catch (e) {}
-    },
-    editUser(data) {
-    this.editDialog = true
     },
   },
 }
@@ -219,7 +211,7 @@ export default {
 .table >>> td {
   font-family: "DarkerGrotesque-Medium";
   font-size: calc(
-    16px + (22 - 16) * ((100vw - 300px) / (1800 - 300))
+    14px + (20 - 14) * ((100vw - 300px) / (1800 - 300))
   ) !important;
   border-right: 1px solid lightgrey;
 }

@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mt-5 mx-4 card justify-space-around" max-width="344">
+  <v-card class="mt-5 mx-4 card justify-space-around">
     <v-img
       src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg" 
       height="200px"
@@ -60,7 +60,7 @@ export default {
 .card {
   position: relative;
   min-height: 350px;
-
+  max-width: 300px;
 }
 
 .level {

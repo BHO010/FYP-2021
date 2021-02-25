@@ -64,7 +64,7 @@
     <div v-else class="body">
       <div class="row section">
         <div class="leftCol">
-          <v-card class="mx-auto" width="450px" height="250px">
+          <v-card class="mx-auto" max-width="400px" height="250px">
             <v-card-text class="cardTxt">
               <div>No. Of Students</div>
             </v-card-text>
@@ -75,7 +75,7 @@
         </div>
 
         <div class="centerCol">
-          <v-card class="mx-auto" width="450px" height="250px">
+          <v-card class="mx-auto" max-width="400px" height="250px">
             <v-card-text class="cardTxt">
               <div>No. Of Reviews</div>
             </v-card-text>
@@ -86,7 +86,7 @@
         </div>
 
         <div class="rightCol">
-          <v-card class="mx-auto" width="450px" height="250px">
+          <v-card class="mx-auto" max-width="400px" height="250px">
             <v-card-text class="cardTxt">
               <div>No. Of Courses</div>
             </v-card-text>
@@ -303,7 +303,7 @@ export default {
 
 .body h1 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 48px;
+  font-size: calc(38px + (48 - 38) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
   margin-bottom: 1%;
 }
@@ -333,14 +333,14 @@ export default {
 
 .cardTxt div {
   font-family: "DarkerGrotesque-Bold";
-  font-size: 48px;
+  font-size: calc(28px + (48 - 28) * ((100vw - 300px) / (1920 - 300)));
   padding: 2%;
   color: grey;
 }
 
 .stats {
   font-family: "DarkerGrotesque-Bold";
-  font-size: 64px;
+  font-size: calc(52px + (64 - 52) * ((100vw - 300px) / (1920 - 300)));
   color: rgb(22, 9, 206);
 }
 
@@ -358,9 +358,15 @@ export default {
 
 .v-label {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 32px;
+  font-size: calc(28px + (32 - 28) * ((100vw - 300px) / (1920 - 300)));
   font-weight: bold;
   color: black;
   margin-right: 1%;
+}
+
+@media screen and (max-width: 1000px) {
+   #main {
+    margin-top: 10%;
+  }
 }
 </style>

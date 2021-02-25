@@ -115,7 +115,7 @@ export default {
 
 #body h1 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 42px;
+  font-size: calc(32px + (42 - 32) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
 }
 
@@ -129,7 +129,7 @@ export default {
 
 .v-label {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 32px;
+  font-size: calc(24px + (32 - 24) * ((100vw - 300px) / (1920 - 300)));
   font-weight: bold;
   color: black;
   margin-right: 1%;
@@ -147,5 +147,18 @@ export default {
 .v-sheet.v-card {
   margin-right: 4% !important;
   margin-bottom: 4% !important;
+}
+
+@media screen and (max-width: 1400px) {
+  #main {
+    margin-top: 10%;
+  }
+}
+
+
+@media screen and (max-width: 600px) {
+  #main {
+    margin-top: 14%;
+  }
 }
 </style>

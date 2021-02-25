@@ -5,57 +5,57 @@
     </div>
     <div v-else>
       <v-flex xs12 row v-if="type == 'block' && type2 == 'owned'">
-        <v-col cols="8" class="title">
+        <v-col cols="5" md="5" lg="8" class="title">
           <router-link
             class="link"
             :to="{ path: `/discussion`, query: { ref: block.reference } }"
             >{{ block.title }}</router-link
           >
         </v-col>
-        <v-col cols="1" class="stats">
+        <v-col cols="2" md="2" lg="1"  class="stats">
           <div>Threads</div>
           <div>{{ block.threads }}</div>
         </v-col>
-        <v-col cols="1" class="stats">
+        <v-col cols="2" md="2" lg="1" class="stats">
           <div>Messages</div>
           <div>{{ block.msgs }}</div>
         </v-col>
-        <v-col cols="2" class="stats">
+        <v-col cols="3" md="3" lg="2" class="stats">
           <div>{{ block.latest.title }}</div>
           <div>{{ block.latest.author }}</div>
         </v-col>
       </v-flex>
 
       <v-flex xs12 row v-if="type == 'block' && type2 == 'registered'">
-        <v-col cols="8" class="title">
+        <v-col cols="5" md="5" lg="8" class="title">
           <router-link
             class="link"
             :to="{ path: `/discussion`, query: { ref: block.courseRef } }"
             >{{ block.title }}</router-link
           >
         </v-col>
-        <v-col cols="1" class="stats">
+        <v-col cols="2" md="2" lg="1" class="stats">
           <div>Threads</div>
           <div>{{ block.threads }}</div>
         </v-col>
-        <v-col cols="1" class="stats">
+        <v-col cols="2" md="2" lg="1" class="stats">
           <div>Messages</div>
           <div>{{ block.msgs }}</div>
         </v-col>
-        <v-col cols="2" class="stats">
+        <v-col cols="3" md="3" lg="2" class="stats">
           <div>{{ block.latest.title }}</div>
           <div>{{ block.latest.author }}</div>
         </v-col>
       </v-flex>
 
       <v-flex xs12 row v-if="type == 'thread'">
-        <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
+        <v-col cols="3" md="3" lg="1" class="profile" @click="gotoProfile(block.author)">
           <div class="icon" :id="block._id"></div>
           <div class="name">{{ userDetails.name }}</div>
           <div class="name">{{ userDetails.role }}</div>
           <div></div>
         </v-col>
-        <v-col cols="8" class="title">
+        <v-col cols="5" md="5" lg="7" class="title">
           <router-link
             class="link"
             :to="{
@@ -68,7 +68,7 @@
             {{ block.name }}, {{ new Date(block.created).toLocaleString() }}
           </div>
         </v-col>
-        <v-col cols="1.5" class="tStats">
+        <v-col cols="2" md="2" lg="2" class="tStats">
           <v-row>
             <div>Replies:</div>
             <v-spacer></v-spacer>
@@ -80,18 +80,18 @@
             <div>{{ block.views }}</div>
           </v-row>
         </v-col>
-        <v-col cols="1.5" class="tStats">
+        <v-col cols="2" md="2" lg="2" class="tStats">
           <div v-if="block.latest.created">{{ new Date(block.latest.created).toLocaleString()}}</div>
           <div>{{ block.latest.name }}</div>
         </v-col>
       </v-flex>
 
       <v-flex xs12 row v-else-if="type == 'message'">
-        <v-col cols="2" class="profile" @click="gotoProfile(block.author)">
+        <v-col cols="3" md="3" lg="2" class="profile" @click="gotoProfile(block.author)">
           <div class="icon" :id="block._id"></div>
           <div class="name">{{ blockUser.name }}</div>
         </v-col>
-        <v-col cols="10" class="title">
+        <v-col cols="9" md="9" lg="10" class="title">
           <div class="topRow">
             {{ new Date(block.created).toLocaleString() }}
           </div>
@@ -291,7 +291,7 @@ export default {
 
 .link {
   font-family: "DarkerGrotesque-Bold";
-  font-size: 28px;
+  font-size: calc(18px + (28 - 18) * ((100vw - 300px) / (1920 - 300)));
   text-decoration: underline;
 }
 
@@ -302,17 +302,21 @@ export default {
   font-family: "DarkerGrotesque-Medium";
   padding-top: 0;
   padding-bottom: 0;
+  
+  font-size: calc(12px + (16 - 12) * ((100vw - 300px) / (1920 - 300)));
 }
 
 .tStats {
   padding-top: 2%;
   font-weight: bold;
+  
 }
 
 /* Thread */
 .title .btmRow {
   font-family: "DarkerGrotesque-Medium";
   display: flex;
+  font-size: calc(12px + (16 - 12) * ((100vw - 300px) / (1920 - 300)));
 }
 
 /* Message */
@@ -323,6 +327,7 @@ export default {
 
 .content {
   font-family: "DarkerGrotesque-Medium";
+  font-size: calc(16px + (20 - 16) * ((100vw - 300px) / (1920 - 300)));
   margin-top: 1%;
   margin-bottom: 1%;
 }
@@ -336,6 +341,7 @@ export default {
 .Btn {
   font-family: "DarkerGrotesque-Bold";
   text-transform: none;
+  font-size: calc(12px + (16 - 12) * ((100vw - 300px) / (1920 - 300)));
 }
 
 #dialogBody {

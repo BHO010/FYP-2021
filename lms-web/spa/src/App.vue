@@ -56,6 +56,13 @@ export default {
   src: url("../public/fonts/DarkerGrotesque-Bold.ttf");
 }
 
+#app {
+  font-family: "DarkerGrotesque-Medium";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
 .v-application--wrap {
   background-color: white
 }

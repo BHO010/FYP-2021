@@ -68,16 +68,28 @@ export default {
 
 #header h1 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 48px;
+  font-size: calc(32px + (48 - 32) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
 }
 
 .message {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 28px;
+  font-size: calc(18px + (28 - 18) * ((100vw - 300px) / (1920 - 300)));
 }
 
 .card {
     margin: auto;
+}
+
+@media screen and (max-width: 1400px) {
+  #main {
+    margin-top: 10%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  #main {
+    margin-top: 14%;
+  }
 }
 </style>

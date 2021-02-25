@@ -30,7 +30,7 @@
                   >
                 </div>
                 <div class="exp">
-                  <h1>{{userDetails.knowledgePoints}}</h1>
+                  <h1>{{ userDetails.knowledgePoints }}</h1>
                 </div>
               </v-row>
             </v-col>
@@ -39,15 +39,21 @@
           <v-row>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Courses: {{stats.registered}}</v-row>
-                <v-row class="statsItem">Discussion Points: {{stats.discussionPoints}}</v-row>
+                <v-row class="statsItem">Courses: {{ stats.registered }}</v-row>
+                <v-row class="statsItem"
+                  >Discussion Points: {{ stats.discussionPoints }}</v-row
+                >
                 <v-row class="statsItem">Accounting</v-row>
               </div>
             </v-col>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Comment Upvotes: {{stats.upvotes}}</v-row>
-                <v-row class="statsItem">Comment Downvotes: {{stats.downvotes}}</v-row>
+                <v-row class="statsItem"
+                  >Comment Upvotes: {{ stats.upvotes }}</v-row
+                >
+                <v-row class="statsItem"
+                  >Comment Downvotes: {{ stats.downvotes }}</v-row
+                >
                 <v-row class="statsItem">Accounting</v-row>
               </div>
             </v-col>
@@ -59,7 +65,9 @@
     <div class="courseContainer">
       <div class="topRow">
         <h1>Your Courses</h1>
-        <v-btn class="btn" color="#E1F5FE" @click="coursesAll('user')">See All</v-btn>
+        <v-btn class="btn" color="#E1F5FE" @click="coursesAll('user')"
+          >See All</v-btn
+        >
       </div>
       <div v-if="courses.length > 0" class="courseRow">
         <course-card
@@ -148,7 +156,10 @@
             </v-col>
             <v-col cols="6">
               <div class="leftStats">
-                <v-row class="statsItem">Rating: {{(userDetails.rating/userDetails.rateCount) || 0}}/5</v-row>
+                <v-row class="statsItem"
+                  >Rating:
+                  {{ userDetails.rating / userDetails.rateCount || 0 }}/5</v-row
+                >
                 <v-row class="statsItem"
                   >Comments: {{ stats.discussionPoints }}</v-row
                 >
@@ -165,7 +176,9 @@
     <div class="courseContainer">
       <div class="topRow">
         <h1>Your Courses</h1>
-        <v-btn class="btn" color="#E1F5FE" @click="coursesAll('instructor')">See All</v-btn>
+        <v-btn class="btn" color="#E1F5FE" @click="coursesAll('instructor')"
+          >See All</v-btn
+        >
       </div>
 
       <div v-if="courses.length > 0" class="courseRow">
@@ -178,8 +191,8 @@
       </div>
 
       <div v-else>
-          <p>You do not have any courses yet</p>
-        </div>
+        <p>You do not have any courses yet</p>
+      </div>
     </div>
 
     <div class="achievementContainer">
@@ -198,9 +211,9 @@
         </achievement-card>
       </div>
 
-       <div v-else>
-          <p>You do not have any courses yet</p>
-        </div>
+      <div v-else>
+        <p>You do not have any courses yet</p>
+      </div>
     </div>
 
     <div class="reviewContainer">
@@ -247,10 +260,8 @@ export default {
       reviewsTotalPages: 0,
       courses: [],
       totalCourse: "",
-      rank: [
-        "Novice", "Apprentice", "Master", "GrandMaster", "Sage"
-      ],
-      index: 0
+      rank: ["Novice", "Apprentice", "Master", "GrandMaster", "Sage"],
+      index: 0,
     }
   },
   created() {},
@@ -305,8 +316,8 @@ export default {
       const rv2 = await http.get("/api/me/stats")
       const rv3 = await http.get("/api/me/achievements", {
         params: {
-          type: "profile"
-        }
+          type: "profile",
+        },
       })
       this.stats = rv2.data.stats
       this.achievements = rv3.data
@@ -315,58 +326,55 @@ export default {
       let maxExp = 100
       let i = this.userDetails.level
       if (role == "instructor") {
-          maxExp *= this.userDetails.level * 2.5
-          if(this.userDetails.knowledgePoints > maxExp) {
-            for(i=i+1;i<100;i++) {
-              let exp = 100 * i *2.5
-              if(this.userDetails.knowledgePoints < exp) {
-                 maxExp = exp
-                 break
-              }
+        maxExp *= this.userDetails.level * 2.5
+        if (this.userDetails.knowledgePoints > maxExp) {
+          for (i = i + 1; i < 100; i++) {
+            let exp = 100 * i * 2.5
+            if (this.userDetails.knowledgePoints < exp) {
+              maxExp = exp
+              break
             }
           }
-          //update user level
-          let rv = await http.post('/api/me/level-update', {
-            level: i
-          }) 
-        
+        }
+        //update user level
+        let rv = await http.post("/api/me/level-update", {
+          level: i,
+        })
       } else {
         console.log("HERE")
-          maxExp *= this.userDetails.level * 1.5
-          if(this.userDetails.knowledgePoints > maxExp) {
-            for(i=i+1;i<100;i++) {
-              let exp = 100 * i *1.5
-              if(this.userDetails.knowledgePoints < exp) {
-                maxExp = exp
-                break
-              }
+        maxExp *= this.userDetails.level * 1.5
+        if (this.userDetails.knowledgePoints > maxExp) {
+          for (i = i + 1; i < 100; i++) {
+            let exp = 100 * i * 1.5
+            if (this.userDetails.knowledgePoints < exp) {
+              maxExp = exp
+              break
             }
           }
-          console.log("FF", i)
+        }
+        console.log("FF", i)
 
-          //update user level
-           let rv = await http.post('/api/me/level-update', {
-            level: i
-          }) 
-
-
+        //update user level
+        let rv = await http.post("/api/me/level-update", {
+          level: i,
+        })
       }
       this.userLevel = i
       this.progressValue = (this.userDetails.knowledgePoints / maxExp) * 100
     },
     getRank() {
-      this.index = (this.userDetails.level %10) - 1
+      this.index = (this.userDetails.level % 10) - 1
     },
     achieveAll() {
-      this.$router.push({path: '/achievements'})
+      this.$router.push({ path: "/achievements" })
     },
     coursesAll(type) {
-      if(type == "user") {
-        this.$router.push({path: '/courses-taken'})
-      }else {
-        this.$router.push({path: '/courses-created'})
+      if (type == "user") {
+        this.$router.push({ path: "/courses-taken" })
+      } else {
+        this.$router.push({ path: "/courses-created" })
       }
-    }
+    },
   },
 }
 </script>
@@ -374,27 +382,21 @@ export default {
 
 <style>
 @media screen and (max-width: 1480px) {
-.profileImg {
-  width: 90%;
-  margin: auto;
-  height: 300px;
-  background-color: burlywood;
-  outline: 15px solid brown;
-}
-
-
-
+  .profileImg {
+    width: 70%;
+    margin: auto;
+    height: 300px;
+  }
 }
 
 .profileImg svg {
   width: 85%;
   height: 98%;
-  padding-left: 15%;
 }
 </style>
 <style scoped>
 .profileContainer {
-  width: 80%;
+  width: 90%;
   margin: auto;
 }
 
@@ -409,6 +411,7 @@ export default {
   min-width: 400px;
   background-color: burlywood;
   outline: 15px solid brown;
+  text-align: center;
 }
 
 .stats {
@@ -416,7 +419,7 @@ export default {
   border: 1px solid black;
   margin: auto;
   height: 400px;
-  min-width: 660px;
+  min-width: 600px;
   background-color: white;
 }
 
@@ -472,7 +475,7 @@ export default {
 .achievementContainer h1,
 .reviewContainer h1 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 46px;
+  font-size: calc(32px + (46 - 32) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
   margin-left: 1%;
 }
@@ -480,7 +483,7 @@ export default {
 .courseContainer p,
 .achievementContainer p {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 30px;
+  font-size: calc(24px + (30 - 24) * ((100vw - 300px) / (1920 - 300)));
   color: black;
   margin-left: 1%;
 }
@@ -490,9 +493,8 @@ export default {
   display: flex;
   flex-direction: row;
   width: 100%;
-   flex-wrap: wrap;
+  flex-wrap: wrap;
 }
-
 
 .topRow h1 {
   float: left;
@@ -523,5 +525,19 @@ export default {
 
 .achieveRow .card .leftCol {
   width: 30%;
+}
+
+
+@media screen and (max-width: 1600px) {
+  .profileContainer {
+    width: 100% !important;
+  }
+}
+
+
+@media screen and (max-width: 1000px) {
+  .profileContainer {
+    margin-top: 14%;
+  }
 }
 </style>

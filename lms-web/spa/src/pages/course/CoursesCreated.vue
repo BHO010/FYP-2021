@@ -134,7 +134,7 @@ export default {
 
 #body h1 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 48px;
+  font-size: calc(32px + (48 - 32) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
   margin-bottom: 1%;
 }
@@ -145,7 +145,7 @@ export default {
 
 .tableRow {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 28px;
+  font-size: calc(18px + (28 - 18) * ((100vw - 300px) / (1920 - 300)));
 }
 
 .dataTable .header {
@@ -168,13 +168,13 @@ export default {
 
 .table >>> .header {
   font-family: "DarkerGrotesque-Bold";
-  font-size: 30px !important;
+  font-size: calc(18px + (28 - 18) * ((100vw - 300px) / (1920 - 300))) !important;
   color: #0d47a1 !important;
 }
 
 .table >>> td {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 22px !important;
+  font-size: calc(14px + (22 - 14) * ((100vw - 300px) / (1920 - 300))) !important;
   border-right: 1px solid lightgrey;
 }
 
@@ -184,5 +184,27 @@ export default {
 
 .table >>> .tableRow:hover {
   background-color: none !important;
+}
+
+
+@media screen and (max-width: 1400px) {
+  #main {
+    margin-top: 10%;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .table {
+  background-color: transparent;
+  border: none;
+  border-radius: none;
+  padding: 1%;
+}
+}
+
+@media screen and (max-width: 600px) {
+  #main {
+    margin-top: 14%;
+  }
 }
 </style>

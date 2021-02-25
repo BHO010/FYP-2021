@@ -19,8 +19,23 @@
         :items="reports"
         :options.sync="options"
         :server-items-length="total"
+        :loading="loading"
         class="table"
       >
+       <template v-slot:top>
+          <v-row class="searchRow">
+            <h2>Search:</h2>
+            <v-text-field
+              v-model="search"
+              label="Search By Email"
+              class="mx-4"
+              outlined
+              dense
+              single-line
+              hide-details
+            ></v-text-field>
+          </v-row>
+        </template>
         <template v-slot:item="row">
           <tr class="tableRow" @click="onReportView(row.item)">
             <td>{{ row.item.author }}</td>
@@ -119,6 +134,8 @@ export default {
       reports: [],
       total: 0,
       options: {},
+      search: "",
+      loading: false,
       headers: [
         {
           text: "Email",
@@ -153,6 +170,9 @@ export default {
       },
       deep: true,
     },
+    search() {
+        this.updatePage();
+    }
   },
   methods: {
     updatePages() {
@@ -172,6 +192,7 @@ export default {
     },
     async getReports() {
       try {
+        this.loading = true
         let rv = await http.get("/api/admin/reports", {
           params: {
             options: this.options,
@@ -180,6 +201,7 @@ export default {
 
         this.reports = rv.data.results
         this.total = rv.data.total
+         this.loading = false
       } catch (e) {}
     },
     async deleteReport() {
@@ -293,5 +315,10 @@ export default {
 
 .btn {
   margin-right: 2%;
+}
+
+.searchRow {
+    margin-top: 1%;
+    margin-bottom: 3%;
 }
 </style>

@@ -557,8 +557,7 @@ export default {
           setTimeout(() => {
             this.$store.commit("setLoading", false)
             this.$router.push("/profile").catch((err) => {})
-          },1000)
-
+          }, 1000)
         }
       } catch (e) {}
     },
@@ -582,7 +581,7 @@ export default {
 
 #main h1 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 42px;
+  font-size: calc(32px + (42 - 32) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
   margin-top: 2%;
   margin-bottom: 2%;
@@ -606,22 +605,23 @@ export default {
 
 .body .header {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 42px;
+  font-size: calc(32px + (42 - 32) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
   margin-bottom: 2%;
 }
 
 .inputRow h3 {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 28px;
+  font-size: calc(24px + (28 - 24) * ((100vw - 300px) / (1920 - 300)));
 }
 
 .chipSheet {
-  width: 50%;
+  width: 60%;
 }
 
 .btnRow {
   margin: 1%;
+  margin-bottom: 4%;
 }
 
 .button {
@@ -650,5 +650,36 @@ export default {
 .v-chip-group .v-chip--active,
 .v-chip-group .v-chip:hover {
   color: red;
+}
+
+@media screen and (max-width: 1480px) {
+  .chipSheet {
+    width: 90% !important;
+  }
+}
+
+@media screen and (max-width: 1280px) {
+  #main {
+    width: 95% !important;
+    margin: auto;
+    margin-top: 8%;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+   #main {
+    margin-top: 10%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  #content {
+    border: none;
+    border-radius: 50px;
+    padding: 2%;
+  }
+   #main {
+    margin-top: 15%;
+  }
 }
 </style>

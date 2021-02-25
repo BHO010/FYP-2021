@@ -1,7 +1,7 @@
 <template>
   <div class="template">
     <v-flex xs12 row v-if="type == 'block'">
-      <v-col cols="7" class="title">
+      <v-col cols="5" md="5" lg="7" class="title">
         <router-link
           v-if="status"
           class="link"
@@ -13,31 +13,31 @@
         >
         <div v-else>{{ course.title }}</div>
       </v-col>
-      <v-col cols="2" class="stats">
+      <v-col cols="2" md="2" lg="2" class="stats">
         <h2>Batch</h2>
         <div>{{this.block.batchID}}</div>
       </v-col>
-      <v-col cols="2" class="stats">
+      <v-col cols="4" md="2" lg="2" class="stats">
         <h2>Status</h2>
         <div v-if="status && !ended">Available</div>
         <div v-else-if ="!status && !ended">Will be open 7 days before course start</div>
         <div v-else-if ="status && ended && !user">Course have ended. Click on the red cross to closed the class.</div>
         <div v-else-if ="status && ended && user">Course have ended.</div>
       </v-col>
-      <v-col cols="1" class="stats" v-if="ended && !user">
-        <v-btn icon color="red" @click="deleteClass">
+      <v-col cols="1" md="2" lg="1" class="btnCol" v-if="ended && !user">
+        <v-btn class="closeBtn" icon color="red" @click="deleteClass">
           <v-icon>mdi-window-close</v-icon>
         </v-btn>
       </v-col>
     </v-flex>
 
     <v-flex xs12 row v-else-if="(type == 'thread') & (type2 == 'notice')">
-      <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
+      <v-col cols="2" md="2" lg="1" class="profile" @click="gotoProfile(block.author)">
         <div class="icon" :id="block.id"></div>
         <div class="name">{{ this.userDetails.name }}</div>
         <div></div>
       </v-col>
-      <v-col cols="9" class="title">
+      <v-col cols="7" md="7" lg="9" class="title">
         <router-link
           class="link"
           :to="{
@@ -54,18 +54,18 @@
           {{ block.author }}, {{ new Date(block.created).toLocaleString() }}
         </div>
       </v-col>
-      <v-col cols="2" class="tStats padTop">
+      <v-col cols="3" md="3" lg="2" class="tStats padTop">
         <div>{{ latest.author }}</div>
         <div>{{ latest.date }}</div>
       </v-col>
     </v-flex>
 
     <v-flex xs12 row v-else-if="type == 'message'">
-      <v-col cols="2" class="profile" @click="gotoProfile(block.email)">
+      <v-col cols="3" md="3" lg="2" class="profile" @click="gotoProfile(block.email)">
         <div class="icon" :id="block.id"></div>
         <div class="name">{{ userDetails.name }}</div>
       </v-col>
-      <v-col cols="10" class="title">
+      <v-col cols="9" md="9" lg="10" class="title">
         <div class="topRow">{{ new Date(block.created).toLocaleString() }}</div>
         <div class="content">
           <p>
@@ -76,12 +76,12 @@
     </v-flex>
 
     <v-flex xs12 row v-else-if="(type == 'thread') & (type2 == 'quiz')">
-      <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
+      <v-col cols="2" md="2" lg="1" class="profile" @click="gotoProfile(block.author)">
         <div class="icon" :id="block.id"></div>
         <div class="name">{{ this.userDetails.name }}</div>
         <div></div>
       </v-col>
-      <v-col cols="9" class="title">
+      <v-col cols="7" md="7" lg="9" class="title">
         <v-btn text class="quizBtn" @click="quizDialog = true">{{
           block.title
         }}</v-btn>
@@ -96,11 +96,11 @@
           {{ block.author }}, {{ new Date(block.created).toLocaleString() }}
         </div>
       </v-col>
-      <v-col v-if="user" cols="1.5" class="tStats">
+      <v-col v-if="user" cols="3" md="3" lg="2" class="tStats">
         <div>Status</div>
         <div>{{ quizStatus }}</div>
       </v-col>
-      <v-col v-else cols="1.5" class="tStats">
+      <v-col v-else cols="3" md="3" lg="2" class="tStats">
         <div>
           <v-btn text @click="viewQuizResults">View</v-btn>
           <v-btn text @click="viewQuizStats">Statistics</v-btn>
@@ -109,12 +109,12 @@
     </v-flex>
 
     <v-flex xs12 row v-else-if="(type == 'thread') & (type2 == 'feedback')">
-      <v-col cols="1" class="profile" @click="gotoProfile(block.author)">
+      <v-col cols="2" md="2" lg="1" class="profile" @click="gotoProfile(block.author)">
         <div class="icon" :id="block.id"></div>
         <div class="name">{{ this.userDetails.name }}</div>
         <div></div>
       </v-col>
-      <v-col cols="9" class="title">
+      <v-col cols="7" md="7" lg="9" class="title">
         <router-link
           class="link"
           :to="{
@@ -131,7 +131,7 @@
           {{ block.author }}, {{ new Date(block.created).toLocaleString() }}
         </div>
       </v-col>
-      <v-col cols="2" class="tStats padTop">
+      <v-col cols="3" md="3" lg="2"  class="tStats padTop">
         <div>{{ latest.title }}</div>
         <div>{{ latest.author }}</div>
       </v-col>
@@ -355,6 +355,12 @@ export default {
   padding-top: 0;
 }
 
+.btnCol {
+  border-left: 1px solid blue;
+  font-family: "DarkerGrotesque-Medium";
+  padding: 0;
+}
+
 .padTop {
   padding-top: 1%;
 }
@@ -374,12 +380,12 @@ export default {
 }
 
 .stats div {
-  font-size: 18px;
+  font-size:calc(12px + (18 - 12) * ((100vw - 300px) / (1920 - 300)));
 }
 
 .link {
   font-family: "DarkerGrotesque-Bold";
-  font-size: 28px;
+   font-size:calc(16px + (28 - 16) * ((100vw - 300px) / (1920 - 300)));
   text-decoration: underline;
 }
 
@@ -413,9 +419,15 @@ export default {
   margin-bottom: 1%;
 }
 
+.content p {
+  font-family: "DarkerGrotesque-Medium";
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
+  margin-left: 0%;
+}
+
 .quizBtn {
   font-family: "DarkerGrotesque-Bold";
-  font-size: 28px;
+   font-size:calc(14px + (28 - 14) * ((100vw - 300px) / (1920 - 300)));
   text-decoration: underline;
   text-transform: none;
   color: #1976d2;
