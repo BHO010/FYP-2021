@@ -60,6 +60,10 @@ FCM_SERVER_KEY: process.env.FCM_SERVER_KEY || '',
 GCP_DEFAULT_BUCKET: process.env.GCP_DEFAULT_BUCKET || '',
 GOOGLE_CLOUD_PROJECT: process.env.GOOGLE_CLOUD_PROJECT || GCP_KEY.project_id,
 
+// Communications - Sendgrid
+SENDGRID_KEY: process.env.SENDGRID_KEY || '',
+SENDGRID_SENDER: process.env.SENDGRID_SENDER || '',
+
 // HTTPONLY COOKIES
 HTTPONLY_TOKEN: true, // true, false (also set the same on FE..., true means place token in HttpOnly cookie) - DO TAKE NOTE OF CORS
 

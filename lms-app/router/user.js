@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs')
 const otplib = require('otplib')
 const { SALT_ROUNDS, UPLOAD_FOLDER, httpsCerts, MONGO_DB } = require('../config')
 const { v4: uuidv4 } = require('uuid');
-
+const { dateISO, timeISO } = require(LIB_PATH + '/esm/datetime')
 const { findUser } = require(LIB_PATH + '/auth')
 const { authUser, authIsAdmin } = require('../middlewares/auth')
 const { getDefaultImg } = require('../middlewares/template.js')
@@ -14,6 +14,7 @@ const { getDefaultImg } = require('../middlewares/template.js')
 const mongo = require(LIB_PATH + '/services/db/mongodb')
 const { ObjectID } = require('mongodb')
 const multer = require('multer')
+const { sendGrid } = require(LIB_PATH + '/comms/email')
 
 
 userRoutes
@@ -98,9 +99,10 @@ userRoutes
         let encryptedPassword = bcrypt.hashSync(password, SALT_ROUNDS)
         
         try {
-            let rv = await mongo.db.collection('user').insert({
+            let rv = await mongo.db.collection('user').insertOne({
                 email,
                 role,
+                pwCode: "",
                 name,
                 password: encryptedPassword,
                 activeTags: [],
@@ -112,6 +114,17 @@ userRoutes
                 level: 0
             })
 
+            const emailGreeting = "Dear NTU-LMS Customer,"
+            const emailText1 = `Your account has been created and the password is ${password}.`
+            const emailText2 = "Please update your profile and change your password once you log in."
+            const emailText3 = "For further support, email admin@ntu.edu.sg."
+            const emailClosing1 = "Sincerely,"
+            const emailClosing2 = "The NTU-LMS team"
+            await sendGrid(email, '', 'Account Created', emailGreeting + "\n\n" + emailText1 + "\n\n" + emailText2 + "\n\n" + emailText3 + "\n\n" + emailClosing1 + "\n" + emailClosing2)
+            //console.log(email, '', 'Account Created', emailGreeting + "\n\n" + emailText1 + "\n\n" + emailText2 + "\n\n" + emailText3 + "\n\n" + emailClosing1 + "\n" + emailClosing2)
+            
+            
+            res.status(200).json({ msg: "Account Created Successfully" })
         } catch (e) {
             res.status(500).json({ e: e.toString() })
         }

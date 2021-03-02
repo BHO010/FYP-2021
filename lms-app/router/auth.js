@@ -11,6 +11,7 @@ const { getStatsTemplate, getAchievementTemplate } = require('../middlewares/tem
 const mongo = require(LIB_PATH + '/services/db/mongodb')
 const { ObjectID } = require('mongodb')
 
+
 const getUser = async (req, res) => {
   try {
     const user = await mongo.db.collection('user').findOne({ email: 'user' })
@@ -87,6 +88,7 @@ const signupEmail = async (req, res) => { // get email, verification send code
       await mongo.db.collection('user').insertOne({
         email,
         role,
+        pwCode: ""
       })
       await mongo.db.collection('statistics').insertOne({
         email,

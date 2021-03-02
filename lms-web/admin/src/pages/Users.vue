@@ -121,12 +121,22 @@
               </div>
               <div class="inputRow">
                 <h3 class="size-18">Password:</h3>
-                <v-text-field
-                  v-model="password"
-                  type="text"
-                  outlined
-                  dense
-                ></v-text-field>
+                <div class="row">
+                  <v-text-field
+                    v-model="password"
+                    type="text"
+                    outlined
+                    dense
+                  ></v-text-field>
+                  <v-btn
+                    text
+                    outlined
+                    @click="generatePW"
+                    class="btn"
+                    color="#0078ab"
+                    >Generate</v-btn
+                  >
+                </div>
               </div>
               <v-btn class="submitBtn" text outlined @click="addUser"
                 >Submit</v-btn
@@ -221,6 +231,9 @@ export default {
     updatePage() {
       this.getUser()
     },
+    generatePW() {
+      this.password = Math.random().toString(36).slice(2)
+    },
     async getUser() {
       this.loading = true
       let rv = await http.get("/api/admin/user", {
@@ -261,12 +274,20 @@ export default {
     },
     async addUser() {
       try {
-        let rv = await http.post('/api/admin/user/add', {
+        let rv = await http.post("/api/admin/user/add", {
           email: this.email,
           name: this.name,
           password: this.password,
-          role: "user"
+          role: "user",
         })
+         if(rv) {
+          this.snackbarText = rv.data.msg
+          this.snackbarShow = true
+          setTimeout(() => {
+            this.createUser = false
+            this.$router.go()
+          },500)
+        }
       } catch (e) {}
     },
   },
@@ -334,6 +355,11 @@ export default {
   font-size: calc(
     16px + (20 - 16) * ((100vw - 300px) / (1800 - 300))
   ) !important;
+}
+
+.row {
+  display: flex;
+  margin: unset;
 }
 
 #dialogBody {

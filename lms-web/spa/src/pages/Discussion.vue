@@ -32,6 +32,14 @@
                 :key="thread._id"
                 :type="type"
               ></discussion-card>
+              <v-pagination
+                v-if="blockRegTotal > 1"
+                v-model="blockRegPage"
+                :length="this.blockRegTotal"
+                :total-visible="7"
+                circle
+                @input="blockRegPagination('registered')"
+              ></v-pagination>
             </div>
             <v-row>
               <h1>Discussion</h1>
@@ -65,6 +73,14 @@
                   :type="type"
                   type2="owned"
                 ></discussion-card>
+                <v-pagination
+                  v-if="blockTotal > 1"
+                  v-model="blockPage"
+                  :length="this.blockTotal"
+                  :total-visible="7"
+                  circle
+                  @input="blockPagination('owned')"
+                ></v-pagination>
               </div>
               <h1>Courses Registered</h1>
               <div id="imptContent">
@@ -75,6 +91,14 @@
                   :type="type"
                   type2="registered"
                 ></discussion-card>
+                <v-pagination
+                  v-if="blockRegTotal > 1"
+                  v-model="blockRegPage"
+                  :length="this.blockRegTotal"
+                  :total-visible="7"
+                  circle
+                  @input="blockRegPagination('registered')"
+                ></v-pagination>
               </div>
             </div>
           </div>
@@ -160,7 +184,9 @@
                   <!-- <v-textarea v-model="tMsg" outlined rows="4"></v-textarea> -->
                   <ckeditor v-model="tMsg" :config="editorConfig"></ckeditor>
                 </div>
-                <v-btn class="submitBtn" text outlined @click="postThread">Submit</v-btn>
+                <v-btn class="submitBtn" text outlined @click="postThread"
+                  >Submit</v-btn
+                >
               </v-form>
             </div>
           </div>
@@ -183,6 +209,10 @@ export default {
       ref: null,
       courses: [],
       regCourses: [],
+      blockTotal: 0,
+      blockPage: 1,
+      blockRegTotal: 0,
+      blockRegPage: 1,
       threads: [],
       threadsCurrentPage: 1,
       threadsPageCount: 0,
@@ -240,13 +270,21 @@ export default {
       this.getImptThreads()
       this.getDscussionThreads()
     } else {
-      let rv = await http.get("/api/me/discussion/list")
+      let rv = await http.get("/api/me/discussion/list", {
+        params: {
+          currentPage: 1,
+          pageSize: 4
+        }
+      })
 
       if (this.user) {
-        this.regCourses = rv.data
+        this.regCourses = rv.data.rv
+        this.blockRegTotal = rv.data.total
       } else {
         this.courses = rv.data.courses
+        this.blockTotal = rv.data.totalCourse
         this.regCourses = rv.data.regCourses
+        this.blockRegTotal = rv.data.totalRegCourse
       }
     }
   },
@@ -291,6 +329,36 @@ export default {
       this.threads = rv.data.threads
       this.threadsPageCount = Math.ceil(rv.data.threadsCount / 4)
     },
+    async blockRegPagination(data) {
+      try {
+        let rv = await http.get('/api/me/discussion/list/update', {
+          params: {
+            currentPage: this.blockRegPage,
+            type: data
+          }
+        })
+        if(rv) {
+          this.regCourses = rv.data
+        }
+      }catch(e) {
+
+      }
+    },
+    async blockPagination(data) {
+      try {
+        let rv = await http.get('/api/me/discussion/list/update', {
+          params: {
+            currentPage: this.blockPage,
+            type: data
+          }
+        })
+        
+        this.courses = rv.data
+        
+      }catch(e) {
+
+      }
+    }
   },
 }
 </script>

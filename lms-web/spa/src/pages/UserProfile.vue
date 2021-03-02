@@ -374,7 +374,7 @@ export default {
       } else {
         this.$router.push({ path: "/courses-created" })
       }
-    },
+    }
   },
 }
 </script>

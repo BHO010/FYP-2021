@@ -1,5 +1,8 @@
 const axios = require('axios')
-const  { SENDGRID_KEY } = require('../config')
+const  { SENDGRID_KEY, SENDGRID_SENDER } = require('../config')
+const sgMail = require('@sendgrid/mail')
+
+sgMail.setApiKey(SENDGRID_KEY)
 
 // Sendgrid, Mailgun
 
@@ -13,17 +16,18 @@ const  { SENDGRID_KEY } = require('../config')
 
 async function sendGrid(to, from, subject, text, html) {
   try {
-    // const msg = {
-    //   to,
-    //   from,
-    //   subject,
-    //   text
-    // }
-    // if (html) msg.html = html
-    // await sgMail.send(msg)
+    const msg = {
+      to,
+      from: SENDGRID_SENDER,
+      subject,
+      text
+    }
+    if (html) msg.html = html
+    await sgMail.send(msg)
+
     if (!SENDGRID_KEY) return
 
-    body = {
+    /* body = {
       personalizations: [
         {
           to: [{ email: to }]
@@ -38,7 +42,7 @@ async function sendGrid(to, from, subject, text, html) {
         AUthorization: 'Bearer ' + SENDGRID_KEY
       } 
     }
-    await axios.post('https://api.sendgrid.com/v3/mail/send', body, options)
+    await axios.post('https://api.sendgrid.com/v3/mail/send', body, options) */
     console.log('sendMail ok', to, from, subject, text)
   } catch (e) {
     console.log('sendMail err', e.toString())

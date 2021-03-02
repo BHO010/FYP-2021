@@ -10,19 +10,19 @@
     <div v-if="auth" class="main">
       <v-stepper v-model="step">
         <v-stepper-header>
-          <v-stepper-step class="stepHeader" :complete="step > 1" step="1" @click="nextStep(1)">
+          <v-stepper-step class="stepHeader" :complete="step > 1" step="1">
             Course Information
           </v-stepper-step>
 
           <v-divider></v-divider>
 
-          <v-stepper-step class="stepHeader" :complete="step > 2" step="2" @click="nextStep(2)">
+          <v-stepper-step class="stepHeader" :complete="step > 2" step="2">
             Trainers Information
           </v-stepper-step>
 
           <v-divider></v-divider>
 
-          <v-stepper-step class="stepHeader" :complete="step > 3" step="3" @click="nextStep(3)">
+          <v-stepper-step class="stepHeader" :complete="step > 3" step="3">
             Registration Info
           </v-stepper-step>
 
@@ -35,6 +35,7 @@
         <br />
         <div class="formContent">
           <v-stepper-content step="1" style="height: 100%">
+           <v-form ref="form1" v-model="valid" @submit.prevent="nextStep"> 
             <h2 id="Title">Course Title</h2>
             <v-text-field
               v-model="title"
@@ -48,6 +49,7 @@
               v-model="description"
               rows="5"
               row-height="40"
+              :rules="requiredRule"
               no-resize
               outlined
             ></v-textarea>
@@ -57,6 +59,7 @@
               v-model="category"
               :items="tags"
               label="Category"
+              :rules="requiredRule"
               outlined
               dense
             ></v-select>
@@ -66,6 +69,7 @@
               v-model="level"
               :items="levels"
               label="Level"
+              :rules="requiredRule"
               outlined
               dense
             ></v-select>
@@ -88,6 +92,7 @@
                 v-model="startDateText"
                 label="Start Date"
                 prepend-inner-icon="mdi-calendar"
+                :rules="requiredRule"
                 readonly
                 outlined
                 dense
@@ -102,6 +107,7 @@
             <v-text-field
               v-model.number="duration"
               label="Duration"
+              :rules="numberRule"
               outlined
               dense
             ></v-text-field>
@@ -115,6 +121,7 @@
             <v-text-field
               v-model="fee"
               label="Fee"
+              :rules="requiredRule"
               outlined
               dense
             ></v-text-field>
@@ -179,9 +186,10 @@
               >Delete</v-btn
             >
 
-            <v-btn class="button" color="#F44336" @click="nextStep(2)" block
+            <v-btn class="button color" color="#0078ab" @click="nextStep(2)" block
               >Continue</v-btn
             >
+           </v-form> 
           </v-stepper-content>
 
           <v-stepper-content step="2" style="height: 100%">
@@ -223,8 +231,11 @@
               >Delete</v-btn
             >
 
-            <v-row justify="end">
-              <v-btn class="button" color="#F44336" @click="nextStep(3)" block
+            <v-row class="btnRow" justify="space-between">
+              <v-btn class="button" color="#009bdc" @click="prevStep(1)" width="45%" outlined
+                >Back</v-btn
+              >
+              <v-btn class="button color" color="#0078ab" @click="nextStep(3)" width="45%" 
                 >Continue</v-btn
               >
             </v-row>
@@ -237,6 +248,16 @@
                 v-model="batchID"
                 label="Batch ID"
                 readonly
+                outlined
+                dense
+              >
+              </v-text-field>
+
+              <h2>Course Vacancy</h2>
+              <v-text-field
+                v-model="vacancy"
+                label="Vacancy"
+                :rules="numberRule"
                 outlined
                 dense
               >
@@ -259,8 +280,11 @@
                 dense
               ></v-text-field>
 
-              <v-row justify="end">
-                <v-btn class="button" color="#F44336" @click="addCourse()" block
+              <v-row class="btnRow" justify="space-between">
+                 <v-btn class="button" color="#009bdc" @click="prevStep(2)" width="45%" outlined
+                >Back</v-btn
+              >
+                <v-btn class="button color" color="#0078ab" @click="addCourse()" width="45%"
                   >Create Course</v-btn
                 >
               </v-row>
@@ -327,6 +351,7 @@ export default {
       duration: "",
       fee: "",
       batchID: "Batch-1",
+      vacancy: null,
       regDates: [],
       startDate: "",
       regDatesCheck: false,
@@ -375,6 +400,9 @@ export default {
       ],
       levels: ["Basic", "Intermediate", "Advance"],
       requiredRule: [(v) => !!v || "This is required"],
+      numberRule: [ 
+        v => !!v || "This is required",
+        v => !v || /^([0-9]*)$/.test(v) || "Numbers Only"]
     }
   },
   async mounted() {
@@ -488,8 +516,16 @@ export default {
       d.innerHTML = x
     },
     nextStep(i) {
+      if(this.step == 1) {
+        if (this.$refs.form1.validate()) {
+          this.step = i
+        }
+      }else {
+           this.step = i
+      }
+    },
+    prevStep(i) {
       this.step = i
-      console.log(this.step)
     },
     async addCourse() {
       if (this.$refs.form.validate()) {
@@ -551,6 +587,10 @@ h2 {
   text-transform: none;
 }
 
+.color {
+  color: white;
+}
+
 .formRow {
   padding: 1%;
 }
@@ -601,5 +641,9 @@ h2 {
 
 .calendar {
   margin-bottom: 2%;
+}
+
+.btnRow {
+  margin: 0;
 }
 </style>

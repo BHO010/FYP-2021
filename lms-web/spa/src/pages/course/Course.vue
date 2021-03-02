@@ -1,6 +1,6 @@
 <template>
   <div style="width: 80%; margin: auto; margin-top: 2%">
-     <v-snackbar
+    <v-snackbar
       v-model="snackbarShow"
       :timeout="snackbarTimeout"
       :color="snackbarColor"
@@ -208,6 +208,7 @@
           </div>
         </section>
       </div>
+
       <div id="tocDiv">
         <div id="toc">
           <div id="tocList">
@@ -226,7 +227,7 @@
           </div>
           <div id="btnRow">
             <v-btn
-              v-if="regWindow"
+              v-if="regWindow && available"
               class="button"
               color="#69F0AE"
               @click="register()"
@@ -241,6 +242,7 @@
               >Register</v-btn
             >
           </div>
+          <div id="vacancyRow">Vacancy: {{ this.vacancy() }}</div>
           <div id="emailRow">
             <v-icon id="icon">mdi-email</v-icon>
             <a href="mailto:admin@ntu.edu.sg">admin@ntu.edu.sg</a>
@@ -289,6 +291,8 @@ export default {
       snackbarTimeout: 3000,
       regDialog: false,
       regWindow: false,
+      vacancyLeft: 0,
+      available: true,
       course: [],
       category: "",
       imageURL: "",
@@ -329,10 +333,15 @@ export default {
     if (now < regEnd && now > regStart) {
       this.regWindow = true
     }
+    this.checkAvailability()
   },
   methods: {
     register() {
       this.regDialog = true
+    },
+    vacancy() {
+      let max = this.course.vacancy
+      return this.vacancyLeft + "/" + max
     },
     async confirmReg() {
       try {
@@ -367,6 +376,20 @@ export default {
         this.snackbarShow = true
       }
     },
+    async checkAvailability() {
+      try {
+        let rv = await http.get("/api/me/register/count", {
+          params: {
+            courseRef: this.course.reference,
+            batchID: this.course.batchID,
+          },
+        })
+        this.vacancyLeft = this.course.vacancy - rv.data.count
+        if (this.vacancyLeft <= 0) {
+          this.available = false
+        }
+      } catch (e) {}
+    },
   },
 }
 </script>
@@ -395,7 +418,7 @@ export default {
 }
 
 #dialogMain h2 {
-  font-size: 48px;
+  font-size: calc(36px + (48 - 36) * ((100vw - 300px) / (1920 - 300)));
   color: #0d47a1;
 }
 
@@ -406,7 +429,7 @@ export default {
 #dialogAction a {
   font-family: "DarkerGrotesque-Medium";
   text-decoration: none;
-  font-size: 20px;
+  font-size: calc(14px + (20 - 14) * ((100vw - 300px) / (1920 - 300)));
   color: #f92c2c;
   margin-right: 2%;
 }
@@ -415,7 +438,7 @@ export default {
   font-family: "DarkerGrotesque-Medium";
   text-transform: none;
   line-height: 2em;
-  font-size: 24px;
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
   height: auto;
 }
 
@@ -431,7 +454,7 @@ section {
 
 section h2 {
   color: #0d47a1;
-  font-size: 30px;
+  font-size: calc(24px + (30 - 24) * ((100vw - 300px) / (1920 - 300)));
   font-family: "DMSans-Bold";
   border-bottom: 3px solid lightgray;
   margin-bottom: 1%;
@@ -439,19 +462,19 @@ section h2 {
 
 section p {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 24px;
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
 }
 
 .v-list-item__title {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 20px;
+  font-size: calc(14px + (20 - 14) * ((100vw - 300px) / (1920 - 300)));
 }
 
 .listNum {
   font-family: "DarkerGrotesque-Medium";
   font-weight: bold;
   margin-right: 10px;
-  font-size: 20px;
+  font-size: calc(14px + (20 - 14) * ((100vw - 300px) / (1920 - 300)));
 }
 
 .header {
@@ -462,7 +485,7 @@ section p {
 
 #ratingRow {
   font-family: "DarkerGrotesque-Medium";
-  font-size: 26px;
+  font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1920 - 300)));
   position: absolute;
   bottom: 5px;
 }
@@ -500,14 +523,21 @@ section p {
 
 #toc #btnRow {
   margin: auto;
-  width: 60%;
   margin-top: 5%;
+  text-align: center;
+}
+
+#toc #vacancyRow {
+  text-align: center;
+  margin-top: 2%;
+  font-size: calc(14px + (18 - 14) * ((100vw - 300px) / (1920 - 300)));
 }
 
 #btnRow .button {
   font-family: "DarkerGrotesque-Medium";
   line-height: 2.5rem;
-  font-size: 24px;
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
+  text-transform: none;
   height: auto;
 }
 
@@ -545,13 +575,13 @@ section p {
   width: 80%;
   margin: auto;
   font-family: "Allstar";
-  font-size: 48px;
+  font-size: calc(36px + (48 - 36) * ((100vw - 300px) / (1920 - 300)));
 }
 
 #detailsSection #table {
   font-family: "DarkerGrotesque-Medium";
   border-collapse: collapse;
-  font-size: 22px;
+  font-size: calc(14px + (22 - 14) * ((100vw - 300px) / (1920 - 300)));
   border: 2px solid black;
 }
 
@@ -589,7 +619,7 @@ section p {
 }
 
 #trainersSection #trainerTable td {
-  font-size: 24px;
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
   background: #eceff1;
 }
 
@@ -605,13 +635,13 @@ section p {
   padding: 3px;
   border-bottom: 2px solid grey;
   background: #e57373;
-  font-size: 22px;
+  font-size: calc(14px + (22 - 14) * ((100vw - 300px) / (1920 - 300)));
 }
 
 #fundingSection #feeTable tr td {
   padding: 3px;
   padding-top: 5px;
-  font-size: 20px;
+  font-size: calc(14px + (20 - 14) * ((100vw - 300px) / (1920 - 300)));
   background: #ffcdd2;
 }
 
@@ -629,5 +659,15 @@ section p {
 #fundingSection p {
   font-family: "DarkerGrotesque-Medium";
   font-size: 18px;
+}
+
+@media screen and (max-width: 1600px) {
+  .main #content {
+    width: 70%;
+  }
+
+  .main #tocDiv {
+    width: 30%;
+  }
 }
 </style>

@@ -540,7 +540,6 @@ export default {
       if (this.$refs.form.validate()) {
         this.$store.commit("setLoading", true)
         if (this.password !== this.confirmPassword) {
-          console.log("error")
           return false
         } else {
           try {

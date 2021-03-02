@@ -18,6 +18,14 @@
                     :type="type"
                     :user="user"
                   ></classes-card>
+                  <v-pagination
+                    v-if="blockRegClassTotal > 1"
+                    v-model="blockRegClassPage"
+                    :length="this.blockRegClassTotal"
+                    :total-visible="7"
+                    circle
+                    @input="blockPagination('registered')"
+                  ></v-pagination>
                 </div>
                 <div v-else>
                   <h3>You do not have an ongoing classes</h3>
@@ -124,6 +132,14 @@
                     :block="course"
                     :type="type"
                   ></classes-card>
+                  <v-pagination
+                    v-if="blockClassTotal > 1"
+                    v-model="blockClassPage"
+                    :length="this.blockClassTotal"
+                    :total-visible="7"
+                    circle
+                    @input="blockClassPagination('owned')"
+                  ></v-pagination>
                 </div>
                 <div v-else>
                   <h3>You do not have an ongoing classes</h3>
@@ -133,6 +149,20 @@
               <div id="imptContent">
                 <div v-if="regClasses">
                   <!-- component here -->
+                  <classes-card
+                    v-for="course in regClasses"
+                    :key="course._id"
+                    :block="course"
+                    :type="type"
+                  ></classes-card>
+                  <v-pagination
+                    v-if="blockRegClassTotal > 1"
+                    v-model="blockRegClassPage"
+                    :length="this.blockRegClassTotal"
+                    :total-visible="7"
+                    circle
+                    @input="blockRegPagination('registered')"
+                  ></v-pagination>
                 </div>
 
                 <div v-else>
@@ -330,20 +360,24 @@ export default {
       courseRef: this.$route.query.ref,
       batchID: this.$route.query.batch,
       classes: null, //block
+      blockClassTotal: 0,
+      blockClassPage: 1,
       regClasses: null, //block
+      blockRegClassTotal: 0,
+      blockRegClassPage: 1,
       notices: null, //Threads
-      quizes: null,  //array to push to component
-      quizContent: null,  //array to push to component
-      feedbacks: null,  //array to push to component
+      quizes: null, //array to push to component
+      quizContent: null, //array to push to component
+      feedbacks: null, //array to push to component
       type: "block",
       cr8Thread: false,
       cr8Quiz: false,
       createType: null,
-      noticePage: 0,  //current page
-      noticeTotal: 0,  //total pages
-      quizPage: 0,
+      noticePage: 1, //current page
+      noticeTotal: 0, //total pages
+      quizPage: 1,
       quizTotal: 0,
-      feedbackPage: 0,
+      feedbackPage: 1,
       feedbackTotal: 0,
       editorConfig: {
         toolbar: [
@@ -374,7 +408,7 @@ export default {
           { name: "spell", items: ["jQuerySpellChecker"] },
           { name: "table", items: ["Table"] },
         ],
-      }, 
+      },
     }
   },
   computed: {
@@ -396,7 +430,6 @@ export default {
       })
 
       this.classDetails = rv.data
-      console.log("AA", this.classDetails)
       await this.getNotice(rv.data.notice)
       await this.getQuiz(rv.data.quiz)
       await this.getFeedback(rv.data.feedback)
@@ -404,9 +437,12 @@ export default {
       let rv = await http.get("/api/me/classes/list")
 
       if (this.user) {
+        this.blockRegClassTotal = rv.data.total
         this.regClasses = rv.data.regClasses
       } else {
+        this.blockClassTotal = rv.data.totalClass
         this.classes = rv.data.classes
+        this.blockRegClassTotal = rv.data.totalRegClass
         this.regClasses = rv.data.regClasses
       }
     }
@@ -428,19 +464,18 @@ export default {
       this.noticePage = 1
       this.noticeTotal = Math.ceil(data.length / 4)
       this.notices = []
-      for(var i=0; i<4;i++) {
-        if(data[i]) {
+      for (var i = 0; i < 4; i++) {
+        if (data[i]) {
           this.notices.push(data[i])
         }
       }
-
     },
     getQuiz(data) {
       this.quizPage = 1
       this.quizTotal = Math.ceil(data.length / 4)
       this.quizes = []
-      for(var i=0; i<4;i++) {
-        if(data[i]) {
+      for (var i = 0; i < 4; i++) {
+        if (data[i]) {
           this.quizes.push(data[i])
         }
       }
@@ -449,8 +484,8 @@ export default {
       this.feedbackPage = 1
       this.feedbackTotal = Math.ceil(data.length / 4)
       this.feedbacks = []
-      for(var i=0; i<4;i++) {
-        if(data[i]) {
+      for (var i = 0; i < 4; i++) {
+        if (data[i]) {
           this.feedbacks.push(data[i])
         }
       }
@@ -496,36 +531,65 @@ export default {
       } catch (e) {}
     },
     async noticePagination(data) {
-      console.log(this.classDetails)
-      let end = (this.noticePage * 4) 
-      let start = end - 4 
-       this.notices = []
-      for(var i=start; i<end;i++) {
-        if(data[i]) {
+      let end = this.noticePage * 4
+      let start = end - 4
+      this.notices = []
+      for (var i = start; i < end; i++) {
+        if (data[i]) {
           this.notices.push(data[i])
         }
       }
     },
     async quizPagination(data) {
-      let end = (this.quizPage * 4) 
+      let end = this.quizPage * 4
       let start = end - 4
-       this.quizes = []
-      for(var i=start; i<end;i++) {
-        if(data[i]) {
+      this.quizes = []
+      for (var i = start; i < end; i++) {
+        if (data[i]) {
           this.quizes.push(data[i])
         }
       }
     },
     async feedbackPagination(data) {
-      let end = (this.feedbackPage * 4) 
+      let end = this.feedbackPage * 4
       let start = end - 4
-       this.feedbacks = []
-      for(var i=start; i<end;i++) {
-        if(data[i]) {
+      this.feedbacks = []
+      for (var i = start; i < end; i++) {
+        if (data[i]) {
           this.feedbacks.push(data[i])
         }
       }
     },
+    async blockRegPagination(data) {
+      try {
+        let rv = await http.get('/api/me/classes/list/update', {
+          params: {
+            currentPage: this.blockRegClassPage,
+            type: data,
+          }
+        })
+
+        this.regClasses = rv.data
+      }catch(e) {}
+    },
+    async blockClassPagination(data) {
+      try {
+        let rv = await http.get('/api/me/classes/list/update', {
+          params: {
+            currentPage: this.blockClassPage,
+            type: data,
+          }
+        })
+
+        if(rv) {
+          if(data == "registered") {
+            this.regClasses = rv.data
+          }else {
+            this.courses = rv.data
+          }
+        }
+      }catch(e) {}
+    }
   },
 }
 </script>
@@ -597,7 +661,6 @@ v.application-wrap >>> .v-dialog {
   width: 50%;
 }
 
-
 @media screen and (max-width: 1280px) {
   #main {
     width: 95% !important;
@@ -615,8 +678,7 @@ v.application-wrap >>> .v-dialog {
     padding: 2%;
   }
 
-  
-   #body {
+  #body {
     margin-top: 14%;
   }
 }

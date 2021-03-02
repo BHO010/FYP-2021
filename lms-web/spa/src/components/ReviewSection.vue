@@ -51,6 +51,7 @@ export default {
         let rv = await http.get("api/me/user", {
           params: {
             email: this.review.author,
+            type: null
           },
         })
         this.userDetails = rv.data

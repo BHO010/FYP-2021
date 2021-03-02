@@ -40,28 +40,32 @@
             </div>
 
             <div v-else-if="this.step == 3" class="inputContainer">
-              <div class="size18">YOUR PASSWORD:</div>
-              <v-text-field
-                type="password"
-                v-model="password"
-                dense
-                outlined
-                label="Your password"
-                prepend-inner-icon="mdi-lock-outline"
-              ></v-text-field>
+              <v-form ref="form" v-model="valid" lazy-validation>
+                <div class="size18">YOUR PASSWORD:</div>
+                <v-text-field
+                  type="password"
+                  v-model="password"
+                  dense
+                  outlined
+                  :rules="passwordRules"
+                  label="Your password"
+                  prepend-inner-icon="mdi-lock-outline"
+                ></v-text-field>
 
-              <div class="size18">CONFIRM YOUR PASSWORD:</div>
-              <v-text-field
-                type="password"
-                v-model="confirmPassword"
-                dense
-                outlined
-                label="Confirm Your Password"
-                prepend-inner-icon="mdi-lock-outline"
-              ></v-text-field>
+                <div class="size18">CONFIRM YOUR PASSWORD:</div>
+                <v-text-field
+                  type="password"
+                  v-model="confirmPassword"
+                  dense
+                  outlined
+                  label="Confirm Your Password"
+                  prepend-inner-icon="mdi-lock-outline"
+                ></v-text-field>
+                <div class="errorColor">{{ comparePasswords }}</div>
+                <div class="errorColor" v-if="!!error">{{ error.message }}</div>
+              </v-form>
             </div>
 
-            <div class="errorColor" v-if="!!error">{{ error.message }}</div>
             <v-btn
               type="button"
               color="#0078ab"
@@ -101,12 +105,28 @@ export default {
       step: 1,
       email: "",
       confirmationCode: "",
+      valid: true,
       password: "",
       confirmPassword: "",
+      passwordRules: [
+        (v) => !!v || "Password is required",
+        (v) =>
+          /^(?=.*[0-9])(?=.*[!@#$%^&*()_+])(?=.*[A-Z])(?=.*[a-z])[a-zA-Z0-9!@#$%^&*()_+]{8,}$/.test(
+            v
+          ) ||
+          "Password must contain at least 8 character with 1 special character, number, lower and uppercase letter",
+      ],
     }
   },
   computed: {
     ...mapState(["user", "error", "loading"]),
+    comparePasswords() {
+      if (this.password !== this.confirmPassword) {
+        return "Passwords do not match"
+      } else {
+        return ""
+      }
+    },
   },
   mounted() {},
   methods: {
@@ -116,24 +136,67 @@ export default {
           let rv = await http.get("/api/me/user", {
             params: {
               email: this.email,
+              type: "forgotPW"
             },
           })
 
-          if (rv) {
+          if (rv.data.found) {
             let rv0 = await http.post("/api/me/generate-code", {
               email: this.email,
             })
 
             if (rv0) {
               this.snackbarText = rv0.data.msg
-              this.snackbarShow = true  
+              this.snackbarColor = "success"
+              this.snackbarShow = true
               this.step = 2
             }
+          } else {
+            this.snackbarText = "Email not found"
+            this.snackbarColor = "error"
+            this.snackbarShow = true
           }
         } else if (this.step == 2) {
+          let rv1 = await http.post("/api/me/verifyCode", {
+            email: this.email,
+            code: this.confirmationCode,
+          })
+          if (rv1) {
+            this.snackbarText = rv1.data.msg
+            this.snackbarColor = "success"
+            this.snackbarShow = true
+            this.step = 3
+          }
         } else {
+          if (this.$refs.form.validate()) {
+            if (this.password !== this.confirmPassword) {
+              return false
+            } else {
+              try {
+                let rv = await http.post("/api/me/updatePW", {
+                  password: this.password,
+                  email: this.email,
+                })
+
+                if (rv) {
+                  this.snackbarText = rv.data.msg
+                  this.snackbarColor = "success"
+                  this.snackbarShow = true
+                  setTimeout(() => {
+                    this.$router.push('/login').catch(()=> {})
+                  }, 500);
+                }
+              } catch (e) {}
+            }
+          }
         }
-      } catch (e) {}
+      } catch (e) {
+        if (this.step == 2) {
+          this.snackbarText = "Incorrect Code"
+          this.snackbarColor = "error"
+          this.snackbarShow = true
+        }
+      }
     },
   },
 }
@@ -178,5 +241,9 @@ export default {
 
 .size18 {
   font-size: calc(14px + (18 - 14) * ((100vw - 300px) / (1920 - 300)));
+}
+
+.errorColor {
+  color: red;
 }
 </style>

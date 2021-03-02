@@ -16,6 +16,19 @@ const multer = require('multer')
 
 
 adminRoutes
+    .get('/', authUser, authIsAdmin, async (req, res) => {
+        try {
+            let user = await findUser({ id: req.decoded.id })
+
+            if (user.role == "admin") {
+                res.status(200).json(user)
+            } 
+        } catch (e) {
+            res.status(500).json({ e: e.toString() })
+        }
+
+    })
+
     .get('/stats', authUser, authIsAdmin, async (req, res) => {
         try {
             let userCount = await mongo.db.collection('user').find({ role: "user" }).count()
@@ -147,32 +160,32 @@ adminRoutes
         }
     })
 
-    .get('/courses', authUser, authIsAdmin, async (req,res) => {
-         let {search, searchCategory, options } = req.query
+    .get('/courses', authUser, authIsAdmin, async (req, res) => {
+        let { search, searchCategory, options } = req.query
         try {
             options = JSON.parse(options)
             let filter = {}
-            if(searchCategory == "Title"  && search) {
+            if (searchCategory == "Title" && search) {
                 filter.title = { $regex: search, $options: 'i' }
-            }else if(searchCategory == "Instructor" && search) {
+            } else if (searchCategory == "Instructor" && search) {
                 filter.createdBy = { $regex: search, $options: 'i' }
-            }else if( searchCategory == "Category" && search){
+            } else if (searchCategory == "Category" && search) {
                 filter.category = { $regex: search, $options: 'i' }
             }
             let page = options.page
             let limit = options.itemsPerPage
             let results = null
             const total = await mongo.db.collection('courses').find(filter).count()
-            if(limit > 0) {
-               results = await mongo.db.collection('courses').find(filter).skip((Number(page) - 1) * Number(limit)).limit(Number(limit)).toArray()
-            }else {
-               results = await mongo.db.collection('courses').find(filter).toArray()
+            if (limit > 0) {
+                results = await mongo.db.collection('courses').find(filter).skip((Number(page) - 1) * Number(limit)).limit(Number(limit)).toArray()
+            } else {
+                results = await mongo.db.collection('courses').find(filter).toArray()
             }
-            
-             res.status(200).json({ results, total })
-        }catch(e) {
-             res.status(500).json({ e: e.toString() })
-        } 
+
+            res.status(200).json({ results, total })
+        } catch (e) {
+            res.status(500).json({ e: e.toString() })
+        }
     })
 
 module.exports = adminRoutes

@@ -125,7 +125,12 @@ export default {
   },
   created() {},
   async mounted() {
-   
+   try {
+     let rv = await http.get('/api/admin')
+     this.userDetails = rv.data
+     this.profileImage = this.userDetails.profileImage
+      this.insertIcon()
+   }catch(e){}
     
   },
   computed: {
@@ -137,7 +142,12 @@ export default {
     },
   },
   methods: {
-    onLogout() {}
+    onLogout() {},
+    insertIcon() {
+      let d = document.getElementById("iconImg")
+      d.innerHTML = ""
+      d.innerHTML = this.profileImage
+    },
   },
 }
 </script>

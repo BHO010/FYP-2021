@@ -222,7 +222,7 @@ export default {
       this.getUser()
     },
     generatePW() {
-      this.password = ""
+      this.password = Math.random().toString(36).slice(2)
     },
     async getUser() {
       this.loading = true
@@ -272,6 +272,15 @@ export default {
           password: this.password,
           role: "instructor"
         })
+
+        if(rv) {
+          this.snackbarText = rv.data.msg
+          this.snackbarShow = true
+          setTimeout(() => {
+            this.createInstructor = false
+            this.$router.go()
+          },500)
+        }
       } catch (e) {}
     },
   },
@@ -343,6 +352,7 @@ export default {
 
 .row {
   display: flex;
+  margin: unset;
 }
 
 #dialogBody {
