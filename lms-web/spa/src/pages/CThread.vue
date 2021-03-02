@@ -10,7 +10,13 @@
 
         <div id="mainPost">
           <v-flex xs12 row>
-            <v-col  cols="3" md="3" lg="2"  class="profile" @click="gotoProfile(main.author)">
+            <v-col
+              cols="3"
+              md="3"
+              lg="2"
+              class="profile"
+              @click="gotoProfile(main.author)"
+            >
               <div class="icon" :id="main.id"></div>
               <div class="name">{{ userDetails.name }}</div>
             </v-col>
@@ -19,9 +25,7 @@
                 {{ new Date(main.created).toLocaleString() }}
               </div>
               <div class="content">
-                <p>
-                  {{ main.message }}
-                </p>
+                <p v-html="main.message"></p>
               </div>
               <div v-if="files" class="fileRow">
                 <div
@@ -59,9 +63,10 @@
               <v-form>
                 <div class="inputRow">
                   <h3 class="size-18">Message:</h3>
-                  <v-textarea v-model="message" outlined rows="4"></v-textarea>
+                  <!-- <v-textarea v-model="message" outlined rows="4"></v-textarea> -->
+                  <ckeditor v-model="message" :config="editorConfig"></ckeditor>
                 </div>
-                <v-btn text outlined @click="postMsg">Submit</v-btn>
+                <v-btn class="submitBtn" text outlined @click="postMsg">Submit</v-btn>
               </v-form>
             </div>
           </div>
@@ -74,8 +79,8 @@
 <script>
 import { mapState } from "vuex"
 import { http } from "@/axios"
-import axios from "axios";
-import { saveAs } from "file-saver";
+import axios from "axios"
+import { saveAs } from "file-saver"
 
 export default {
   data() {
@@ -93,6 +98,36 @@ export default {
       posts: [],
       type: "message",
       create: false,
+      editorConfig: {
+        toolbar: [
+          {
+            name: "basicstyles",
+            groups: ["basicstyles"],
+            items: ["Bold", "Italic", "Underline", "-", "TextColor", "BGColor"],
+          },
+          { name: "styles", items: ["Format", "Font", "FontSize"] },
+          { name: "scripts", items: ["Subscript", "Superscript"] },
+          {
+            name: "justify",
+            groups: ["blocks", "align"],
+            items: [
+              "JustifyLeft",
+              "JustifyCenter",
+              "JustifyRight",
+              "JustifyBlock",
+            ],
+          },
+          {
+            name: "paragraph",
+            groups: ["list", "indent"],
+            items: ["NumberedList", "BulletedList", "-", "Outdent", "Indent"],
+          },
+          { name: "links", items: ["Link", "Unlink"] },
+          // { name: 'insert', items: [ 'Image'] },
+          { name: "spell", items: ["jQuerySpellChecker"] },
+          { name: "table", items: ["Table"] },
+        ],
+      },
     }
   },
   computed: {
@@ -108,8 +143,8 @@ export default {
       },
     })
     this.main = rv.data
-    if(this.main.fileName) {
-      if(this.main.fileName.length != 0) {
+    if (this.main.fileName) {
+      if (this.main.fileName.length != 0) {
         this.files = true
       }
     }
@@ -151,30 +186,29 @@ export default {
     },
     async downloadFile(fileName) {
       try {
-         const { data } = await http.post(`/api/gcp-sign`, {
+        const { data } = await http.post(`/api/gcp-sign`, {
           filename: fileName,
-          action: "read"
-        });
-        const rv = await http.get(data.url, { withCredentials: false });
-        await axios.get(rv.config.url, { responseType: "blob" }).then(response => {
+          action: "read",
+        })
+        const rv = await http.get(data.url, { withCredentials: false })
+        await axios
+          .get(rv.config.url, { responseType: "blob" })
+          .then((response) => {
             // Log somewhat to show that the browser actually exposes the custom HTTP header
-            var FileSaver = require("file-saver");
-            const fileNameHeader = "x-suggested-filename";
-            const suggestedFileName = response.headers[fileName];
+            var FileSaver = require("file-saver")
+            const fileNameHeader = "x-suggested-filename"
+            const suggestedFileName = response.headers[fileName]
             const effectiveFileName =
-              suggestedFileName === undefined
-                ? fileName
-                : suggestedFileName;
-            FileSaver.saveAs(response.data, effectiveFileName);
+              suggestedFileName === undefined ? fileName : suggestedFileName
+            FileSaver.saveAs(response.data, effectiveFileName)
           })
-          .catch(response => {
+          .catch((response) => {
             console.error(
               "Could not Download the Excel report from the backend.",
               response
-            );
-          });
-
-      }catch(e) {}
+            )
+          })
+      } catch (e) {}
     },
   },
 }
@@ -273,7 +307,6 @@ export default {
   margin-bottom: 1%;
 }
 
-
 .btmRow {
   font-family: "DarkerGrotesque-Medium";
   border-top: 1px solid lightgrey;
@@ -283,6 +316,10 @@ export default {
 .Btn {
   font-family: "DarkerGrotesque-Bold";
   text-transform: none;
+}
+
+.submitBtn {
+  margin-top: 2%;
 }
 
 #dialogBody {
@@ -341,11 +378,10 @@ export default {
     border-radius: 50px;
     padding: 2%;
   }
-
 }
 
 @media screen and (max-width: 600px) {
-   #main {
+  #main {
     margin-top: 14%;
   }
 }

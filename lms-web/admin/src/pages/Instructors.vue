@@ -34,6 +34,15 @@
               single-line
               hide-details
             ></v-text-field>
+            <v-spacer></v-spacer>
+            <v-btn
+              text
+              outlined
+              @click="createInstructor = true"
+              class="btn"
+              color="#0078ab"
+              >Create</v-btn
+            >
           </v-row>
         </template>
         <template v-slot:item="row">
@@ -43,8 +52,22 @@
             <td>{{ row.item.contactNumber }}</td>
             <td>{{ available(row.item.active) }}</td>
             <td>
-              <v-btn class="mx-2 btn" text outlined color="blue" @click="editUser(row.item)"> Edit </v-btn>
-              <v-btn class="mx-2 btn" text outlined color="blue" @click="deleteUser(row.item)">
+              <v-btn
+                class="mx-2 btn"
+                text
+                outlined
+                color="blue"
+                @click="editUser(row.item)"
+              >
+                Edit
+              </v-btn>
+              <v-btn
+                class="mx-2 btn"
+                text
+                outlined
+                color="blue"
+                @click="deleteUser(row.item)"
+              >
                 Delete
               </v-btn>
             </td>
@@ -54,24 +77,65 @@
     </v-flex>
 
     <!-- Dialog -->
-     <v-dialog v-model="editDialog" scrollable width="70%">
+    <v-dialog v-model="editDialog" scrollable width="70%">
       <v-card tile height="100%" class="reviewCard">
         <v-toolbar fixed dark color="primary">
           <!--  <v-btn icon dark @click="reportDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn> -->
-          <v-toolbar-title>Review Report.</v-toolbar-title>
+          <v-toolbar-title>Edit Instructor.</v-toolbar-title>
         </v-toolbar>
-        <div id="dialogContent">
+        <div id="dialogContent"></div>
+      </v-card>
+    </v-dialog>
 
-          <v-row justify="end">
-            <v-btn class="btn" text outlined color="blue"
-              >Approve</v-btn
-            >
-            <v-btn text outlined color="blue"
-              >Ignore</v-btn
-            >
-          </v-row>
+    <v-dialog v-model="createInstructor" scrollable width="50%">
+      <v-card tile>
+        <v-toolbar flat dark color="primary">
+          <!--  <v-btn icon dark @click="createInstructor = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn> -->
+          <v-toolbar-title>Create a new Instructor</v-toolbar-title>
+        </v-toolbar>
+        <div id="dialogMain">
+          <div id="dialogBody">
+            <v-form>
+              <div class="inputRow">
+                <h3 class="size-18">Email:</h3>
+                <v-text-field
+                  v-model="email"
+                  type="email"
+                  outlined
+                  dense
+                ></v-text-field>
+              </div>
+              <div class="inputRow">
+                <h3 class="size-18">Name:</h3>
+                <v-text-field
+                  v-model="name"
+                  type="text"
+                  outlined
+                  dense
+                ></v-text-field>
+              </div>
+              <div class="inputRow">
+                <h3 class="size-18">Password:</h3>
+                <div class="row">
+                  <v-text-field
+                  v-model="password"
+                  type="text"
+                  outlined
+                  dense
+                ></v-text-field>
+                <v-btn text outlined @click="generatePW" class="btn" color="#0078ab">Generate</v-btn>
+                </div>
+                
+              </div>
+              <v-btn class="submitBtn" text outlined @click="addInstructor"
+                >Submit</v-btn
+              >
+            </v-form>
+          </div>
         </div>
       </v-card>
     </v-dialog>
@@ -94,6 +158,11 @@ export default {
       search: "",
       loading: false,
       editDialog: false,
+      selectedUser: null,
+      createInstructor: false,
+      email: null,
+      name: null,
+      password: null,
       options: {},
       headers: [
         {
@@ -133,7 +202,6 @@ export default {
   watch: {
     options: {
       handler() {
-        console.log("HERE")
         this.updatePage()
       },
       deep: true,
@@ -152,6 +220,9 @@ export default {
     },
     updatePage() {
       this.getUser()
+    },
+    generatePW() {
+      this.password = ""
     },
     async getUser() {
       this.loading = true
@@ -182,8 +253,26 @@ export default {
         }
       } catch (e) {}
     },
-    editUser(data) {
-    this.editDialog = true
+    async editUser(data) {
+      try {
+        let rv = await http.get("/api/admin/user/edit", {
+          params: {
+            email: data.email,
+          },
+        })
+        this.selectedUser = rv.data
+        this.editDialog = true
+      } catch (e) {}
+    },
+    async addInstructor() {
+      try {
+        let rv = await http.post('/api/admin/user/add', {
+          email: this.email,
+          name: this.name,
+          password: this.password,
+          role: "instructor"
+        })
+      } catch (e) {}
     },
   },
 }
@@ -242,5 +331,29 @@ export default {
 .searchRow {
   margin-top: 1%;
   margin-bottom: 3%;
+}
+
+.btn {
+  text-decoration: none;
+  text-transform: none;
+  font-size: calc(
+    16px + (20 - 16) * ((100vw - 300px) / (1800 - 300))
+  ) !important;
+}
+
+.row {
+  display: flex;
+}
+
+#dialogBody {
+  width: 80%;
+  margin: auto;
+  margin-top: 2%;
+  margin-bottom: 2%;
+  text-align: left;
+}
+
+.submitBtn {
+  margin-top: 2%;
 }
 </style>

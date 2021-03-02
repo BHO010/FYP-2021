@@ -44,38 +44,26 @@
           </v-list-item>
         </v-list>
         <div id="btnRow" v-if="type == 'quiz'">
-          <v-btn
-            class="button"
-            color="#69F0AE"
-            @click="onSavedQuiz"
+          <v-btn class="button" color="#69F0AE" @click="onSavedQuiz"
             >Save Quiz</v-btn
           >
         </div>
 
-         <div id="btnRow" v-else-if="type == 'quizEdit'">
-          <v-btn
-            class="button"
-            color="#69F0AE"
-            @click="onSavedQuiz"
+        <div id="btnRow" v-else-if="type == 'quizEdit'">
+          <v-btn class="button" color="#69F0AE" @click="onSavedQuiz"
             >Save Quiz</v-btn
           >
         </div>
 
         <div id="btnRow" v-else-if="type == 'Edit'">
-          <v-btn
-            class="button"
-            color="#69F0AE"
-            @click="onSaved"
-            >Update Survey</v-btn
+          <v-btn class="button" color="#69F0AE" @click="onSaved"
+            >Update</v-btn
           >
         </div>
 
         <div id="btnRow" v-else>
-          <v-btn
-            class="button"
-            color="#69F0AE"
-            @click="onSaved"
-            >Save Survey</v-btn
+          <v-btn class="button" color="#69F0AE" @click="onSaved"
+            >Save</v-btn
           >
         </div>
       </div>
@@ -502,7 +490,6 @@ export default {
     this.reference = params.get("reference")
     if (this.type == "Edit") {
       this.QNumber = this.survey.length + 1
-      
     }
     if (this.type == "quizEdit") {
       this.QNumber = this.quiz.content.length + 1
@@ -727,7 +714,6 @@ export default {
 }
 
 #toolList {
-  background: #e1f5fe;
 }
 
 #toolList h3 {
@@ -750,14 +736,15 @@ export default {
 #btnRow .button {
   text-transform: none;
   line-height: 2rem;
-  font-size: 24px;
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
+  margin-left: 0%;
   text-align: center;
 }
 
 #toolList h3 {
   text-align: center;
   color: #0d47a1;
-  font-size: 42px;
+  font-size: calc(32px + (42 - 32) * ((100vw - 300px) / (1920 - 300)));
 }
 
 #toolList .v-list-item__icon {
@@ -774,7 +761,8 @@ export default {
 
 #rightCol h3 {
   color: #0d47a1;
-  font-size: 42px;
+  font-size: calc(32px + (42 - 32) * ((100vw - 300px) / (1920 - 300)));
+  margin-left: 0%;
 }
 
 #surveyContent h3 {
@@ -791,7 +779,7 @@ export default {
   margin-bottom: 2%;
   padding: 2%;
   padding-top: 0;
-  font-size: 24px;
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
 }
 
 .questionDiv .properties {
@@ -843,5 +831,34 @@ export default {
 
 input {
   padding-left: 1%;
+}
+
+@media screen and (max-width: 1600px) {
+  #leftCol {
+    width: 20%;
+  }
+
+  #rightCol {
+    margin-left: 3%;
+    width: 70%;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  #main {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #leftCol {
+    width: 40%;
+    margin: auto;
+  }
+
+  #rightCol {
+    margin-left: 3%;
+    width: 80%;
+    margin: auto;
+  }
 }
 </style>

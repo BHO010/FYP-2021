@@ -19,43 +19,73 @@
       </v-carousel>
     </v-container>
 
-    <div class="tempBox"></div>
+    <div class="tempBox">
+      <div class="section">
+        <h1>Recommended</h1>
+        <div class="row">
+          <course-card
+            v-for="course in recCourses"
+            :key="course._id"
+            :course="course"
+            type="registered"
+          >
+          </course-card>
+        </div>
+      </div>
+      <div class="section">
+        <h1>Interested</h1>
+        <div class="row">
+
+        </div>
+      </div>
+    </div>
   </v-container>
 </template>
 
 <script>
+import { http } from "@/axios"
+import { mapState } from "vuex"
+
 export default {
   data() {
     return {
+      userDetails: null,
+      recCourses: [],
       slides: [
-          {
-            src: '/img/carousell-1.png',
-          },
-          {
-            src: '/img/carousell-2.png',
-          },
-          {
-            src: '/img/carousell-3.png',
-          },
-          {
-            src: '/img/carousell-4.png',
-          },
-        ],
+        {
+          src: "/img/carousell-1.png",
+        },
+        {
+          src: "/img/carousell-2.png",
+        },
+        {
+          src: "/img/carousell-3.png",
+        },
+        {
+          src: "/img/carousell-4.png",
+        },
+      ],
     }
   },
   created() {},
-  mounted() {
+  async mounted() {
     this.$store.commit("setLayout", "layout-private")
+    let rv = await http.get("/api/me/")
+    this.userDetails = rv.data
+
+    this.getRecommended()
   },
   computed: {
-    user() {
-      return this.$store.state.user
-    },
-    loading() {
-      return this.$store.getters.loading
+    ...mapState(["error", "loading"]),
+  },
+  methods: {
+    async getRecommended() {
+      try {
+        let rv = await http.get("/api/me/course/recommended")
+        this.recCourses = rv.data
+      } catch (e) {}
     },
   },
-  methods: {},
 }
 </script>
 
@@ -96,5 +126,9 @@ a {
 .tempBox {
   border: 1px solid black;
   height: 700px;
+}
+
+.row {
+  display: flex;
 }
 </style>

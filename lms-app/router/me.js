@@ -441,6 +441,32 @@ meRoutes
     }
   })
 
+  .get('/course/recommended', authUser, async (req,res) => {
+    try{ 
+      let rv = await mongo.db.collection('courses').aggregate([
+        {$match: {}
+        },
+        { 
+            $project: { 
+                    rating: { 
+                             $cond: [ { $eq: ["$rateCount", 0] }, 0, { $divide: ["$totalRate", "$rateCount"]} ]
+                     },
+                     reference: 1,
+                     title: 1,
+                     level: 1,
+
+            }
+        },
+        {$sort: {rating: -1}},
+        { $limit : 4 }
+    ]).toArray()
+
+      return res.status(200).json(rv)
+    }catch(e) {
+      return res.status(400).json({ e: e.toString() })
+    }
+  })
+
   .get('/courses', authUser, async (req, res) => {
     let total = null
     let courses = null

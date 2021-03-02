@@ -2,16 +2,19 @@
   <v-container fluid>
     <div v-if="auth" class="main">
       <h3>Course Survey Edit</h3>
-      <p>
-        A survey creation plugin. Drag and drop the question from the toolbox on
-        the left to the center area.<br />
-        Edit the question on the properties column on the right. <br />
+     <p>
+        Create your own survey to collect information from the students after
+        the course!
+        <br />
+        Click on the type of question you want from the tool box. <br />
 
-        You can create a new page using the "Add new page" button. <br />
+        You will see it pop out under "Survey Template" <br />
 
-        You can click on "Test Survey" to preview the survey. <br />
+        Type in your question in the input field. You can also delete the
+        question by clicking on the delete icon. <br />
 
-        Once completed, remember to click "Save Survey" button. <br />
+        Once completed, remember to click "Save Survey" button under the tool
+        box. <br />
       </p>
       <survey-builder :survey="this.survey" :type="this.type"></survey-builder>
     </div>

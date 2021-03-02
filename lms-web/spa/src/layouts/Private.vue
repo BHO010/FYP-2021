@@ -67,15 +67,14 @@
             <v-list>
               <!--Accounts -->
               <v-list-item-group color="#009cdc" class="margin-btm">
-                <h2 class="sideHeader">
-                  Account
-                </h2>
+                <h2 class="sideHeader">Account</h2>
                 <v-list-item
                   v-for="(item, i) in accountItems"
                   :key="i"
                   :to="item.route"
                   color="#009cdc"
                   v-model="active_list"
+                  class="listItem"
                 >
                   <v-list-item-content class="hover listText size-28">
                     <v-list-item-title v-text="item.title"></v-list-item-title>
@@ -85,59 +84,51 @@
 
               <!--Courses -->
               <v-list-item-group v-model="item2" color="#009cdc">
-                 <h2 class="sideHeader">
-                  Courses
-                </h2>
+                <h2 class="sideHeader">Courses</h2>
                 <v-list-item
                   v-for="(item, i) in userCourseItems"
                   :key="i"
                   :to="item.route"
                   color="#009cdc"
                   v-model="course_active_list"
+                  class="listItem"
                 >
-                  <v-list-item-content class="hover">
-                    <v-list-item-title
-                      v-text="item.title"
-                    ></v-list-item-title>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
 
               <!--Community -->
               <v-list-item-group v-model="item3" color="#009cdc">
-                  <h2 class="sideHeader">
-                  Community
-                </h2>
+                <h2 class="sideHeader">Community</h2>
                 <v-list-item
                   v-for="(item, i) in communityItems"
                   :key="i"
                   :to="item.route"
                   v-model="community_active_list"
-                  class="listItem hover"
+                  color="#009cdc"
+                  class="listItem"
                 >
-                  <v-list-item-content class="hover">
-                    <v-list-item-title
-                      v-text="item.title"
-                    ></v-list-item-title>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
 
               <!--Ongoing -->
-              <v-list-item-group v-model="item4" color="#009cdc">
-                  <h2 class="sideHeader">
-                  Ongoing
-                </h2>
+              <v-list-item-group v-model="item4">
+                <h2 class="sideHeader">Ongoing</h2>
                 <v-list-item
                   v-for="(item, i) in ongoingItems"
                   :key="i"
                   :to="item.route"
                   v-model="ongoing_active_list"
+                  color="#009cdc"
+                  class="listItem"
                 >
-                  <v-list-item-content class="hover">
-                    <v-list-item-title
-                      v-text="item.title"
-                    ></v-list-item-title>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
@@ -160,17 +151,16 @@
             <v-list>
               <!--Accounts -->
               <v-list-item-group color="#009cdc" class="margin-btm">
-                <h2 class="sideHeader">
-                  Account
-                </h2>
+                <h2 class="sideHeader">Account</h2>
                 <v-list-item
                   v-for="(item, i) in accountItems"
                   :key="i"
                   :to="item.route"
                   color="#009cdc"
                   v-model="active_list"
+                  class="listItem"
                 >
-                  <v-list-item-content class="hover listText size-28">
+                  <v-list-item-content>
                     <v-list-item-title v-text="item.title"></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
@@ -178,59 +168,49 @@
 
               <!--Courses -->
               <v-list-item-group v-model="item2" color="#009cdc">
-                 <h2 class="sideHeader">
-                  Courses
-                </h2>
+                <h2 class="sideHeader">Courses</h2>
                 <v-list-item
                   v-for="(item, i) in instructorCourseItems"
                   :key="i"
                   :to="item.route"
                   color="#009cdc"
                   v-model="course_active_list"
+                  class="listItem"
                 >
-                  <v-list-item-content class="hover">
-                    <v-list-item-title
-                      v-text="item.title"
-                    ></v-list-item-title>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
 
               <!--Community -->
               <v-list-item-group v-model="item3" color="#009cdc">
-                  <h2 class="sideHeader">
-                  Community
-                </h2>
+                <h2 class="sideHeader">Community</h2>
                 <v-list-item
                   v-for="(item, i) in communityItems"
                   :key="i"
                   :to="item.route"
                   v-model="community_active_list"
-                  class="listItem hover"
+                  class="listItem"
                 >
-                  <v-list-item-content class="hover">
-                    <v-list-item-title
-                      v-text="item.title"
-                    ></v-list-item-title>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
 
               <!--Ongoing -->
               <v-list-item-group v-model="item4" color="#009cdc">
-                  <h2 class="sideHeader">
-                  Ongoing
-                </h2>
+                <h2 class="sideHeader">Ongoing</h2>
                 <v-list-item
                   v-for="(item, i) in ongoingInstructorItems"
                   :key="i"
                   :to="item.route"
                   v-model="ongoing_active_list"
+                  class="listItem"
                 >
-                  <v-list-item-content class="hover">
-                    <v-list-item-title
-                      v-text="item.title"
-                    ></v-list-item-title>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
               </v-list-item-group>
@@ -295,14 +275,21 @@
     </v-navigation-drawer>
  -->
     <v-main class="body">
-      <v-app-bar xs12 row color="blue darken-4" fixed class="appBar" height="60%">
+      <v-app-bar
+        xs12
+        row
+        color="blue darken-4"
+        fixed
+        class="appBar"
+        height="60%"
+      >
         <v-app-bar-nav-icon
           @click="drawer = !drawer"
           class="hidden-lg-and-up"
         ></v-app-bar-nav-icon>
         <v-menu offset-y>
-          <v-list class="hidden-md-and-up">
-            <v-list-item v-for="item in menu" :key="item.icon">
+          <v-list class="hidden-md-and-up" color="#009cdc">
+            <v-list-item v-for="item in menu" :key="item.icon" color="#009cdc" class="listItem">
               <v-list-item-content>
                 <v-list-item-title>{{ item.title }}</v-list-item-title>
               </v-list-item-content>
@@ -310,7 +297,11 @@
           </v-list>
         </v-menu>
 
-        <v-toolbar-title class="color logo">NTU-LMS</v-toolbar-title>
+        <v-toolbar-title class="logo"
+          ><router-link to="/home" class="logoLink"
+            >NTU-LMS</router-link
+          ></v-toolbar-title
+        >
 
         <v-spacer></v-spacer>
 
@@ -580,18 +571,8 @@ export default {
   }
 }
 
-@font-face {
-  font-family: "DMSans-Bold";
-  src: url("../../public/fonts/DMSans-Bold.ttf");
-}
-
-@font-face {
-  font-family: "DarkerGrotesque-Medium";
-  src: url("../../public/fonts/DarkerGrotesque-Medium.ttf");
-}
-
 .appBar {
-  margin-left: 250px;;
+  margin-left: 250px;
   border-bottom: 1px solid lightgrey;
 }
 
@@ -673,6 +654,11 @@ input:-internal-autofill-selected {
   margin-left: 2%;
 }
 
+.logoLink {
+  color: white;
+  text-decoration: none;
+}
+
 .logo-private {
   display: flex;
   height: 100px;
@@ -737,25 +723,12 @@ input:-internal-autofill-selected {
 
 .listItem:hover {
   background-color: #009cdc;
-  color: white !important;
+  color:white !important;
 }
-.listSubItem:hover {
-  background-color: #009cdc;
-  color: white !important;
-}
-.drawerItems {
-  color: black;
-}
-.drawerItems:hover {
-  color: #009cdc;
-}
+
 
 .v-list-item__title {
   font-size: calc(14px + (20 - 14) * ((100vw - 300px) / (1920 - 300)));
-}
-
-a:hover {
-  color: white
 }
 
 .v-list-item__content {
@@ -764,13 +737,11 @@ a:hover {
   width: 220px !important;
 }
 
-
 @media screen and (max-width: 1264px) {
   .appBar {
     width: 100%;
-    margin-left:0;
+    margin-left: 0;
     border-bottom: 1px solid lightgrey;
   }
 }
-
 </style>

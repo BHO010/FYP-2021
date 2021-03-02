@@ -34,6 +34,15 @@
               single-line
               hide-details
             ></v-text-field>
+            <v-spacer></v-spacer>
+            <v-btn
+              text
+              outlined
+              @click="createUser = true"
+              class="btn"
+              color="#0078ab"
+              >Create</v-btn
+            >
           </v-row>
         </template>
 
@@ -44,7 +53,15 @@
             <td>{{ row.item.contactNumber }}</td>
             <td>{{ available(row.item.active) }}</td>
             <td>
-              <v-btn class="mx-2 btn" text outlined color="blue"> Edit </v-btn>
+              <v-btn
+                class="mx-2 btn"
+                text
+                outlined
+                color="blue"
+                @click="editUser(row.item)"
+              >
+                Edit
+              </v-btn>
               <v-btn
                 class="mx-2 btn"
                 text
@@ -59,6 +76,66 @@
         </template>
       </v-data-table>
     </v-flex>
+
+    <!-- Dialog -->
+    <v-dialog v-model="editDialog" scrollable width="70%">
+      <v-card tile height="100%" class="reviewCard">
+        <v-toolbar fixed dark color="primary">
+          <!--  <v-btn icon dark @click="reportDialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn> -->
+          <v-toolbar-title>Edit Instructor.</v-toolbar-title>
+        </v-toolbar>
+        <div id="dialogContent"></div>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="createUser" scrollable width="50%">
+      <v-card tile>
+        <v-toolbar flat dark color="primary">
+          <!--  <v-btn icon dark @click="create = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn> -->
+          <v-toolbar-title>Create a new User</v-toolbar-title>
+        </v-toolbar>
+        <div id="dialogMain">
+          <div id="dialogBody">
+            <v-form>
+              <div class="inputRow">
+                <h3 class="size-18">Email:</h3>
+                <v-text-field
+                  v-model="email"
+                  type="email"
+                  outlined
+                  dense
+                ></v-text-field>
+              </div>
+              <div class="inputRow">
+                <h3 class="size-18">Name:</h3>
+                <v-text-field
+                  v-model="name"
+                  type="text"
+                  outlined
+                  dense
+                ></v-text-field>
+              </div>
+              <div class="inputRow">
+                <h3 class="size-18">Password:</h3>
+                <v-text-field
+                  v-model="password"
+                  type="text"
+                  outlined
+                  dense
+                ></v-text-field>
+              </div>
+              <v-btn class="submitBtn" text outlined @click="addUser"
+                >Submit</v-btn
+              >
+            </v-form>
+          </div>
+        </div>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -75,6 +152,12 @@ export default {
       snackbarTimeout: 5000,
       search: "",
       loading: false,
+      createUser: false,
+      email: null,
+      name: null,
+      password: null,
+      editDialog: false,
+      selectedUser: null,
       users: [],
       total: 0,
       options: {},
@@ -167,6 +250,25 @@ export default {
         }
       } catch (e) {}
     },
+    async editUser(data) {
+      let rv = await http.get("/api/admin/user/edit", {
+        params: {
+          email: data.email,
+        },
+      })
+      this.selectedUser = rv.data
+      this.editDialog = true
+    },
+    async addUser() {
+      try {
+        let rv = await http.post('/api/admin/user/add', {
+          email: this.email,
+          name: this.name,
+          password: this.password,
+          role: "user"
+        })
+      } catch (e) {}
+    },
   },
 }
 </script>
@@ -224,5 +326,25 @@ export default {
 .searchRow {
   margin-top: 1%;
   margin-bottom: 3%;
+}
+
+.btn {
+  text-decoration: none;
+  text-transform: none;
+  font-size: calc(
+    16px + (20 - 16) * ((100vw - 300px) / (1800 - 300))
+  ) !important;
+}
+
+#dialogBody {
+  width: 80%;
+  margin: auto;
+  margin-top: 2%;
+  margin-bottom: 2%;
+  text-align: left;
+}
+
+.submitBtn {
+  margin-top: 2%;
 }
 </style>

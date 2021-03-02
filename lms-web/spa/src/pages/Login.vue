@@ -39,7 +39,7 @@
             >
             <br />
             <v-row class="center-all forgotPW">
-              <a>Forgot password?</a>
+              <a href="/reset-pw">Forgot password?</a>
             </v-row>
           </div>
 

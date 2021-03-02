@@ -12,6 +12,7 @@ export default new Router({
     { path: '/avatar', name:'avatar', component: () => import('@/pages/Avatar') },
     { path: '/login', name:'LogIn', component: () => import('@/pages/Login') },
     { path: '/signup', name:'Signup', component: () => import('@/pages/Signup') },
+    { path: '/reset-pw', name:'ResetPW', component: () => import('@/pages/ResetPW') },
     { path: '/home', name:'PrivateHome', component: () => import('@/pages/PrivateHome'),  beforeEnter: AuthGuard},
     { path: '/profile', name:'UserProfile', component: () => import('@/pages/UserProfile'),  beforeEnter: AuthGuard},
     { path: '/browse', name:'Browse', component: () => import('@/pages/Browse'),  beforeEnter: AuthGuard},

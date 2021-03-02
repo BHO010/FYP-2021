@@ -7,7 +7,7 @@ const { SALT_ROUNDS } = require('../config')
 const { authUser, authSignup } = require('../middlewares/auth')
 const { createToken, revokeToken, otp, logout, refresh, login, } = require(LIB_PATH + '/auth')
 const { dateISO, timeISO } = require(LIB_PATH + '/esm/datetime')
-const { getStatsTemplate, getAchievementTemplate } = require('../middlewares/achievement.js')
+const { getStatsTemplate, getAchievementTemplate } = require('../middlewares/template.js')
 const mongo = require(LIB_PATH + '/services/db/mongodb')
 const { ObjectID } = require('mongodb')
 

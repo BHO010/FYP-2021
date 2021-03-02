@@ -34,8 +34,7 @@
                 {{ new Date(main.created).toLocaleString() }}
               </div>
               <div class="content">
-                <p>
-                  {{ main.message }}
+                <p v-html="main.message">
                 </p>
               </div>
               <div class="btmRow">
@@ -94,9 +93,10 @@
               <v-form>
                 <div class="inputRow">
                   <h3 class="size-18">Message:</h3>
-                  <v-textarea v-model="tMsg" outlined rows="4"></v-textarea>
+                  <!-- <v-textarea v-model="tMsg" outlined rows="4"></v-textarea> -->
+                  <ckeditor v-model="tMsg" :config="editorConfig"></ckeditor>
                 </div>
-                <v-btn text outlined @click="postMsg">Submit</v-btn>
+                <v-btn class="submitBtn" text outlined @click="postMsg">Submit</v-btn>
               </v-form>
             </div>
           </div>
@@ -160,6 +160,36 @@ export default {
       reportDialog: false,
       reportMsg: "",
       reportTitle: "",
+      editorConfig: {
+        toolbar: [
+          {
+            name: "basicstyles",
+            groups: ["basicstyles"],
+            items: ["Bold", "Italic", "Underline", "-", "TextColor", "BGColor"],
+          },
+          { name: "styles", items: ["Format", "Font", "FontSize"] },
+          { name: "scripts", items: ["Subscript", "Superscript"] },
+          {
+            name: "justify",
+            groups: ["blocks", "align"],
+            items: [
+              "JustifyLeft",
+              "JustifyCenter",
+              "JustifyRight",
+              "JustifyBlock",
+            ],
+          },
+          {
+            name: "paragraph",
+            groups: ["list", "indent"],
+            items: ["NumberedList", "BulletedList", "-", "Outdent", "Indent"],
+          },
+          { name: "links", items: ["Link", "Unlink"] },
+          // { name: 'insert', items: [ 'Image'] },
+          { name: "spell", items: ["jQuerySpellChecker"] },
+          { name: "table", items: ["Table"] },
+        ],
+      },
     }
   },
   async mounted() {
@@ -366,6 +396,10 @@ export default {
   margin: auto;
   margin-top: 2%;
   margin-bottom: 2%;
+}
+
+.submitBtn {
+  margin-top: 2%;
 }
 
 @media screen and (max-width: 1400px) {

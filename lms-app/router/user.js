@@ -9,6 +9,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const { findUser } = require(LIB_PATH + '/auth')
 const { authUser, authIsAdmin } = require('../middlewares/auth')
+const { getDefaultImg } = require('../middlewares/template.js')
 
 const mongo = require(LIB_PATH + '/services/db/mongodb')
 const { ObjectID } = require('mongodb')
@@ -17,7 +18,7 @@ const multer = require('multer')
 
 userRoutes
     .get('/', authUser, authIsAdmin, async (req, res) => {
-        let {role, options, search} = req.query
+        let { role, options, search } = req.query
         /* try {
             const filter = {}
             let attr = "email"
@@ -47,36 +48,71 @@ userRoutes
             let filter = {
                 role: role
             }
-            if(search) {
+            if (search) {
                 filter.email = { $regex: search, $options: 'i' }
             }
             let page = options.page
             let limit = options.itemsPerPage
             let results = null
             const total = await mongo.db.collection('user').find(filter).count()
-            if(limit > 0) {
-               results = await mongo.db.collection('user').find(filter).skip((Number(page) - 1) * Number(limit)).limit(Number(limit)).toArray()
-            }else {
-               results = await mongo.db.collection('user').find(filter).toArray()
+            if (limit > 0) {
+                results = await mongo.db.collection('user').find(filter).skip((Number(page) - 1) * Number(limit)).limit(Number(limit)).toArray()
+            } else {
+                results = await mongo.db.collection('user').find(filter).toArray()
             }
-            
+
             res.status(200).json({ results, total })
-        }catch(e) {
+        } catch (e) {
             res.status(500).json({ e: e.toString() })
         }
 
     })
 
-    .post('/delete',authUser, authIsAdmin, async (req,res) => {
-        let {data} = req.body
+    .get('/edit', authUser, authIsAdmin, async (req, res) => {
+        let { email } = req.query
         try {
-            await mongo.db.collection('user').updateOne({email: data.email}, {
+            console.log(email)
+            let rv = await mongo.db.collection('user').findOne({ email: email })
+            res.status(200).json(rv)
+        } catch (e) {
+            res.status(500).json({ e: e.toString() })
+        }
+    })
+
+    .post('/delete', authUser, authIsAdmin, async (req, res) => {
+        let { data } = req.body
+        try {
+            await mongo.db.collection('user').updateOne({ email: data.email }, {
                 $set: {
                     active: false
                 }
             })
-            res.status(200).json({msg: "Deleted Successfully"})
-        }catch(e) {
+            res.status(200).json({ msg: "Deleted Successfully" })
+        } catch (e) {
+            res.status(500).json({ e: e.toString() })
+        }
+    })
+
+    .post('/add', authUser, authIsAdmin, async (req, res) => {
+        let { email, name, password, role } = req.body
+        let encryptedPassword = bcrypt.hashSync(password, SALT_ROUNDS)
+        
+        try {
+            let rv = await mongo.db.collection('user').insert({
+                email,
+                role,
+                name,
+                password: encryptedPassword,
+                activeTags: [],
+                profileImage: getDefaultImg(),
+                active: true,
+                contactNumber: '',
+                signupDate: dateISO(new Date()) + " " + timeISO(new Date()),
+                knowledgePoints: 0,
+                level: 0
+            })
+
+        } catch (e) {
             res.status(500).json({ e: e.toString() })
         }
     })

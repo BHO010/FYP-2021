@@ -57,7 +57,7 @@ export default {
 }
 
 #app {
-  font-family: "DarkerGrotesque-Medium";
+  font-family: "DarkerGrotesque-Medium" !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;

@@ -157,9 +157,10 @@
                 </div>
                 <div class="inputRow">
                   <h3 class="size-18">Message:</h3>
-                  <v-textarea v-model="tMsg" outlined rows="4"></v-textarea>
+                  <!-- <v-textarea v-model="tMsg" outlined rows="4"></v-textarea> -->
+                  <ckeditor v-model="tMsg" :config="editorConfig"></ckeditor>
                 </div>
-                <v-btn text outlined @click="postThread">Submit</v-btn>
+                <v-btn class="submitBtn" text outlined @click="postThread">Submit</v-btn>
               </v-form>
             </div>
           </div>
@@ -191,6 +192,36 @@ export default {
       type: "block",
       create: false,
       createType: null,
+      editorConfig: {
+        toolbar: [
+          {
+            name: "basicstyles",
+            groups: ["basicstyles"],
+            items: ["Bold", "Italic", "Underline", "-", "TextColor", "BGColor"],
+          },
+          { name: "styles", items: ["Format", "Font", "FontSize"] },
+          { name: "scripts", items: ["Subscript", "Superscript"] },
+          {
+            name: "justify",
+            groups: ["blocks", "align"],
+            items: [
+              "JustifyLeft",
+              "JustifyCenter",
+              "JustifyRight",
+              "JustifyBlock",
+            ],
+          },
+          {
+            name: "paragraph",
+            groups: ["list", "indent"],
+            items: ["NumberedList", "BulletedList", "-", "Outdent", "Indent"],
+          },
+          { name: "links", items: ["Link", "Unlink"] },
+          // { name: 'insert', items: [ 'Image'] },
+          { name: "spell", items: ["jQuerySpellChecker"] },
+          { name: "table", items: ["Table"] },
+        ],
+      },
     }
   },
   computed: {
@@ -311,6 +342,10 @@ export default {
   text-transform: none;
 }
 
+.submitBtn {
+  margin-top: 2%;
+}
+
 #dialogBody {
   width: 80%;
   margin: auto;
@@ -339,8 +374,7 @@ v.application-wrap >>> .v-dialog {
     padding: 2%;
   }
 
-  
-   #body {
+  #body {
     margin-top: 10%;
   }
 }

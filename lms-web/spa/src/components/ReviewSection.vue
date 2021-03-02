@@ -82,12 +82,12 @@ export default {
 .sheetRow {
   margin-left: 1%;
   margin-right: 1%;
-  outline: 4px solid green;
+  outline: 4px solid #009bdc;
 }
 
 .user {
   margin: 5px;
-  border: 1px solid blue;
+  border: 1px solid #0078ab;
 }
 
 .user:hover {

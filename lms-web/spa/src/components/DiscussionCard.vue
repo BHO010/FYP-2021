@@ -96,8 +96,7 @@
             {{ new Date(block.created).toLocaleString() }}
           </div>
           <div class="content">
-            <p>
-              {{ block.message }}
+            <p v-html="block.message">
             </p>
           </div>
           <div class="btmRow">

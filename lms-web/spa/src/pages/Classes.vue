@@ -156,7 +156,6 @@
               >
             </div>
             <div class="imptContent">
-              <!-- component here, notice -->
               <classes-card
                 v-for="item in notices"
                 :key="item.id"
@@ -168,12 +167,12 @@
                 type2="notice"
               ></classes-card>
               <v-pagination
-                v-if="noticePage > 1"
+                v-if="noticeTotal > 1"
                 v-model="noticePage"
                 :length="this.noticeTotal"
                 :total-visible="7"
                 circle
-                @input="noticePagination(this.classDetails.notice)"
+                @input="noticePagination(classDetails.notice)"
               ></v-pagination>
             </div>
 
@@ -198,7 +197,7 @@
                 :user="user"
               ></classes-card>
               <v-pagination
-                v-if="quizPage > 1"
+                v-if="quizTotal > 1"
                 v-model="quizPage"
                 :length="this.quizTotal"
                 :total-visible="7"
@@ -232,7 +231,7 @@
                 :user="user"
               ></classes-card>
               <v-pagination
-                v-if="feedbackPage > 1"
+                v-if="feedbackTotal > 1"
                 v-model="feedbackPage"
                 :length="this.feedbackTotal"
                 :total-visible="7"
@@ -271,7 +270,8 @@
                 </div>
                 <div class="inputRow">
                   <h3 class="size-18">Message:</h3>
-                  <v-textarea v-model="tMsg" outlined rows="4"></v-textarea>
+                  <!-- <v-textarea v-model="tMsg" outlined rows="4"></v-textarea> -->
+                  <ckeditor v-model="tMsg" :config="editorConfig"></ckeditor>
                   <v-file-input
                     v-model="files"
                     multiple
@@ -279,6 +279,7 @@
                     label="File input"
                     outlined
                     dense
+                    class="fileRow"
                   ></v-file-input>
                 </div>
                 <v-btn text outlined @click="postThread">Submit</v-btn>
@@ -289,13 +290,13 @@
       </v-dialog>
 
       <!-- create Quiz -->
-      <v-dialog v-model="cr8Quiz" persistent scrollable>
+      <v-dialog v-model="cr8Quiz" persistent scrollable width="90%">
         <v-card tile height="100%" color="#e1f5fe">
           <v-toolbar fixed dark color="primary">
             <v-btn icon dark @click="cr8Quiz = false">
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title>Mark the Quiz.</v-toolbar-title>
+            <v-toolbar-title>Create Quiz.</v-toolbar-title>
           </v-toolbar>
           <!-- Quiz component -->
           <div id="dialogContent">
@@ -344,6 +345,36 @@ export default {
       quizTotal: 0,
       feedbackPage: 0,
       feedbackTotal: 0,
+      editorConfig: {
+        toolbar: [
+          {
+            name: "basicstyles",
+            groups: ["basicstyles"],
+            items: ["Bold", "Italic", "Underline", "-", "TextColor", "BGColor"],
+          },
+          { name: "styles", items: ["Format", "Font", "FontSize"] },
+          { name: "scripts", items: ["Subscript", "Superscript"] },
+          {
+            name: "justify",
+            groups: ["blocks", "align"],
+            items: [
+              "JustifyLeft",
+              "JustifyCenter",
+              "JustifyRight",
+              "JustifyBlock",
+            ],
+          },
+          {
+            name: "paragraph",
+            groups: ["list", "indent"],
+            items: ["NumberedList", "BulletedList", "-", "Outdent", "Indent"],
+          },
+          { name: "links", items: ["Link", "Unlink"] },
+          // { name: 'insert', items: [ 'Image'] },
+          { name: "spell", items: ["jQuerySpellChecker"] },
+          { name: "table", items: ["Table"] },
+        ],
+      }, 
     }
   },
   computed: {
@@ -365,7 +396,7 @@ export default {
       })
 
       this.classDetails = rv.data
-
+      console.log("AA", this.classDetails)
       await this.getNotice(rv.data.notice)
       await this.getQuiz(rv.data.quiz)
       await this.getFeedback(rv.data.feedback)
@@ -423,7 +454,6 @@ export default {
           this.feedbacks.push(data[i])
         }
       }
-      console.log("BB", this.feedbacks)
     },
     async postThread(type) {
       this.$store.commit("setLoading", true)
@@ -466,8 +496,9 @@ export default {
       } catch (e) {}
     },
     async noticePagination(data) {
+      console.log(this.classDetails)
       let end = (this.noticePage * 4) 
-      let start = end - 4
+      let start = end - 4 
        this.notices = []
       for(var i=start; i<end;i++) {
         if(data[i]) {
@@ -544,6 +575,10 @@ export default {
 .Btn {
   font-family: "DarkerGrotesque-Bold";
   text-transform: none;
+}
+
+.fileRow {
+  margin-top: 2%;
 }
 
 #dialogBody {

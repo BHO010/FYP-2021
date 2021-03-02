@@ -5,6 +5,7 @@ import i18n from './lang'
 import { store } from './store'
 import router from './router'
 import App from './App'
+import CKEditor from 'ckeditor4-vue';
  
 import vuetify from '@/plugins/vuetify'
 import VueCrudX from 'ext-lib/webpacked/VueCrudX.vue' // Vuetify
@@ -41,7 +42,7 @@ if (WS_URL) {
 } else {
   // console.log('NO WS...')
 }
-
+Vue.use( CKEditor );
 Vue.component('app-date-picker', DatePicker)
 Vue.component('app-time-picker', TimePicker)
 Vue.component('app-file-upload', FileUpload)

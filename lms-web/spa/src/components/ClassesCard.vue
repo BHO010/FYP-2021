@@ -68,8 +68,7 @@
       <v-col cols="9" md="9" lg="10" class="title">
         <div class="topRow">{{ new Date(block.created).toLocaleString() }}</div>
         <div class="content">
-          <p>
-            {{ block.message }}
+          <p v-html="block.message">
           </p>
         </div>
       </v-col>
