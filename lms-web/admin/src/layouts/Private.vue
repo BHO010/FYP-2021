@@ -114,7 +114,7 @@ export default {
           route: { path: "/users" }
         },
         { id: "Instructors", text: "Instructors", icon: "", route: { path: "/instructors" } },
-        { text: "Awaiting Approval", icon: "", route: { path: "/instructorStatus" } }
+        { text: "Awaiting Approval", icon: "", route: { path: "/applications" } }
       ],
       itemHome: [{ text: "Home", icon: "mdi-home", route: "/home" }],
       itemOthers: [

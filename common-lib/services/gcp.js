@@ -50,12 +50,12 @@ async function configureBucketCors() {
       {
         maxAgeSeconds: 3600,
         method: [ 'GET', 'HEAD', 'PUT', 'DELETE' ],
-        origin: [CORS_ORIGINS],
+        origin: ['http://127.0.0.1:8080','http://127.0.0.1:8081'],
         responseHeader: ['*']
       },
     ]);
 
-    console.log(`Google Cloud Bucket ${bucketName} was updated with a CORS config`);
+    console.log(`Google Cloud Bucket ${bucketName} was updated with a CORS config for ${CORS_ORIGINS}`);
   }
 
   configureBucketCors();

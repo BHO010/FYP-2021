@@ -43,7 +43,7 @@
             <v-label>Year:</v-label>
             <v-select
               :items="items"
-              v-model="year"
+              v-model="yearII"
               @input="updateSearchII"
               dense
               outlined
@@ -137,7 +137,7 @@
             <v-label>Year:</v-label>
             <v-select
               :items="items"
-              v-model="year"
+              v-model="yearII"
               @input="updateSearchII"
               dense
               outlined
@@ -172,6 +172,7 @@ export default {
       courseList: [],
       totalCourseStats: [],
       year: "",
+      yearII: "",
       selectCourse: "All",
       regOnMonthOptions: {
         charts: {
@@ -228,6 +229,7 @@ export default {
     this.userDetails = rv0.data
 
     this.year = new Date().getFullYear()
+    this.yearII = new Date().getFullYear()
 
     let rv = await http.get("/api/me/stats")
     if (rv0.data.role == "instructor") {
@@ -247,9 +249,8 @@ export default {
       this.userStats = rv.data.stats
     }
 
-
     var index2 = this.userStats.registration.findIndex(
-      (p) => p.year == this.year
+      (p) => p.year == this.yearII
     )
 
     if (index2 < 0) {
@@ -289,6 +290,16 @@ export default {
         this.series[0].data = this.courses[index].registration[index2].data
         window.dispatchEvent(new Event("resize"))
       }
+    },
+    updateSearchII() {
+      var index = this.userStats.registration.findIndex(
+        (p) => p.year == this.yearII
+      )
+
+      this.seriesII[0].data = this.userStats.registration[index].data || this.emptyData
+
+      window.dispatchEvent(new Event("resize"))
+      this.$store.commit("setLoading", false)
     },
   },
 }
@@ -333,7 +344,7 @@ export default {
 
 .cardTxt div {
   font-family: "DarkerGrotesque-Bold";
-  font-size: calc(28px + (48 - 28) * ((100vw - 300px) / (1920 - 300)));
+  font-size: calc(28px + (42 - 28) * ((100vw - 300px) / (1920 - 300)));
   padding: 2%;
   color: grey;
 }
@@ -365,7 +376,7 @@ export default {
 }
 
 @media screen and (max-width: 1000px) {
-   #main {
+  #main {
     margin-top: 10%;
   }
 }

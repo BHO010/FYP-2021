@@ -7,13 +7,13 @@ const mongo = require(LIB_PATH + '/services/db/mongodb')
 
 
 scheduleRoutes
-cron.schedule('1 1 * * *', async function () {
+cron.schedule('0 0 * * *', async function () {
     try {
         //get all active registration and those that haven't been alerted
         let date = new Date().getTime()
         let knowledgePoints = 0
         let rv = await mongo.db.collection('registrations').find({ active: true, endAlert: false }).toArray()
-
+        console.log("AA", rv)
         //Transaction
         const { defaultTransactionOptions, client } = mongo
         const session = client.startSession({ defaultTransactionOptions }) // for transactions
@@ -79,13 +79,13 @@ cron.schedule('1 1 * * *', async function () {
 
                 }
             }
+            console.log("This run at midnight everyday " + date)
             await session.commitTransaction()
         } catch (e) {
             await session.abortTransaction()
             res.status(500).json({ e: e.toString() })
         }
         return session.endSession()
-        console.log("This run at midnight everyday " + date)
     } catch (e) {
         return res.status(500).json({ e: e.toString() })
     }

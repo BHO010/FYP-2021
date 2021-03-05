@@ -50,17 +50,17 @@ meRoutes
     let { email, type } = req.query
     let found = false
     try {
-      if(type == "forgotPW") {
+      if (type == "forgotPW") {
         user = await mongo.db.collection('user').findOne({ email: email, active: true })
-        if(user) {
+        if (user) {
           found = true
         }
-        return res.status(200).json({found})
-      }else {
-        user = await mongo.db.collection('user').findOne({ email: email})
+        return res.status(200).json({ found })
+      } else {
+        user = await mongo.db.collection('user').findOne({ email: email })
         return res.status(200).json(user)
       }
-    
+
     } catch (e) { }
     return res.status(500).json()
   })
@@ -209,7 +209,7 @@ meRoutes
     }
   })
 
- .get('/reviews', async (req, res) => {
+  .get('/reviews', async (req, res) => {
     let { email, pageSize, currentPage } = req.query
     try {
 
@@ -356,15 +356,15 @@ meRoutes
   })
 
   .get('/register/count', authUser, async (req, res) => {
-    let {courseRef, batchID} = req.query
+    let { courseRef, batchID } = req.query
     let count = 0
     try {
-      let rv = await mongo.db.collection('registrations').find({courseRef: courseRef, batchID: batchID}).count()
-      if(rv) {
+      let rv = await mongo.db.collection('registrations').find({ courseRef: courseRef, batchID: batchID }).count()
+      if (rv) {
         count = rv
       }
-      return res.status(200).json({count})
-    }catch(e) {
+      return res.status(200).json({ count })
+    } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
   })
@@ -395,8 +395,8 @@ meRoutes
     }
   })
 
-  .post('/review/completed', authUser, async (req,res) => {
-    let {reference, review, notificationIndex, courseRef} = req.body
+  .post('/review/completed', authUser, async (req, res) => {
+    let { reference, review, notificationIndex, courseRef } = req.body
     let user = null
     try {
       user = await findUser({ id: req.decoded.id })
@@ -409,28 +409,28 @@ meRoutes
         let courseRating = review[2].rating
 
 
-        await mongo.db.collection('statistics').updateOne({email: reference}, {
+        await mongo.db.collection('statistics').updateOne({ email: reference }, {
           $inc: {
             rateCount: 1,
             totalRate: instructorRating,
             reviewsCount: 1
-          } 
-        }, {session})
+          }
+        }, { session })
 
-        await mongo.db.collection('courses').updateOne({reference: courseRef}, {
+        await mongo.db.collection('courses').updateOne({ reference: courseRef }, {
           $inc: {
             totalRate: courseRating,
             rateCount: 1
           }
-        }, {session})
+        }, { session })
 
-        user.notifications.splice(notificationIndex,1)
+        user.notifications.splice(notificationIndex, 1)
 
-        await mongo.db.collection('user').updateOne({email: user.email}, {
+        await mongo.db.collection('user').updateOne({ email: user.email }, {
           $set: {
             notifications: user.notifications
           }
-        }, {session})
+        }, { session })
 
         await mongo.db.collection('reviews').insertOne({
           author: user.email,
@@ -438,75 +438,93 @@ meRoutes
           joined: user.signupDate,
           date: new Date(),
           instructor: reference,
-          review:  review[0].answer
-        }, {session})
+          review: review[0].answer
+        }, { session })
 
         await session.commitTransaction()
         return res.status(200).json({ success: true, msg: 'Review Completed Successfully!' }) //success
-      }catch(e) {
+      } catch (e) {
         await session.abortTransaction()
         res.status(500).json({ e: e.toString() })
       }
-      return session.endSession() 
-    }catch(e) {
+      return session.endSession()
+    } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
   })
 
-  .post('/generate-code', authUser, async (req, res) => {
+  .post('/generate-code', async (req, res) => {
     let { email } = req.body
     const confirmationCode = Number(1048576 + parseInt(Math.random() * 16777215)).toString(36).toUpperCase();
     try {
-      await mongo.db.collection('user').updateOne({email: email}, {
+      await mongo.db.collection('user').updateOne({ email: email }, {
         $set: {
           pwCode: confirmationCode
         }
       })
-      
+
       const emailGreeting = "Dear NTU-LMS Customer,"
       const emailText1 = `Your have  requested to change your password. Your verification code is ${confirmationCode}.`
       const emailText2 = "Please update your profile and change your password once you log in."
       const emailText3 = "For further support, email admin@ntu.edu.sg."
       const emailClosing1 = "Sincerely,"
       const emailClosing2 = "The NTU-LMS team"
-      //await sendGrid(email, '', 'Account Created', emailGreeting + "\n\n" + emailText1 + "\n\n" + emailText2 + "\n\n" + emailText3 + "\n\n" + emailClosing1 + "\n" + emailClosing2)
+      await sendGrid(email, '', 'Account Created', emailGreeting + "\n\n" + emailText1 + "\n\n" + emailText2 + "\n\n" + emailText3 + "\n\n" + emailClosing1 + "\n" + emailClosing2)
       console.log(email, '', 'Account Created', emailGreeting + "\n\n" + emailText1 + "\n\n" + emailText2 + "\n\n" + emailText3 + "\n\n" + emailClosing1 + "\n" + emailClosing2)
-            
-      return res.status(200).json({msg: "Please check your email for your verification code."})
-    }catch(e) {
+
+      return res.status(200).json({ msg: "Please check your email for your verification code." })
+    } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
   })
 
-  .post('/verifyCode', authUser, async (req, res) => {
+  .post('/verifyCode', async (req, res) => {
     try {
-      const {email, code } = req.body
+      const { email, code } = req.body
       const rv = await mongo.db.collection('user').findOne({ email: email, pwCode: code })
       if (!rv) {
         return res.status(404).json({ e: 'not found' })
       } else {
-        return res.status(201).json({ msg: "Success" })
+        return res.status(200).json({ msg: "Success" })
       }
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
   })
 
-  .post('/updatePW', authUser, async (req, res) => {
-    let {password, email} = req.body
+  .post('/updatePW', async (req, res) => {
+    let { password, email } = req.body
     let encryptedPassword = bcrypt.hashSync(password, SALT_ROUNDS)
     try {
-      let rv = await mongo.db.collection('user').findOneAndUpdate({email: email}, {
+      let rv = await mongo.db.collection('user').findOneAndUpdate({ email: email }, {
         $set: {
           password: encryptedPassword
         }
       })
-      if(rv) {
-        return res.status(201).json({ msg: "Password changed successfully!" })
+      if (rv) {
+        return res.status(200).json({ msg: "Password changed successfully!" })
       }
-    }catch(e) {
+    } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
+  })
+
+
+  .post('/application', authUser, async (req, res) => {
+    let { email, fileName } = req.body
+    try {
+      let rv = await mongo.db.collection('applications').insertOne({
+        email: email,
+        approved: false,
+        documents: fileName
+      }) 
+      if (rv) {
+        return res.status(200).json({ msg: "Application Sent." })
+      }
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
+
   })
 
 
@@ -525,28 +543,29 @@ meRoutes
     }
   })
 
-  .get('/course/recommended', authUser, async (req,res) => {
-    try{ 
+  .get('/course/recommended', authUser, async (req, res) => {
+    try {
       let rv = await mongo.db.collection('courses').aggregate([
-        {$match: {}
+        {
+          $match: {}
         },
-        { 
-            $project: { 
-                    rating: { 
-                             $cond: [ { $eq: ["$rateCount", 0] }, 0, { $divide: ["$totalRate", "$rateCount"]} ]
-                     },
-                     reference: 1,
-                     title: 1,
-                     level: 1,
+        {
+          $project: {
+            rating: {
+              $cond: [{ $eq: ["$rateCount", 0] }, 0, { $divide: ["$totalRate", "$rateCount"] }]
+            },
+            reference: 1,
+            title: 1,
+            level: 1,
 
-            }
+          }
         },
-        {$sort: {rating: -1}},
-        { $limit : 4 }
-    ]).toArray()
+        { $sort: { rating: -1 } },
+        { $limit: 4 }
+      ]).toArray()
 
       return res.status(200).json(rv)
-    }catch(e) {
+    } catch (e) {
       return res.status(400).json({ e: e.toString() })
     }
   })
@@ -684,7 +703,7 @@ meRoutes
   })
 
   .post('/addCourse', authUser, async (req, res) => {
-    let { title, description, category, level, venue, startDate, duration, objectives, outlines, trainers, attends, fee, regDates, batchID } = req.body
+    let { title, description, category, level, venue, startDate, duration, objectives, outlines, trainers, attends, fee, regDates, batchID, vacancy } = req.body
     let user = null
     let course = null
     let regStart = null
@@ -733,11 +752,13 @@ meRoutes
             outlines,
             trainers,
             attends,
+            vacancy,
             views: 0,
             regStart,
             regEnd,
             totalRate: 0,
             rateCount: 0,
+            uploadedFiles: [],
             registration: []
           }, { session })
 
@@ -746,6 +767,7 @@ meRoutes
             batchID: batchID,
             duration: duration,
             instructor: user.email,
+            active: true,
             startDate: new Date(startDate),
             endDate: new Date(endDate),
             notice: [],
@@ -1010,13 +1032,13 @@ meRoutes
       title: "No post",
       author: ""
     }
-    let {currentPage, pageSize} = req.query
+    let { currentPage, pageSize } = req.query
     try {
       user = await findUser({ id: req.decoded.id })
       const { email, role } = user
       if (role == "user") {
         let rv = await mongo.db.collection('registrations').find({ email: email }, { projection: { courseRef: "", title: "", _id: 1 } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
-        let total = Math.ceil(await mongo.db.collection('registrations').find({ email: email }, { projection: { courseRef: "", title: "", _id: 1 } }).count() /pageSize )
+        let total = Math.ceil(await mongo.db.collection('registrations').find({ email: email }, { projection: { courseRef: "", title: "", _id: 1 } }).count() / pageSize)
         for (var i = 0; i < rv.length; i++) {
           let tCount = await mongo.db.collection('threads').find({ courseRef: rv[i].courseRef }).count()
           let mCount = await mongo.db.collection('messages').find({ courseRef: rv[i].courseRef }).count()
@@ -1025,12 +1047,12 @@ meRoutes
           rv[i].msgs = mCount || 0
           rv[i].latest = latest[0] || template
         }
-        return res.status(200).json({rv, total})
+        return res.status(200).json({ rv, total })
       } else {
         try {
           //created course
           let rv = await mongo.db.collection('courses').find({ createdBy: email }, { projection: { reference: "", title: "", _id: 1 } }).sort({ "_id": -1 }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
-          let totalCourse = Math.ceil( await mongo.db.collection('courses').find({ createdBy: email }, { projection: { reference: "", title: "", _id: 1 } }).count() /4)
+          let totalCourse = Math.ceil(await mongo.db.collection('courses').find({ createdBy: email }, { projection: { reference: "", title: "", _id: 1 } }).count() / 4)
           if (rv.length > 0) {
             for (var i = 0; i < rv.length; i++) {
               let tCount = await mongo.db.collection('threads').find({ courseRef: rv[i].reference }).count()
@@ -1043,7 +1065,7 @@ meRoutes
           }
           //registered course
           let rv1 = await mongo.db.collection('registrations').find({ email: email }, { projection: { courserRef: "", title: "", _id: 1 } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
-          let totalRegCourse = Math.ceil( await mongo.db.collection('registrations').find({ email: email }, { projection: { courserRef: "", title: "", _id: 1 } }).count() /4 )
+          let totalRegCourse = Math.ceil(await mongo.db.collection('registrations').find({ email: email }, { projection: { courserRef: "", title: "", _id: 1 } }).count() / 4)
           if (rv1.length > 0) {
             for (var i = 0; i < rv.length; i++) {
               let tCount = await mongo.db.collection('threads').find({ courseRef: rv1[i].courserRef }).count()
@@ -1068,7 +1090,7 @@ meRoutes
   })
 
   .get('/discussion/list/update', authUser, async (req, res) => {
-    let {currentPage, type} = req.query
+    let { currentPage, type } = req.query
     let user = null
     let pageSize = 4
     let template = {
@@ -1077,7 +1099,7 @@ meRoutes
     }
     try {
       user = await findUser({ id: req.decoded.id })
-      if(user.role == "user") {
+      if (user.role == "user") {
         let rv = await mongo.db.collection('registrations').find({ email: user.email }, { projection: { courseRef: "", title: "", _id: 1 } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
         for (var i = 0; i < rv.length; i++) {
           let tCount = await mongo.db.collection('threads').find({ courseRef: rv[i].courseRef }).count()
@@ -1087,12 +1109,12 @@ meRoutes
           rv[i].msgs = mCount || 0
           rv[i].latest = latest[0] || template
         }
-        
+
         return res.status(200).json(rv)
-      }else {
-        if(type == "registered") {
+      } else {
+        if (type == "registered") {
           let rv = await mongo.db.collection('registrations').find({ email: user.email }, { projection: { courserRef: "", title: "", _id: 1 } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
-          
+
           if (rv.length > 0) {
             for (var i = 0; i < rv.length; i++) {
               let tCount = await mongo.db.collection('threads').find({ courseRef: rv[i].courserRef }).count()
@@ -1104,9 +1126,9 @@ meRoutes
             }
           }
           return res.status(200).json(rv)
-        }else {
+        } else {
           let rv = await mongo.db.collection('courses').find({ createdBy: user.email }, { projection: { reference: "", title: "", _id: 1 } }).sort({ "_id": -1 }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
-          
+
           if (rv.length > 0) {
             for (var i = 0; i < rv.length; i++) {
               let tCount = await mongo.db.collection('threads').find({ courseRef: rv[i].reference }).count()
@@ -1120,7 +1142,7 @@ meRoutes
           return res.status(200).json(rv)
         }
       }
-    }catch(e) {
+    } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }
   })
@@ -1354,7 +1376,7 @@ meRoutes
     let user = null
     try {
       user = await findUser({ id: req.decoded.id })
-      let course = await mongo.db.collection('courses').findOne({reference: courseRef})
+      let course = await mongo.db.collection('courses').findOne({ reference: courseRef })
       if (user) {
         let body = {
           reference: uuidv4(),
@@ -1413,17 +1435,18 @@ meRoutes
       const { email, role } = user
       if (role == "user") {
         //Registered classes
-        let total = Math.ceil(await mongo.db.collection('registrations').find({ email: email, active: true }).count() /4)
+        let total = Math.ceil(await mongo.db.collection('registrations').find({ email: email, active: true }).count() / 4)
         let rv = await mongo.db.collection('registrations').find({ email: email, active: true }).limit(4).toArray()
         regClasses = rv
         return res.status(200).json({ regClasses, total })
       } else {
         //Own course classes
-        let totalClass = Math.ceil(await mongo.db.collection('classes').find({ instructor: email, active: true }).count() /4)
+        console.log("AA", email, role)
+        let totalClass = Math.ceil(await mongo.db.collection('classes').find({ instructor: email, active: true }).count() / 4)
         let rv = await mongo.db.collection('classes').find({ instructor: email, active: true }).limit(4).toArray()
 
         //Reg Course classes
-        let totalRegClass = Math.ceil(await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).count() /4)
+        let totalRegClass = Math.ceil(await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).count() / 4)
         let rv2 = await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).limit(4).toArray()
 
         classes = rv
@@ -1436,26 +1459,26 @@ meRoutes
   })
 
   .get('/classes/list/update', authUser, async (req, res) => {
-      let {currentPage, type} = req.query
-      let user = null
-      let pageSize = 4
-      try {
-        user = await findUser({ id: req.decoded.id })
-        if(user == "user") {
-          let rv = await mongo.db.collection('registrations').find({ email: email, active: true }).sort({ "_id": 1 }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
-          return res.status(200).json(rv)
-        }else {
-          if(type == "registered") {
-            let rv2 = await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
-            return res.status(200).json(rv2)
-          }else {
-            let rv2 = await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
-            return res.status(200).json(rv2)
-          }
+    let { currentPage, type } = req.query
+    let user = null
+    let pageSize = 4
+    try {
+      user = await findUser({ id: req.decoded.id })
+      if (user == "user") {
+        let rv = await mongo.db.collection('registrations').find({ email: email, active: true }).sort({ "_id": 1 }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
+        return res.status(200).json(rv)
+      } else {
+        if (type == "registered") {
+          let rv2 = await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
+          return res.status(200).json(rv2)
+        } else {
+          let rv2 = await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
+          return res.status(200).json(rv2)
         }
-      }catch(e) {
-        return res.status(500).json({ e: e.toString() })
       }
+    } catch (e) {
+      return res.status(500).json({ e: e.toString() })
+    }
   })
 
   .post('/classes/post/thread', authUser, async (req, res) => {
@@ -1480,24 +1503,51 @@ meRoutes
           fileName,
           replies: []
         }
+        //Transaction
+        const { defaultTransactionOptions, client } = mongo
+        const session = client.startSession({ defaultTransactionOptions }) // for transactions
+        session.startTransaction()
+        try {
 
-        if (createType == 'notice') {
-          let rv2 = await mongo.db.collection('classes').findOneAndUpdate({ courseRef: courseRef, batchID: batchID }, {
-            $push: {
-              "notice": body
-            }
-          })
-        } else if (createType == 'feedback') {
-          let rv2 = await mongo.db.collection('classes').findOneAndUpdate({ courseRef: courseRef, batchID: batchID }, {
-            $push: {
-              "feedback": body
-            }
-          })
+          if (fileName.length > 0) {
+            await mongo.db.collection('courses').updateOne({ reference: courseRef }, {
+              $push: {
+                uploadedFiles: fileName
+              }
+            }, { session })
+          }
+
+
+          if (createType == 'notice') {
+
+            let rv2 = await mongo.db.collection('classes').findOneAndUpdate({ courseRef: courseRef, batchID: batchID }, {
+              $push: {
+                "notice": body
+              }
+            }, { session })
+
+          } else if (createType == 'feedback') {
+
+            let rv2 = await mongo.db.collection('classes').findOneAndUpdate({ courseRef: courseRef, batchID: batchID }, {
+              $push: {
+                "feedback": body
+              }
+            }, { session })
+
+          }
+
+          await session.commitTransaction()
+          return res.status(200).json({ success: true, msg: 'Registered Successfully!' }) //success
+        } catch (e) {
+          await session.abortTransaction()
+          res.status(500).json({ e: e.toString() })
         }
+        return session.endSession()
+
+
 
 
       }
-      return res.status(200).json('success')
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
     }

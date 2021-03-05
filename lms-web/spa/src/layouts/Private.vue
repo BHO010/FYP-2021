@@ -489,13 +489,15 @@ export default {
       if (this.userDetails.role != "user") {
         this.isUser = false
       }
+      this.profileImage = this.userDetails.profileImage
+      this.insertIcon()
+      
       if (this.userDetails.notifications.length > 0) {
         this.isNoticfication = true
         this.notificationCount = this.userDetails.notifications.length
         this.notificationsList = this.userDetails.notifications
       }
-      this.profileImage = this.userDetails.profileImage
-      this.insertIcon()
+      
     } catch (e) {}
   },
   computed: {
@@ -526,11 +528,11 @@ export default {
     },
     insertIcon() {
       let d = document.getElementById("iconImg")
+      console.log(d)
       d.innerHTML = ""
       d.innerHTML = this.profileImage
     },
     async selectNotification(data, index) {
-      console.log("JJ", data, index)
       if (data.type == "survey") {
         this.$router
           .push({ path: "/survey", query: { reference: data.reference } })

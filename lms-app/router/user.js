@@ -72,7 +72,6 @@ userRoutes
     .get('/edit', authUser, authIsAdmin, async (req, res) => {
         let { email } = req.query
         try {
-            console.log(email)
             let rv = await mongo.db.collection('user').findOne({ email: email })
             res.status(200).json(rv)
         } catch (e) {

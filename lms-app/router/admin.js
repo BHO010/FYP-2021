@@ -22,7 +22,7 @@ adminRoutes
 
             if (user.role == "admin") {
                 res.status(200).json(user)
-            } 
+            }
         } catch (e) {
             res.status(500).json({ e: e.toString() })
         }
@@ -186,6 +186,67 @@ adminRoutes
         } catch (e) {
             res.status(500).json({ e: e.toString() })
         }
+    })
+
+    .get('/applications', authUser, authIsAdmin, async (req, res) => {
+        try {
+            let results = await mongo.db.collection('applications').find({}).toArray()
+            let total = await mongo.db.collection('applications').find({}).count()
+
+            return res.status(200).json({ results, total })
+        } catch (e) {
+            return res.status(500).json({ e: e.toString() })
+        }
+    })
+
+    .post('/application/approve', authUser, authIsAdmin, async (req, res) => {
+        let { email } = req.body
+        try {
+            //update role to instructor for statistic/achievement/user collection
+            //Transaction
+            const { defaultTransactionOptions, client } = mongo
+            const session = client.startSession({ defaultTransactionOptions }) // for transactions
+            session.startTransaction()
+            try {
+
+                await mongo.db.collection('user').updateOne({email: email}, {
+                    $set: {
+                        role : "instructor"
+                    }
+                }, {session})
+
+                await mongo.db.collection('statistics').updateOne({email: email}, {
+                    $set: {
+                        role : "instructor"
+                    }
+                }, {session})
+
+                await mongo.db.collection('achievements').updateOne({email: email}, {
+                    $set: {
+                        role : "instructor"
+                    }
+                }, {session})
+
+                await mongo.db.collection('applications').updateOne({email: email}, {
+                    $set: {
+                        approved : true
+                    }
+                }, {session})
+
+                await session.commitTransaction()
+                return res.status(200).json({ success: true, msg: 'Successfully Approved!' }) //success
+            }catch(e) {
+                await session.abortTransaction()
+                res.status(500).json({ e: e.toString() })
+            }
+            return session.endSession()
+        } catch (e) {
+            return res.status(500).json({ e: e.toString() })
+        }
+    })
+
+    .post('/application/ignore', authUser, authIsAdmin, async (req, res) => {
+
     })
 
 module.exports = adminRoutes

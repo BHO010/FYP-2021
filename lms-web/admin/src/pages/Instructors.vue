@@ -309,7 +309,7 @@ export default {
 .table >>> .header {
   font-family: "DarkerGrotesque-Bold";
   font-size: calc(
-    22px + (30 - 22) * ((100vw - 300px) / (1800 - 300))
+    22px + (30 - 22) * ((100vw - 300px) / (1920 - 300))
   ) !important;
   color: #0d47a1 !important;
 }
@@ -317,7 +317,7 @@ export default {
 .table >>> td {
   font-family: "DarkerGrotesque-Medium";
   font-size: calc(
-    16px + (22 - 16) * ((100vw - 300px) / (1800 - 300))
+    16px + (22 - 16) * ((100vw - 300px) / (1920 - 300))
   ) !important;
   border-right: 1px solid lightgrey;
 }
@@ -333,7 +333,7 @@ export default {
 .table >>> .v-data-footer__pagination,
 .table >>> .v-data-footer__select {
   font-size: calc(
-    14px + (18 - 14) * ((100vw - 300px) / (1800 - 300))
+    14px + (18 - 14) * ((100vw - 300px) / (1920 - 300))
   ) !important;
 }
 

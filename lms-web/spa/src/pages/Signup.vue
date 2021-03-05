@@ -57,7 +57,7 @@
                 outlined
                 prepend-inner-icon="mdi-email-outline"
               ></v-text-field>
-              <v-btn class="button" color="#69F0AE" @click="onEmail()" block>Continue</v-btn>
+              <v-btn class="button" color="#009bdc" @click="onEmail()" block>Continue</v-btn>
 
               <br />
               <hr />
@@ -94,7 +94,7 @@
           <v-row justify="space-around">
             <v-col cols="12" sm="8" md="8" lg="11">
               <v-sheet elevation="5" class="pa-4 chipSheet">
-                <v-chip-group v-model="activeTags" column multiple active-class="#FED8B1">
+                <v-chip-group v-model="activeTags" column multiple active-class="blue">
                   <v-chip
                     v-for="tag in tags"
                     :key="tag"
@@ -108,7 +108,7 @@
               </v-sheet>
 
               <v-row class="float-right nextBtn">
-                <v-btn color="#69F0AE" @click="nextStep(3)">Next</v-btn>
+                <v-btn color="#009bdc" @click="nextStep(3)">Next</v-btn>
               </v-row>
             </v-col>
           </v-row>
@@ -214,7 +214,7 @@
               <div class="avatarImg" id="avatarImg"></div>
               <v-row style="align-content:space-between">
                  <v-btn class="margin-right" color="#69F0AE" @click="generate()">Generate</v-btn>
-                  <v-btn color="#69F0AE" @click="nextStep(4)">Continue</v-btn>
+                  <v-btn color="#009bdc" @click="nextStep(4)">Continue</v-btn>
               </v-row>
              
             </div>
@@ -624,7 +624,7 @@ export default {
 <style scoped>
 .v-chip-group .v-chip--active,
 .v-chip-group .v-chip:hover {
-  color: #ff733c;
+  color: #009bdc;
 }
 
 .v-stepper-content {

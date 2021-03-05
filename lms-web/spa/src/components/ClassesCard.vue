@@ -16,6 +16,7 @@
       <v-col cols="2" md="2" lg="2" class="stats">
         <h2>Batch</h2>
         <div>{{this.block.batchID}}</div>
+        <div>Start Date: {{dateFormat(this.block.startDate)}}</div>
       </v-col>
       <v-col cols="4" md="2" lg="2" class="stats">
         <h2>Status</h2>
@@ -323,6 +324,9 @@ export default {
         },
       })
     },
+    dateFormat(date) {
+      return new Date(date).toLocaleString().split(',')[0]
+    }
   },
 }
 </script>

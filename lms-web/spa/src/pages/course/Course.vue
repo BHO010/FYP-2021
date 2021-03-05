@@ -361,6 +361,9 @@ export default {
           this.snackbarShow = true
           this.regDialog = false
           this.$store.commit("setLoading", false)
+          setTimeout(() => {
+            this.$router.go()
+          },500)
         } else {
           this.regDialog = false
           this.$store.commit("setLoading", false)

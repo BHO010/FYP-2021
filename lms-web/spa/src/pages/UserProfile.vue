@@ -78,7 +78,7 @@
         >
         </course-card>
       </div>
-      <div v-else>
+      <div v-else class="courseRow">
         <p>You do not have any courses yet</p>
       </div>
     </div>
@@ -97,7 +97,7 @@
         >
         </achievement-card>
       </div>
-      <div v-else>
+      <div v-else class="achieveRow">
         <p>You do not have nay achievements yet</p>
       </div>
     </div>
@@ -157,8 +157,7 @@
             <v-col cols="6">
               <div class="leftStats">
                 <v-row class="statsItem"
-                  >Rating:
-                  {{ userDetails.rating / userDetails.rateCount || 0 }}/5</v-row
+                  >Rating: {{ stats.totalRate / stats.rateCount || 0 }}/5</v-row
                 >
                 <v-row class="statsItem"
                   >Comments: {{ stats.discussionPoints }}</v-row
@@ -190,7 +189,7 @@
         </course-card>
       </div>
 
-      <div v-else>
+      <div v-else class="courseRow">
         <p>You do not have any courses yet</p>
       </div>
     </div>
@@ -211,7 +210,7 @@
         </achievement-card>
       </div>
 
-      <div v-else>
+      <div v-else class="achieveRow">
         <p>You do not have any courses yet</p>
       </div>
     </div>
@@ -341,7 +340,6 @@ export default {
           level: i,
         })
       } else {
-        console.log("HERE")
         maxExp *= this.userDetails.level * 1.5
         if (this.userDetails.knowledgePoints > maxExp) {
           for (i = i + 1; i < 100; i++) {
@@ -352,7 +350,6 @@ export default {
             }
           }
         }
-        console.log("FF", i)
 
         //update user level
         let rv = await http.post("/api/me/level-update", {
@@ -363,7 +360,7 @@ export default {
       this.progressValue = (this.userDetails.knowledgePoints / maxExp) * 100
     },
     getRank() {
-      this.index = (this.userDetails.level % 10) - 1
+      this.index = Math.ceil(this.userDetails.level / 10) - 1
     },
     achieveAll() {
       this.$router.push({ path: "/achievements" })
@@ -374,7 +371,7 @@ export default {
       } else {
         this.$router.push({ path: "/courses-created" })
       }
-    }
+    },
   },
 }
 </script>
@@ -527,13 +524,11 @@ export default {
   width: 30%;
 }
 
-
 @media screen and (max-width: 1600px) {
   .profileContainer {
     width: 100% !important;
   }
 }
-
 
 @media screen and (max-width: 1000px) {
   .profileContainer {

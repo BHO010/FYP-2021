@@ -11,7 +11,7 @@ export default new Router({
     { path: '/home', name:'home', component: () => import('@/pages/Home'),  beforeEnter: AuthGuard},
     { path: '/users', name:'users', component: () => import('@/pages/Users'),  beforeEnter: AuthGuard},
     { path: '/instructors', name:'instructors', component: () => import('@/pages/Instructors'),  beforeEnter: AuthGuard},
-    //{ path: '/instructorStatus', name:'instructorStatus', component: () => import('@/pages/Home'),  beforeEnter: AuthGuard},
+    { path: '/applications', name:'applications', component: () => import('@/pages/Application'),  beforeEnter: AuthGuard},
     { path: '/courses', name:'courses', component: () => import('@/pages/Courses'),  beforeEnter: AuthGuard},
     { path: '/reports', name:'reports', component: () => import('@/pages/Reports'),  beforeEnter: AuthGuard},
     //{ path: '/discussion/report', name:'report', component: () => import('@/pages/Home'),  beforeEnter: AuthGuard},

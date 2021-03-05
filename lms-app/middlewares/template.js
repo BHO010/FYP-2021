@@ -8,7 +8,10 @@ let statsTemplate = {
     discussionPoints: 0,
     profileLikes: 0,
     studentsCount: 0,
-    activeCategory: ""
+    totalRate: 0,
+    rateCount: 0,
+    activeCategory: "",
+    registration: []
 }
 
 let achievementTemplate = {

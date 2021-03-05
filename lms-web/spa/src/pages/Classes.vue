@@ -496,7 +496,6 @@ export default {
       for (var i = 0; i < this.files.length; i++) {
         fileName.push(this.files[i].name)
         await this.uploadFile(this.files[i])
-        console.log(this.files)
       }
 
       let rv = await http.post("/api/me/classes/post/thread", {

@@ -43,7 +43,8 @@ const signup = async (req, res) => {
       contactNumber: '',
       signupDate: dateISO(new Date()) + " " + timeISO(new Date()),
       knowledgePoints: 0,
-      level: 0
+      level: 1,
+      notifications: []
 
     }
 

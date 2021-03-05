@@ -62,7 +62,7 @@
                 v-model="userDetails.activeTags"
                 column
                 multiple
-                active-class="red"
+                active-class="blue"
               >
                 <v-chip v-for="tag in tags" :key="tag" large filter outlined>
                   {{ tag }}
@@ -78,7 +78,7 @@
               class="button"
               type="button"
               @click="onUpdateUser('profile')"
-              color="#69F0AE"
+              color="#0078ab"
               :loading="loading"
               >Update</v-btn
             >
@@ -206,7 +206,7 @@
 
                 <v-btn
                   class="button"
-                  color="#69F0AE"
+                  color="#0078ab"
                   @click="onUpdateUser('avatar')"
                   >Update</v-btn
                 >
@@ -267,10 +267,48 @@
               :loading="loading"
               type="button"
               @click="onUpdateUser('password')"
-              color="#69F0AE"
+              color="#0078ab"
               >Update</v-btn
             >
           </v-row>
+        </v-form>
+      </div>
+    </div>
+
+    <div v-if="applyInstructor" class="content">
+      <div class="body">
+        <div class="header">Apply to be an Instructor</div>
+        <v-form
+          ref="form2"
+          v-model="valid"
+          lazy-validation
+          @submit.prevent="onApplication"
+        >
+          <!-- Upload document -->
+          <div class="inputRow">
+            <h3 class="size-18">Documents:</h3>
+            <v-file-input
+              v-model="files"
+              multiple
+              small-chips
+              label="File input"
+              outlined
+              dense
+              class="fileRow"
+            ></v-file-input>
+            <!-- Button Row -->
+            <v-row class="btnRow" align="end">
+              <v-spacer></v-spacer>
+              <v-btn
+                class="button"
+                :loading="loading"
+                type="button"
+                @click="onApplication()"
+                color="#0078ab"
+                >Apply</v-btn
+              >
+            </v-row>
+          </div>
         </v-form>
       </div>
     </div>
@@ -295,12 +333,14 @@ export default {
       changeProfile: true,
       changePassword: false,
       changeImage: false,
+      applyInstructor: false,
       valid: true,
       profileImg: "",
       oldPassword: "",
       password: "",
       confirmPassword: "",
       tab: "Profile",
+      files: [],
       requiredRules: [(v) => !!v || "This is required"],
       emailRules: [
         (v) => !!v || "Email Address is required",
@@ -329,6 +369,7 @@ export default {
         { id: 1, name: "Profile" },
         { id: 2, name: "Avatar" },
         { id: 3, name: "Password" },
+        { id: 4, name: "Instructor Application" },
       ],
       tags: [
         "Business",
@@ -489,17 +530,25 @@ export default {
         this.changeProfile = true
         this.changeImage = false
         this.changePassword = false
+        this.applyInstructor = false
       } else if (id == 2) {
         this.changeProfile = false
         this.changeImage = true
         this.changePassword = false
+        this.applyInstructor = false
         setTimeout(function () {
           this.generate()
         }, 500)
-      } else {
+      } else if (id == 3) {
         this.changeProfile = false
         this.changeImage = false
         this.changePassword = true
+        this.applyInstructor = false
+      } else {
+        this.changeProfile = false
+        this.changeImage = false
+        this.changePassword = false
+        this.applyInstructor = true
       }
     },
     async onUpdateUser(type) {
@@ -558,6 +607,47 @@ export default {
             this.$store.commit("setLoading", false)
             this.$router.push("/profile").catch((err) => {})
           }, 1000)
+        }
+      } catch (e) {}
+    },
+    async onApplication() {
+      this.$store.commit("setLoading", true) 
+      let fileName = []
+      for (var i = 0; i < this.files.length; i++) {
+        fileName.push(this.files[i].name)
+        await this.uploadFile(this.files[i])
+      }
+
+      let rv = await http.post("/api/me/application", {
+        email: this.userDetails.email,
+        fileName,
+      })
+
+      if (rv) {
+        this.$store.commit("setLoading", false)
+        this.snackbarColor = "success"
+        this.snackbarText = rv.data.msg
+        this.snackbarShow = true
+        setTimeout(() => {
+          this.$router.go()
+        },500)
+        
+      }
+    },
+    async uploadFile(JSfile) {
+      try {
+        const { data } = await http.post(`/api/gcp-sign`, {
+          filename: JSfile.name,
+          action: "write",
+        })
+
+        const rv = await http.put(data.url, JSfile, {
+          withCredentials: false,
+          headers: { "Content-Type": "application/octet-stream" },
+        })
+
+        if (rv) {
+          return
         }
       } catch (e) {}
     },
@@ -628,8 +718,9 @@ export default {
   font-family: "DarkerGrotesque-Medium";
   text-transform: none;
   line-height: 1;
-  font-size: 26px;
+  font-size: calc(16px + (24 - 16) * ((100vw - 300px) / (1920 - 300)));
   text-align: center;
+  color: white;
 }
 
 .avatarImg {
@@ -649,7 +740,7 @@ export default {
 
 .v-chip-group .v-chip--active,
 .v-chip-group .v-chip:hover {
-  color: red;
+  color: #009bdc;
 }
 
 @media screen and (max-width: 1480px) {
@@ -667,7 +758,7 @@ export default {
 }
 
 @media screen and (max-width: 1000px) {
-   #main {
+  #main {
     margin-top: 10%;
   }
 }
@@ -678,7 +769,7 @@ export default {
     border-radius: 50px;
     padding: 2%;
   }
-   #main {
+  #main {
     margin-top: 15%;
   }
 }

@@ -544,6 +544,7 @@ export default {
           fee: this.fee,
           regDates: this.regDates,
           batchID: this.batchID,
+          vacancy: this.vacancy
         })
         if (rv) {
           setTimeout(() => {
