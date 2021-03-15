@@ -51,8 +51,8 @@
       <v-flex xs12 row v-if="type == 'thread'">
         <v-col cols="3" md="3" lg="1" class="profile" @click="gotoProfile(block.author)">
           <div class="icon" :id="block._id"></div>
-          <div class="name">{{ userDetails.name }}</div>
-          <div class="name">{{ userDetails.role }}</div>
+          <div class="name">{{ block.name }}</div>
+          <div class="name">{{ block.role }}</div>
           <div></div>
         </v-col>
         <v-col cols="5" md="5" lg="7" class="title">
@@ -242,7 +242,10 @@ export default {
 
       this.reportDialog = false
       this.reportMsg = ""
-    }
+    },
+    gotoProfile(email) {
+      this.$router.push({path: `/profile/${email}`})
+    },
   },
 }
 </script>

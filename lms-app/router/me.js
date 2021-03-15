@@ -105,11 +105,14 @@ meRoutes
   .get('/stats', authUser, async (req, res) => {
     let user = null
     let courses = null
+    let role = null
+    let { email } = req.query
     try {
-      user = await findUser({ id: req.decoded.id })
-      const { email, role } = user
-
-
+      if (!email) {
+        user = await findUser({ id: req.decoded.id })
+        role = user.role
+        email = user.email
+      }
       let stats = await mongo.db.collection('statistics').findOne({ email: email })
 
       if (role == "instructor") {
@@ -150,10 +153,13 @@ meRoutes
 
   .get('/achievements', authUser, async (req, res) => {
     let user = null
-    let { type } = req.query
+    let { email, type } = req.query
     try {
-      user = await findUser({ id: req.decoded.id })
-      const { email } = user
+      if (!email) {
+        user = await findUser({ id: req.decoded.id })
+        email = user.email
+      }
+
 
       if (type == "profile") {
         let rv = await mongo.db.collection('achievements').findOne({ email: email })
@@ -515,9 +521,10 @@ meRoutes
     try {
       let rv = await mongo.db.collection('applications').insertOne({
         email: email,
+        active: true,
         approved: false,
         documents: fileName
-      }) 
+      })
       if (rv) {
         return res.status(200).json({ msg: "Application Sent." })
       }
@@ -574,14 +581,20 @@ meRoutes
     let total = null
     let courses = null
     let user = null
+    let { email, role } = req.query
     try {
-      user = await findUser({ id: req.decoded.id })
+      if (!email) {
+        user = await findUser({ id: req.decoded.id })
+        role = user.role
+        email = user.email
+      }
 
-      if (user.role == "instructor") {
+
+      if (role == "instructor") {
         //const total = await mongo.db.collection('courses').find({ createdBy: email }).count()
-        courses = await mongo.db.collection('courses').find({ createdBy: user.email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
+        courses = await mongo.db.collection('courses').find({ createdBy: email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
       } else {
-        courses = await mongo.db.collection('registrations').find({ email: user.email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
+        courses = await mongo.db.collection('registrations').find({ email: email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
       }
 
       return res.status(200).json({ courses })
@@ -594,13 +607,34 @@ meRoutes
     try {
       let list = []
       let user = await findUser({ id: req.decoded.id })
-      let courses = await mongo.db.collection('courses').find({ createdBy: user.email }).toArray()
+      //let courses = await mongo.db.collection('courses').find({ createdBy: user.email }).toArray()
+      let classes = await mongo.db.collection('classes').find({ instructor: user.email }).toArray()
 
-      for (var item of courses) {
-        list.push(item.title)
+      for (var item of classes) {
+        let course = await mongo.db.collection('courses').findOne({ reference: item.courseRef })
+        var index = list.findIndex(p => p.title == course.title)
+        if (index < 0) {
+          let template = {
+            title: course.title,
+            courseRef: item.courseRef,
+            batch: [
+              {
+                id: item.batchID,
+                active: item.active
+              }
+            ]
+          }
+          list.push(template)
+        } else {
+          let template = {
+            id: item.batchID,
+            active: item.active
+          }
+          list[index].batch.push(template)
+        }
       }
 
-      return res.status(200).json({ list, courses })
+      return res.status(200).json({ list })
     } catch (e) {
       return res.status(400).json({ e: e.toString() })
     }
@@ -737,14 +771,14 @@ meRoutes
             reference,
             active: true,
             createdBy: user.email,
-            createdOn: new Date().toISOString(),
+            createdOn: new Date(),
             batchID,
             title,
             description,
             category,
             level,
             venue,
-            startDate: new Date(startDate),
+            startDate,
             endDate: new Date(endDate),
             duration,
             fee,
@@ -795,10 +829,14 @@ meRoutes
   })
 
   .post('/updateCourse', authUser, async (req, res) => {
-    let { reference, title, description, category, level, venue, startDate, duration, objectives, outlines, trainers, attends, fee, regDates, batchID, newBatch } = req.body
+    let { reference, title, description, category, level, venue, startDate, duration, objectives, outlines, trainers, attends, fee, regDates, batchID, vacancy, newBatch, fileName } = req.body
     let user = null
     let regStart = null
     let regEnd = null
+    let date = new Date(startDate)
+    let endDate = date.setDate(date.getDate() + duration);
+    endDate = new Date(endDate)
+    endDate = endDate.toISOString()
 
     let first = new Date(regDates[0]).getTime() / 1000
     let second = new Date(regDates[1]).getTime() / 1000
@@ -810,43 +848,83 @@ meRoutes
       regStart = regDates[1]
       regEnd = regDates[0]
     }
-
     try {
       user = await findUser({ id: req.decoded.id })
       let course = await mongo.db.collection('courses').findOne({ reference: reference })
       if (user.email == course.createdBy) {
-        if (newBatch) {
-          var array = batchID.split('-')
-          array[array.length - 1] = Number(array[array.length - 1]) + 1;
-          batchID = array.join('-')
-        }
-        let body = {
-          reference,
-          batchID: batchID,
-          title,
-          description,
-          category,
-          level,
-          venue,
-          startDate,
-          duration,
-          fee,
-          objectives,
-          outlines,
-          trainers,
-          attends,
-          regStart,
-          regEnd,
+        //Transaction
+        const { defaultTransactionOptions, client } = mongo
+        const session = client.startSession({ defaultTransactionOptions }) // for transactions
+        session.startTransaction()
+        try {
+          let body = {
+            reference,
+            batchID: batchID,
+            title,
+            description,
+            category,
+            level,
+            venue,
+            startDate,
+            endDate: new Date(endDate),
+            duration,
+            fee,
+            objectives,
+            outlines,
+            trainers,
+            attends,
+            regStart,
+            regEnd,
+            vacancy,
+            uploadedFiles: fileName
 
-        }
+          }
+          if (newBatch) {
+            var array = batchID.split('-')
+            array[array.length - 1] = Number(array[array.length - 1]) + 1;
+            batchID = array.join('-')
 
-        let rv = await mongo.db.collection('courses').updateOne(
-          { reference: reference },
-          { $set: body }
-        )
-        if (rv) {
-          return res.status(200).json()
+            let template  = null
+            if(fileName.length > 0) {
+              template = {
+                id: "notice-0",
+                author: user.name,
+                email: user.email,
+                title: "Course Notes",
+                message: "Here are the notes for the course",
+                created: new Date(),
+                fileName: fileName,
+                replies: []
+              }
+            }
+
+            let rv0 = await mongo.db.collection('classes').insertOne({
+              courseRef: reference,
+              batchID: batchID,
+              duration: duration,
+              instructor: user.email,
+              active: true,
+              startDate: new Date(startDate),
+              endDate: new Date(endDate),
+              notice: [template],
+              quiz: [],
+              feedback: []
+            }, { session })
+          }
+
+          await mongo.db.collection('courses').updateOne(
+            { reference: reference },
+            { $set: body },
+            { session }
+          )
+          
+          await session.commitTransaction()
+          return res.status(200).json({ reference })
+        } catch (e) {
+          await session.abortTransaction()
+          res.status(500).json({ e: e.toString() })
         }
+        return session.endSession()
       }
     } catch (e) {
       return res.status(500).json({ e: e.toString() })
@@ -925,7 +1003,6 @@ meRoutes
             template.type = q.type
             if (q.type == "check" || q.type == "radio") {
               for (var option of q.options) {
-                //console.log("AA",option.title)
                 template.categories.push(option.title)
               }
             }
@@ -1441,7 +1518,6 @@ meRoutes
         return res.status(200).json({ regClasses, total })
       } else {
         //Own course classes
-        console.log("AA", email, role)
         let totalClass = Math.ceil(await mongo.db.collection('classes').find({ instructor: email, active: true }).count() / 4)
         let rv = await mongo.db.collection('classes').find({ instructor: email, active: true }).limit(4).toArray()
 
@@ -1509,10 +1585,11 @@ meRoutes
         session.startTransaction()
         try {
 
-          if (fileName.length > 0) {
+          for (var i = 0; i < fileName.length; i++) {
+
             await mongo.db.collection('courses').updateOne({ reference: courseRef }, {
               $push: {
-                uploadedFiles: fileName
+                uploadedFiles: fileName[i]
               }
             }, { session })
           }
@@ -1794,7 +1871,6 @@ meRoutes
         }
       }
 
-      //console.log("AA", aggregate)
       return res.status(200).json({ aggregate, count })
 
     } catch (e) {

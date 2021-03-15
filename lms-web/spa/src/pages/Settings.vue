@@ -276,7 +276,7 @@
     </div>
 
     <div v-if="applyInstructor" class="content">
-      <div class="body">
+      <div v-if="userDetails.role == 'user'" class="body">
         <div class="header">Apply to be an Instructor</div>
         <v-form
           ref="form2"
@@ -311,6 +311,9 @@
           </div>
         </v-form>
       </div>
+      <div v-else class="body">
+         <div class="header">Already an Instructor</div>
+      </div>
     </div>
   </div>
 </template>
@@ -334,6 +337,7 @@ export default {
       changePassword: false,
       changeImage: false,
       applyInstructor: false,
+      fileName: [],
       valid: true,
       profileImg: "",
       oldPassword: "",
@@ -612,15 +616,13 @@ export default {
     },
     async onApplication() {
       this.$store.commit("setLoading", true) 
-      let fileName = []
       for (var i = 0; i < this.files.length; i++) {
-        fileName.push(this.files[i].name)
         await this.uploadFile(this.files[i])
       }
 
       let rv = await http.post("/api/me/application", {
         email: this.userDetails.email,
-        fileName,
+        fileName: this.fileName,
       })
 
       if (rv) {
@@ -635,9 +637,15 @@ export default {
       }
     },
     async uploadFile(JSfile) {
+        let name = JSfile.name
+        let date = new Date().getTime()
+        name = name.split('.')
+        name[0] = name[0].concat(date)
+        name = name.join('.')
+        this.fileName.push(name)
       try {
         const { data } = await http.post(`/api/gcp-sign`, {
-          filename: JSfile.name,
+          filename: name,
           action: "write",
         })
 

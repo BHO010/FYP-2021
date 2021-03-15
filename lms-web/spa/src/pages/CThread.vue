@@ -15,7 +15,7 @@
               md="3"
               lg="2"
               class="profile"
-              @click="gotoProfile(main.author)"
+              @click="gotoProfile(main.email)"
             >
               <div class="icon" :id="main.id"></div>
               <div class="name">{{ userDetails.name }}</div>
@@ -209,6 +209,9 @@ export default {
             )
           })
       } catch (e) {}
+    },
+    gotoProfile(email) {
+      this.$router.push({path: `/profile/${email}`})
     },
   },
 }

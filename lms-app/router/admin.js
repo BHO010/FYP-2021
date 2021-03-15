@@ -229,6 +229,7 @@ adminRoutes
 
                 await mongo.db.collection('applications').updateOne({email: email}, {
                     $set: {
+                        active: false,
                         approved : true
                     }
                 }, {session})
@@ -246,7 +247,17 @@ adminRoutes
     })
 
     .post('/application/ignore', authUser, authIsAdmin, async (req, res) => {
-
+        let { email } = req.body
+        try{
+            await mongo.db.collection('applications').updateOne({email: email}, {
+                $set: {
+                    active : false
+                }
+            })
+            return res.status(200).json({ success: true, msg: 'Successfully Ignored!' }) //success
+        }catch(e) {
+            return res.status(500).json({ e: e.toString() })
+        }
     })
 
 module.exports = adminRoutes

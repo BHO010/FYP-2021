@@ -33,7 +33,7 @@
     </v-flex>
 
     <v-flex xs12 row v-else-if="(type == 'thread') & (type2 == 'notice')">
-      <v-col cols="2" md="2" lg="1" class="profile" @click="gotoProfile(block.author)">
+      <v-col cols="2" md="2" lg="1" class="profile" @click="gotoProfile(block.email)">
         <div class="icon" :id="block.id"></div>
         <div class="name">{{ this.userDetails.name }}</div>
         <div></div>
@@ -219,10 +219,12 @@ export default {
   },
   async mounted() {
     if (this.type != "block") {
+      console.log("DD2",this.block)
       await this.getUser()
       await this.getImage()
     } else {
       //type=block
+      console.log("DD1",this.block)
       let rv = await http.get("/api/me/course", {
         params: {
           courseRef: this.block.courseRef,
@@ -326,7 +328,10 @@ export default {
     },
     dateFormat(date) {
       return new Date(date).toLocaleString().split(',')[0]
-    }
+    },
+    gotoProfile(email) {
+      this.$router.push({path: `/profile/${email}`})
+    },
   },
 }
 </script>

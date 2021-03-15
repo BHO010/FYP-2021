@@ -15,6 +15,7 @@ export default new Router({
     { path: '/reset-pw', name:'ResetPW', component: () => import('@/pages/ResetPW') },
     { path: '/home', name:'PrivateHome', component: () => import('@/pages/PrivateHome'),  beforeEnter: AuthGuard},
     { path: '/profile', name:'UserProfile', component: () => import('@/pages/UserProfile'),  beforeEnter: AuthGuard},
+    { path: '/profile/:email', name:'ViewProfile', component: () => import('@/pages/ViewProfile'),  beforeEnter: AuthGuard},
     { path: '/browse', name:'Browse', component: () => import('@/pages/Browse'),  beforeEnter: AuthGuard},
     { path: '/discussion', name:'Discussion', component: () => import('@/pages/Discussion'),  beforeEnter: AuthGuard},
     { path: '/discussion/thread', name:'Threads', component: () => import('@/pages/Thread'),  beforeEnter: AuthGuard},

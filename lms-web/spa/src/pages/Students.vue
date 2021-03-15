@@ -11,14 +11,18 @@
           <v-label>Course:</v-label>
           <v-select
             :items="list"
+            item-text="title"
             dense
             outlined
             v-model="title"
-            @change="updateSearch()"
+            @change="updateSearch('title')"
           ></v-select>
           <v-spacer></v-spacer>
           <v-label>Batch:</v-label>
-          <v-text-field v-model="batch" readonly dense outlined> </v-text-field>
+          <v-select v-model="batch" :items="batchList" item-text="id" dense outlined @change="updateSearch('batch')"> </v-select>
+          <v-spacer></v-spacer>
+          <v-label>Status:</v-label>
+          <v-text-field v-model="status" readonly dense outlined></v-text-field>
         </v-row>
       </div>
       <div id="content">
@@ -57,9 +61,11 @@ export default {
     return {
       courses: null,
       list: null,
+      batchList: null,
       students: [],
       batch: "",
       title: "",
+      status: "",
       courseRef: "",
       headers: [
         {
@@ -92,32 +98,44 @@ export default {
   async mounted() {
     try {
       let rv = await http.get("/api/me/courses/list")
-      this.courses = rv.data.courses
       this.list = rv.data.list
       this.title = this.list[0]
-      this.batch = this.courses[0].batchID
-      this.courseRef = this.courses[0].reference
+      this.batchList = this.list[0].batch
+      this.batch = this.list[0].batch[0].id
+      this.courseRef = this.list[0].courseRef
+      this.classStatus(this.list[0].batch[0].active)
 
-      this.updateList()
+      this.updateList(0)
     } catch (e) {
       console.log(e)
     }
   },
   methods: {
-    async updateSearch() {
-      for (var item of this.courses) {
-        if (this.title == item.title) {
-          this.batch = item.batchID
-          this.courseRef = item.reference
-        }
+    async updateSearch(type) {
+      let index = null
+      if(type == "title") {
+        index = this.list.findIndex(p => p.title == this.title)
+        this.batchList = this.list[index].batch
+        this.batch = this.list[index].batch[0].id
+        this.classStatus(this.list[index].batch[0].active)
+        this.updateList(index)
+      }else {
+        index = this.list.findIndex(p => p.title == this.title)
+        var index2 = this.list[index].batch.findIndex(p => p.id == this.batch)
+        console.log(this.list)
+        console.log(index2)
+        this.classStatus(this.list[index].batch[index2].active)
+        this.updateList(index)
       }
-      this.updateList()
+      
+      
+      
     },
-    async updateList() {
+    async updateList(index) {
       try {
         let rv = await http.get("/api/me/courses/students", {
           params: {
-            courseRef: this.courseRef,
+            courseRef: this.list[index].courseRef,
             batchID: this.batch,
           },
         })
@@ -155,6 +173,13 @@ export default {
         return false
       }
     },
+    classStatus(data) {
+      if(data) {
+        this.status = "Open"
+      }else {
+        this.status = "Closed"
+      }
+    }
   },
 }
 </script>
@@ -177,9 +202,14 @@ export default {
 }
 
 .topRow {
-  width: 70%;
+  width: 100%;
   padding-left: 1%;
   padding-top: 1%;
+  
+}
+
+.row {
+  flex-wrap: nowrap !important;
 }
 
 .v-label {

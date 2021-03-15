@@ -280,6 +280,9 @@ export default {
         this.reportMsg = ""
       }
     },
+    gotoProfile(email) {
+      this.$router.push({path: `/profile/${email}`})
+    },
   },
 }
 </script>

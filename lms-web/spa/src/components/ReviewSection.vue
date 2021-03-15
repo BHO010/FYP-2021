@@ -62,8 +62,8 @@ export default {
         d.innerHTML = ""
         d.innerHTML = this.userDetails.profileImage
     },
-    gotoProfile(id) {
-      console.log(id)
+    gotoProfile(email) {
+      this.$router.push({path: `/profile/${email}`})
     },
   },
 }

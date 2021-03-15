@@ -356,6 +356,7 @@ export default {
       title: "",
       tMsg: "",
       files: [],
+      fileName: [],
       classDetails: [],
       courseRef: this.$route.query.ref,
       batchID: this.$route.query.batch,
@@ -492,20 +493,17 @@ export default {
     },
     async postThread(type) {
       this.$store.commit("setLoading", true)
-      let fileName = []
       for (var i = 0; i < this.files.length; i++) {
-        fileName.push(this.files[i].name)
         await this.uploadFile(this.files[i])
       }
-
       let rv = await http.post("/api/me/classes/post/thread", {
         createType: this.createType,
         tMsg: this.tMsg, //For Notice section & question section
         title: this.title,
         courseRef: this.courseRef,
         batchID: this.batchID,
-        fileName,
-      })
+        fileName: this.fileName,
+      })  
 
       if (rv) {
         this.$store.commit("setLoading", false)
@@ -513,9 +511,15 @@ export default {
       }
     },
     async uploadFile(JSfile) {
+        let name = JSfile.name
+        let date = new Date().getTime()
+        name = name.split('.')
+        name[0] = name[0].concat(date)
+        name = name.join('.')
+        this.fileName.push(name)
       try {
-        const { data } = await http.post(`/api/gcp-sign`, {
-          filename: JSfile.name,
+         const { data } = await http.post(`/api/gcp-sign`, {
+          filename: name,
           action: "write",
         })
 
@@ -523,10 +527,10 @@ export default {
           withCredentials: false,
           headers: { "Content-Type": "application/octet-stream" },
         })
-
+        
         if (rv) {
           return
-        }
+        } 
       } catch (e) {}
     },
     async noticePagination(data) {

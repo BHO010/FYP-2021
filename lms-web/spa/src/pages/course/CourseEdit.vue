@@ -1,5 +1,12 @@
 <template>
   <v-container fluid>
+    <v-snackbar
+      v-model="snackbarShow"
+      :timeout="snackbarTimeout"
+      :color="snackbarColor"
+      top
+      >{{ snackbarText }}</v-snackbar
+    >
     <div class="main">
       <v-stepper v-model="step">
         <v-stepper-header>
@@ -170,7 +177,7 @@
               >Delete</v-btn
             >
 
-            <v-btn class="button" color="#F44336" @click="nextStep(2)" block
+            <v-btn class="button" color="#0078ab" @click="nextStep(2)" block
               >Continue</v-btn
             >
           </v-stepper-content>
@@ -214,15 +221,9 @@
               >Delete</v-btn
             >
 
-            <v-row justify="end">
-              <v-btn
-                class="button"
-                color="#F44336"
-                @click="updateCourse()"
-                block
-                >Update Course</v-btn
-              >
-            </v-row>
+            <v-btn class="button" color="#0078ab" @click="nextStep(3)" block
+              >Continue</v-btn
+            >
           </v-stepper-content>
 
           <v-stepper-content step="3" style="height: 100%">
@@ -232,6 +233,16 @@
                 v-model="batchID"
                 label="Batch ID"
                 readonly
+                outlined
+                dense
+              >
+              </v-text-field>
+
+              <h2>Course Vacancy</h2>
+              <v-text-field
+                v-model="vacancy"
+                label="Vacancy"
+                :rules="numberRule"
                 outlined
                 dense
               >
@@ -256,20 +267,29 @@
 
               <h2>Are you updating the course for a new batch of intakes?</h2>
               <v-checkbox
-                id="checkbox"
+                class="checkbox"
                 v-model="newBatch"
                 :label="`${newBatch.toString()}`"
               ></v-checkbox>
 
-              <v-row justify="end">
-                <v-btn
-                  class="button"
-                  color="#F44336"
-                  @click="updateCourse()"
-                  block
-                  >Update Course</v-btn
-                >
-              </v-row>
+              <h2>What files do you wish to port to the next batch?</h2>
+              <v-checkbox
+                v-for="(item, index) in fileName"
+                :key="index"
+                class="checkbox"
+                v-model="fileSelected"
+                :value="item"
+                :label="item"
+                @change="check()"
+              ></v-checkbox>
+
+              <v-btn
+                class="button"
+                color="#0078ab"
+                @click="updateCourse()"
+                block
+                >Update Course</v-btn
+              >
             </v-form>
           </v-stepper-content>
         </div>
@@ -289,7 +309,9 @@ export default {
       snackbarShow: false,
       snackbarText: "",
       snackbarTimeout: 5000,
+      valid: true,
       step: 1,
+      course: null,
       reference: "",
       title: "",
       description: "",
@@ -300,6 +322,7 @@ export default {
       duration: "",
       fee: "",
       batchID: "",
+      vacancy: "",
       newBatch: false,
       regDates: [],
       startDate: "",
@@ -307,6 +330,8 @@ export default {
       outlinePoints: [],
       trainers: [],
       attendPoints: [],
+      fileName: [],
+      fileSelected: [],
       objectivePoint: "",
       outlinePoint: "",
       trainer: "",
@@ -347,12 +372,17 @@ export default {
         "Math",
       ],
       levels: ["Basic", "Intermediate", "Advance"],
+      requiredRule: [(v) => !!v || "This is required"],
+      numberRule: [
+        (v) => !!v || "This is required",
+        (v) => !v || /^([0-9]*)$/.test(v) || "Numbers Only",
+      ],
     }
   },
-  created() {},
   async mounted() {
     this.reference = this.$route.query.reference
     let rv = await http.get(`/api/me/course/${this.reference}`)
+    this.course = rv.data
     this.title = rv.data.title
     this.description = rv.data.description
     this.category = rv.data.category
@@ -368,6 +398,8 @@ export default {
     this.regDates.push(rv.data.regStart)
     this.regDates.push(rv.data.regEnd)
     this.batchID = rv.data.batchID
+    this.fileName = rv.data.uploadedFiles
+    this.vacancy = rv.data.vacancy
 
     this.updateTrainers()
     this.updateOutline()
@@ -375,18 +407,13 @@ export default {
     this.updateAttend()
   },
   computed: {
-    user() {
-      return this.$store.state.user
-    },
-    loading() {
-      return this.$store.getters.loading
-    },
     dateRangeText() {
       return this.regDates.join(" ~ ")
     },
     startDateText() {
       return this.startDate
-    }
+    },
+    ...mapState(["error", "loading"]),
   },
   methods: {
     addPoint() {
@@ -408,9 +435,6 @@ export default {
     },
     onSaveSurvey(value) {
       this.surveyJson = value
-    },
-    testSurvey() {
-      console.log(this.surveyJson)
     },
     addTrainer() {
       let template = {
@@ -479,33 +503,44 @@ export default {
       this.step = i
       console.log(this.step)
     },
+    check() {
+      console.log(this.fileSelected)
+    },
     async updateCourse() {
-      let rv = await http.post("/api/me/updateCourse", {
-        reference: this.reference,
-        title: this.title,
-        description: this.description,
-        category: this.category,
-        level: this.level,
-        venue: this.venue,
-        startDate: this.startDate,
-        duration: this.duration,
-        objectives: this.objectivePoints,
-        outlines: this.outlinePoints,
-        trainers: this.trainers,
-        attends: this.attendPoints,
-        fee: this.fee,
-        regDates: this.regDates,
-        batchID: this.batchID,
-        newBatch: this.newBatch,
-      })
-      if (rv) {
-        this.snackbarColor = "success"
-        this.snackbarText = "Course Updated"
-        this.snackbarShow = true
-        setTimeout(() => {
-          this.$router.push("/profile")
-        }, 3000)
-      }
+      try {
+        this.$store.commit("setLoading", true)
+        if (this.$refs.form.validate()) {
+          let rv = await http.post("/api/me/updateCourse", {
+            reference: this.reference,
+            title: this.title,
+            description: this.description,
+            category: this.category,
+            level: this.level,
+            venue: this.venue,
+            startDate: this.startDate,
+            duration: this.duration,
+            objectives: this.objectivePoints,
+            outlines: this.outlinePoints,
+            trainers: this.trainers,
+            attends: this.attendPoints,
+            fee: this.fee,
+            regDates: this.regDates,
+            batchID: this.batchID,
+            vacancy: this.vacancy,
+            newBatch: this.newBatch,
+            fileName: this.fileSelected,
+          })
+          if (rv) {
+            this.snackbarColor = "success"
+            this.snackbarText = "Course Updated"
+            this.snackbarShow = true
+            setTimeout(() => {
+              this.$store.commit("setLoading", false)
+              this.$router.push("/profile")
+            }, 3000)
+          }
+        }
+      } catch (e) {}
     },
   },
 }
@@ -516,7 +551,7 @@ export default {
 .v-stepper__header,
 .theme--light.v-stepper {
   box-shadow: none;
-  background: #e1f5fe !important;
+  background: white !important;
 }
 
 h2 {
@@ -532,8 +567,9 @@ h2 {
 }
 
 .button {
-  border-radius: 10px;
+  border-radius: 10px !important;
   text-transform: none;
+  color: white;
 }
 
 .formRow {
@@ -586,7 +622,7 @@ h2 {
   margin-bottom: 2%;
 }
 
-#checkbox {
+.checkbox {
   margin-left: 2% !important;
 }
 </style>

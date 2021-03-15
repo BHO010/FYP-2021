@@ -174,7 +174,7 @@
 
     <div class="courseContainer">
       <div class="topRow">
-        <h1>Courses Owned</h1>
+        <h1>Courses Own</h1>
         <v-btn class="btn" color="#E1F5FE" @click="coursesAll('instructor')"
           >See All</v-btn
         >
@@ -271,7 +271,12 @@ export default {
   },
   async mounted() {
     try {
-      const rv = await http.get("/api/me")
+        console.log("AA", this.$route.params.email)
+      const rv = await http.get("/api/me/user", {
+          params: {
+              email: this.$route.params.email
+          } 
+      })
       this.userDetails = rv.data
       this.profileImage = this.userDetails.profileImage
       if (this.userDetails.role != "user") {
@@ -307,15 +312,25 @@ export default {
       }
     },
     async getCourses() {
-      const { data } = await http.get("/api/me/courses")
+      const { data } = await http.get("/api/me/courses",{
+          params: {
+              email: this.$route.params.email,
+              role: this.userDetails.role
+          }
+      })
 
       this.courses = data.courses
     },
     async getStats() {
-      const rv2 = await http.get("/api/me/stats")
+      const rv2 = await http.get("/api/me/stats", {
+          params: {
+              email: this.$route.params.email
+          }
+      })
       const rv3 = await http.get("/api/me/achievements", {
         params: {
-          type: "profile",
+            email: this.$route.params.email,
+            type: "profile",
         },
       })
       this.stats = rv2.data.stats

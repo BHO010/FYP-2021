@@ -40,7 +40,7 @@
         <template v-slot:item="row">
           <tr class="tableRow" @click="viewApplication(row.item)">
             <td>{{ row.item.email }}</td>
-            <td>{{ status(row.item.active) }}</td>
+            <td>{{ status(row.item) }}</td>
           </tr>
         </template>
       </v-data-table>
@@ -63,31 +63,33 @@
               readonly
             ></v-text-field>
           </div>
-           <div class="inputRow">
+          <div class="inputRow">
             <h2>Documents:</h2>
             <div v-if="documents" class="fileRow">
-                <div
-                  class="fileCard"
-                  v-for="file in documents"
-                  :key="file"
-                  @click="downloadFile(file)"
-                >
-                  <v-row class="header">{{ file }}</v-row>
-                  <div class="dlRow">Download</div>
-                </div>
+              <div
+                class="fileCard"
+                v-for="file in documents"
+                :key="file"
+                @click="downloadFile(file)"
+              >
+                <v-row class="header">{{ file }}</v-row>
+                <div class="dlRow">Download</div>
               </div>
+            </div>
           </div>
           <div class="inputRow">
-              <v-row justify="end">
-                  <v-btn class="button" color="#009bdc" @click="approve">Approve</v-btn>
-                  <v-btn text outlined color="#009bdc" @click="ignore">Ignore</v-btn>
-              </v-row>
-            
+            <v-row justify="end">
+              <v-btn class="button" color="#009bdc" @click="approve"
+                >Approve</v-btn
+              >
+              <v-btn text outlined color="#009bdc" @click="ignore"
+                >Ignore</v-btn
+              >
+            </v-row>
           </div>
         </div>
       </v-card>
     </v-dialog>
-
   </div>
 </template>
 
@@ -145,10 +147,12 @@ export default {
   },
   methods: {
     status(data) {
-      if (!data) {
+      if (data.active && !data.approved) {
         return "Pending"
-      } else {
+      } else if(!data.active && data.approved) {
         return "Approved"
+      } else if(!data.active && !data.approved) {
+        return "Ignored"
       }
     },
     updatePage() {
@@ -189,28 +193,48 @@ export default {
       } catch (e) {}
     },
     viewApplication(data) {
-      this.email = data.email
-      this.documents = data.documents
-      this.applicationDialog = true
+      if(data.active) {
+        this.email = data.email
+        this.documents = data.documents
+        this.applicationDialog = true
+      } else {
+        this.snackbarColor = 'error'
+        this.snackbarText = "Application is closed"
+        this.snackbarShow = true
+      }
+      
     },
     async approve() {
-        try {
-            let rv = await http.post('/api/admin/application/approve', {
-                params: {
-                    email: this.email
-                }
-            })
-        }catch(e) {}
+      try {
+        let rv = await http.post("/api/admin/application/approve", {
+          email: this.email,
+        })
+
+        if (rv) {
+          this.snackbarText = rv.data.msg
+          this.snackbarColor = "success"
+          this.snackbarShow = true
+          setTimeout(() => {
+            this.$router.go()
+          }, 500)
+        }
+      } catch (e) {}
     },
     async ignore() {
-        try {
-            let rv = await http.post('/api/admin/application/ignore', {
-                params: {
-                    email: this.email
-                }
-            })
-        }catch(e) {}
-    }
+      try {
+        let rv = await http.post("/api/admin/application/ignore", {
+            email: this.email,
+        })
+        if (rv) {
+          this.snackbarText = rv.data.msg
+          this.snackbarColor = "success"
+          this.snackbarShow = true
+          setTimeout(() => {
+            this.$router.go()
+          }, 500)
+        }
+      } catch (e) {}
+    },
   },
 }
 </script>
@@ -323,7 +347,7 @@ export default {
 }
 
 .button {
-    margin-right: 2%;
-    color: white;
+  margin-right: 2%;
+  color: white;
 }
 </style>
