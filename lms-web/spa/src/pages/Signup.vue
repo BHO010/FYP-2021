@@ -57,7 +57,9 @@
                 outlined
                 prepend-inner-icon="mdi-email-outline"
               ></v-text-field>
-              <v-btn class="button" color="#009bdc" @click="onEmail()" block>Continue</v-btn>
+              <v-btn class="button" color="#009bdc" @click="onEmail()" block
+                >Continue</v-btn
+              >
 
               <br />
               <hr />
@@ -94,14 +96,13 @@
           <v-row justify="space-around">
             <v-col cols="12" sm="8" md="8" lg="11">
               <v-sheet elevation="5" class="pa-4 chipSheet">
-                <v-chip-group v-model="activeTags" column multiple active-class="blue">
-                  <v-chip
-                    v-for="tag in tags"
-                    :key="tag"
-                    large
-                    filter
-                    outlined
-                  >
+                <v-chip-group
+                  v-model="activeTags"
+                  column
+                  multiple
+                  active-class="blue"
+                >
+                  <v-chip v-for="tag in tags" :key="tag" large filter outlined>
                     {{ tag }}
                   </v-chip>
                 </v-chip-group>
@@ -122,7 +123,13 @@
           <v-col cols="6">
             <div>
               <div class="avatarSelect">
-                <v-select :items="top" v-model="options.top[0]" outlined dense label="Top"></v-select>
+                <v-select
+                  :items="top"
+                  v-model="options.top[0]"
+                  outlined
+                  dense
+                  label="Top"
+                ></v-select>
 
                 <v-select
                   :items="hatColor"
@@ -181,7 +188,13 @@
                   label="Clothes Color"
                 ></v-select>
 
-                <v-select :items="eyes" outlined dense label="Eyes" v-model="options.eyes[0]"></v-select>
+                <v-select
+                  :items="eyes"
+                  outlined
+                  dense
+                  label="Eyes"
+                  v-model="options.eyes[0]"
+                ></v-select>
 
                 <v-select
                   :items="eyebrow"
@@ -212,11 +225,12 @@
           <v-col cols="6">
             <div style="height: 700px">
               <div class="avatarImg" id="avatarImg"></div>
-              <v-row style="align-content:space-between">
-                 <v-btn class="margin-right" color="#69F0AE" @click="generate()">Generate</v-btn>
-                  <v-btn color="#009bdc" @click="nextStep(4)">Continue</v-btn>
+              <v-row style="align-content: space-between">
+                <v-btn class="margin-right" color="#69F0AE" @click="generate()"
+                  >Generate</v-btn
+                >
+                <v-btn color="#009bdc" @click="nextStep(4)">Continue</v-btn>
               </v-row>
-             
             </div>
           </v-col>
         </v-row>
@@ -281,7 +295,12 @@
               <div class="errorColor" v-if="!!error">
                 {{ error.message }}
               </div>
-              <v-btn type="button" color="#69F0AE" @click.prevent="onSignup" :loading="loading" block
+              <v-btn
+                type="button"
+                color="#69F0AE"
+                @click.prevent="onSignup"
+                :loading="loading"
+                block
                 >Sign up</v-btn
               >
               <br />
@@ -325,7 +344,13 @@
                 <br />
                 <v-card-actions>
                   <v-row justify="center">
-                    <v-btn color="#69F0AE" class="card-btn" rounded @click="close">Close</v-btn>
+                    <v-btn
+                      color="#69F0AE"
+                      class="card-btn"
+                      rounded
+                      @click="close"
+                      >Close</v-btn
+                    >
                   </v-row>
                 </v-card-actions>
               </v-container>
@@ -340,8 +365,23 @@
 <script>
 import { mapState } from "vuex"
 import { http } from "@/axios"
-import Avatars from '@dicebear/avatars';
-import sprites from '@dicebear/avatars-avataaars-sprites';
+import Avatars from "@dicebear/avatars"
+import sprites from "@dicebear/avatars-avataaars-sprites"
+import {
+  getTags,
+  getTop,
+  getHatColor,
+  getHaircolor,
+  getAccessories,
+  getFacialHair,
+  getFacialHairColor,
+  getClothes,
+  getClothesColor,
+  getEyes,
+  getEyebrown,
+  getMouth,
+  getSkin,
+} from "../../public/js/settings"
 
 //import { APP_VERSION } from '@/config'
 export default {
@@ -380,139 +420,39 @@ export default {
           ) ||
           "Password must contain at least 8 character with 1 special character, number, lower and uppercase letter",
       ],
-      tags: [
-        "Business",
-        "Leadership and Management",
-        "Marketing",
-        "Accounting",
-        "Business Strategy",
-        "Arts",
-        "Shopping",
-        "Art",
-        "Finance",
-        "Information Technology",
-        "Economics",
-        "Mechanical Engineering",
-        "Chemistry",
-        "Physics",
-        "Electrical Engineering",
-        "Biology",
-        "Programming",
-        "Computer Science",
-        "Math",
-      ],
-      top: [
-        "longHair",
-        "shortHair",
-        "hat",
-        "hijab",
-        "turban"
-      ],
-      hatColor: [
-        "black",
-        "blue",
-        "gray",
-        "heather",
-        "pastel",
-        "pink",
-        "red",
-        "white"
-      ],
-      hairColor: [
-        "auburn",
-        "black",
-        "blonde",
-        "brown",
-        "pastel",
-        "platinum",
-        "red",
-        "gray"
-      ],
-      accessories: [
-        "none",
-        "kurt",
-        "prescription01",
-        "prescription02",
-        "round",
-        "sunglasses",
-        "wayfarers"
-      ],
-      facialHair: [
-        "none",
-        "medium",
-        "light",
-        "majestic",
-        "fancy",
-        "magnum"
-      ],
-      facialHairColor: [
-        "auburn",
-        "black",
-        "blonde",
-        "brown",
-        "platinum",
-        "red"
-      ],
-      clothes: [
-        "blazer",
-        "sweater",
-        "shirt",
-        "hoodie",
-        "overall"
-      ],
-      clothesColor: [
-        "black",
-        "blue",
-        "gray",
-        "heather",
-        "pastel",
-        "pink",
-        "red",
-        "white"
-      ],
-      eyes: [
-        "close", 
-        "cry", 
-        "default", 
-        "dizzy", 
-        "roll", 
-        "happy", 
-        "hearts", 
-        "side", 
-        "squint", 
-        "surprised", 
-        "wink", 
-        "winkWacky"
-      ],
-      eyebrow: [
-        "angry", "default", "flat", "raised", "sad", "unibrow", "up"
-      ],
-      mouth: [
-        "concerned", "default", "disbelief", "eating", "grimace", "sad", "scream", "serious", "smile", "tongue", "twinkle", "vomit"
-      ],
-      skin: [
-        "tanned", "yellow", "pale", "light", "brown", "darkBrown", "black"
-      ],
+      tags: getTags(),
+      top: getTop(),
+      hatColor: getHatColor(),
+      hairColor: getHaircolor(),
+      accessories: getAccessories(),
+      facialHair: getFacialHair(),
+      facialHairColor: getFacialHairColor(),
+      clothes: getClothes(),
+      clothesColor: getClothesColor(),
+      eyes: getEyes(),
+      eyebrow: getEyebrown(),
+      mouth: getMouth(),
+      skin: getSkin(),
       options: {
-        width: '650px',
-        height: '450px',
-        style: 'circle',
-        top: ['longHair'],
-        hatColor: ['black'],
-        hairColor: ['auburn'],
-        accessories: ['none'],
-        facialHair: ['none'],
-        facialHairColor: ['auburn'],
-        clothes: ['blazer'],
-        clothesColor: ['black'],
-        eyes: ['default'],
-        eyebrow:['default'],
-        mouth: ['default'],
-        skin: ['tanned'],
-        background: '#EFEFEF',
+        width: "650px",
+        height: "450px",
+        style: "circle",
+        top: ["longHair"],
+        hatColor: ["black"],
+        hairColor: ["auburn"],
+        accessories: ["none"],
+        facialHair: ["none"],
+        facialHairColor: ["auburn"],
+        clothes: ["blazer"],
+        clothesColor: ["black"],
+        eyes: ["default"],
+        eyebrow: ["default"],
+        mouth: ["default"],
+        skin: ["tanned"],
+        background: "#EFEFEF",
         accessoriesChance: 100,
-        facialHairChance: 100
-      }
+        facialHairChance: 100,
+      },
     }
   },
   created() {},
@@ -543,18 +483,21 @@ export default {
           return false
         } else {
           try {
-            let rv = await http.post("/api/auth/signup", {
-              role: this.role,
-              name: this.name,
-              password: this.password,
-              activeTags: this.activeTags,
-              image: this.profileImg,
-            },
-            {
-              headers: {
-                Authorization: "Bearer " + this.validToken
+            let rv = await http.post(
+              "/api/auth/signup",
+              {
+                role: this.role,
+                name: this.name,
+                password: this.password,
+                activeTags: this.activeTags,
+                image: this.profileImg,
+              },
+              {
+                headers: {
+                  Authorization: "Bearer " + this.validToken,
+                },
               }
-            })
+            )
 
             if (rv) {
               this.snackbarColor = "success"
@@ -593,30 +536,30 @@ export default {
               this.step = 2
               //this.verify = true
             } catch (e) {
-              this.snackbarColor = "error";
-              this.snackbarText = "Server Error";
-              this.snackbarShow = true;
+              this.snackbarColor = "error"
+              this.snackbarText = "Server Error"
+              this.snackbarShow = true
             }
           }
         }
       }
     },
     nextStep(i) {
-      if(i == 3) {
+      if (i == 3) {
         this.step = i
       }
-       if(i != 1 && this.emailValid == true) {
+      if (i != 1 && this.emailValid == true) {
         this.step = i
       }
     },
     generate() {
-      let avatars = new Avatars(sprites, this.options);
-      let svg = avatars.create();
-      let d= document.getElementById('avatarImg')
-      d.innerHTML = ''
+      let avatars = new Avatars(sprites, this.options)
+      let svg = avatars.create()
+      let d = document.getElementById("avatarImg")
+      d.innerHTML = ""
       d.innerHTML = svg
       this.profileImg = svg
-    }
+    },
   },
 }
 </script>
@@ -636,7 +579,7 @@ export default {
 }
 
 .margin-right {
-    margin-right: 4%;
+  margin-right: 4%;
 }
 
 .center {

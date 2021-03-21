@@ -2,7 +2,7 @@
   <div v-if="auth" id="main">
     <div id="body">
       <h1>Survey Results</h1>
-      <div v-if="data.length != 0">
+      <div v-if="data.length > 0">
         <survey-analysis
           v-for="item in data"
           :key="item.id"
@@ -33,7 +33,7 @@ export default {
       reference: "",
       userDetails: null,
       auth: false,
-      data: null,
+      data: [],
     }
   },
   computed: {

@@ -1,11 +1,11 @@
 <template>
   <v-container fluid class="mainBody">
-    <v-overlay :value="loading">
+   <v-overlay :value="loading">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
-    <!-- Banner -->
+     
     <v-container class="bannerContainer">
-      <v-carousel
+  <!--     <v-carousel
         cycle
         height="400"
         hide-delimiter-background
@@ -16,10 +16,10 @@
           :key="i"
           :src="item.src"
         ></v-carousel-item>
-      </v-carousel>
+      </v-carousel>-->
     </v-container>
 
-    <div class="tempBox">
+   <div class="tempBox">
       <div class="section">
         <h1>Recommended</h1>
         <div class="row">
@@ -27,30 +27,38 @@
             v-for="course in recCourses"
             :key="course._id"
             :course="course"
-            type="registered"
           >
           </course-card>
         </div>
       </div>
-      <div class="section">
-        <h1>Interested</h1>
-        <div class="row">
 
+      <div v-for="interest in interested" :key="interest.index" class="section">
+        <h1>{{interest.category}}</h1>
+        <div class="row">
+          <course-card
+            v-for="course in interest.courses"
+            :key="course._id"
+            :course="course"
+          >
+          </course-card> 
         </div>
       </div>
-    </div>
+    </div> 
   </v-container>
 </template>
 
 <script>
 import { http } from "@/axios"
 import { mapState } from "vuex"
+import { getTags } from "../../public/js/settings"
 
 export default {
   data() {
     return {
       userDetails: null,
       recCourses: [],
+      interested: [],
+      tags: getTags(),
       slides: [
         {
           src: "/img/carousell-1.png",
@@ -72,8 +80,8 @@ export default {
     this.$store.commit("setLayout", "layout-private")
     let rv = await http.get("/api/me/")
     this.userDetails = rv.data
-
-    this.getRecommended()
+    await this.getRecommended()
+    await this.getInterested()
   },
   computed: {
     ...mapState(["error", "loading"]),
@@ -84,6 +92,28 @@ export default {
         let rv = await http.get("/api/me/course/recommended")
         this.recCourses = rv.data
       } catch (e) {}
+    },
+    async getInterested() {
+      for (var index of this.userDetails.activeTags) {
+        let category = this.tags[index]
+        let template = {
+          id: index,
+          category: category,
+          courses: [],
+        }
+        
+        let rv = await http.get("/api/me/course/interested", {
+          params: {
+            category: category
+          }
+        })
+        if(rv.data.length > 0) {
+          template.courses = rv.data
+          this.interested.push(template)
+        }
+        
+      }
+      console.log(this.interested)
     },
   },
 }
@@ -123,9 +153,13 @@ a {
   justify-content: center;
 }
 
-.tempBox {
-  border: 1px solid black;
-  height: 700px;
+.section {
+  margin-bottom: 2%;
+}
+
+.section h1 {
+  font-size: calc(34px + (42 - 34) * ((100vw - 300px) / (1920 - 300)));
+  color: #0d47a1;
 }
 
 .row {

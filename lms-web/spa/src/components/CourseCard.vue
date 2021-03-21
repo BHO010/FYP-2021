@@ -14,7 +14,7 @@
       large
     ></v-rating>
     <v-card-actions class="btmRow">
-      <v-btn color="orange lighten-2" @click="viewCourse" text> View </v-btn>
+      <v-btn @click="viewCourse" text outlined class="btn"> View </v-btn>
       <!-- <v-btn color="orange lighten-2" @click="editCourse" text> Edit </v-btn>
         <v-btn color="orange lighten-2" @click="survey" text> Survey </v-btn> -->
     </v-card-actions>
@@ -107,6 +107,11 @@ export default {
   position: absolute;
   bottom: 0;
   padding: 0;
+}
+
+.btn {
+  margin-left: 4%;
+  margin-bottom: 4%;
 }
 
 @media screen and (max-width: 1280px) {

@@ -577,11 +577,42 @@ meRoutes
     }
   })
 
+  .get('/course/interested', authUser, async (req, res) => {
+    let { category } = req.query
+
+    try {
+      let rv = await mongo.db.collection('courses').aggregate([
+        {
+          $match: {
+            category: category
+          }
+        },
+        {
+          $project: {
+            rating: {
+              $cond: [{ $eq: ["$rateCount", 0] }, 0, { $divide: ["$totalRate", "$rateCount"] }]
+            },
+            reference: 1,
+            title: 1,
+            level: 1,
+
+          }
+        },
+        { $sort: { rating: -1 } },
+        { $limit: 4 }
+      ]).toArray()
+
+      return res.status(200).json(rv)
+    } catch (e) {
+      return res.status(400).json({ e: e.toString() })
+    }
+  })
+
   .get('/courses', authUser, async (req, res) => {
     let total = null
     let courses = null
     let user = null
-    let { email, role } = req.query
+    let { email, role, type } = req.query
     try {
       if (!email) {
         user = await findUser({ id: req.decoded.id })
@@ -590,11 +621,15 @@ meRoutes
       }
 
 
-      if (role == "instructor") {
+      if (role == "instructor" && type == 'profile') {
         //const total = await mongo.db.collection('courses').find({ createdBy: email }).count()
         courses = await mongo.db.collection('courses').find({ createdBy: email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
-      } else {
+      } else if (role == "user" && type == 'profile') {
         courses = await mongo.db.collection('registrations').find({ email: email }).sort({ "_id": -1 }).skip(0).limit(4).toArray()
+      } else if (role == "instructor") {
+        courses = await mongo.db.collection('courses').find({ createdBy: email }).toArray()
+      } else {
+        courses = await mongo.db.collection('registrations').find({ email: email }).toArray()
       }
 
       return res.status(200).json({ courses })
@@ -884,8 +919,8 @@ meRoutes
             array[array.length - 1] = Number(array[array.length - 1]) + 1;
             batchID = array.join('-')
 
-            let template  = null
-            if(fileName.length > 0) {
+            let template = null
+            if (fileName.length > 0) {
               template = {
                 id: "notice-0",
                 author: user.name,
@@ -917,7 +952,7 @@ meRoutes
             { $set: body },
             { session }
           )
-          
+
           await session.commitTransaction()
           return res.status(200).json({ reference })
         } catch (e) {
@@ -983,10 +1018,10 @@ meRoutes
 
       const survey = await mongo.db.collection('survey').findOne({ reference: reference }, { projection: { survey: 1, _id: 0 } })
       const r = await mongo.db.collection('surveyResults').find({ reference: reference }, { projection: { result: 1, _id: 0 } }).toArray()
-
+     
       let aggregate = []
       //set up aggregate array
-      if (survey) {
+      if (r.length > 0) {
 
         for (var [index, q] of survey.survey.entries()) {
           let template = {
@@ -1004,6 +1039,7 @@ meRoutes
             if (q.type == "check" || q.type == "radio") {
               for (var option of q.options) {
                 template.categories.push(option.title)
+                template.data.push(0)
               }
             }
             aggregate.push(template)
@@ -1028,20 +1064,10 @@ meRoutes
                   i.data.push(index2.rating)
                 } else if (i.type == 'check') {
                   for (var x of index2.selected) {
-                    if (i.data[x] == null) {
-                      i.data[x] = 1
-                    } else {
-                      i.data[x]++
-                    }
+                    i.data[x]++
                   }
                 } else if (i.type == 'radio') {
-                  if (i.data[index2.selected] == null) {
-                    console.log("HH", index2.selected)
-                    i.data[index2.selected] = 1
-                  } else {
-                    i.data[index2.selected]++
-                  }
-
+                  i.data[index2.selected]++
                 }
 
               }
@@ -1774,6 +1800,7 @@ meRoutes
     let { courseRef, batchID, quizID, result } = req.body
     let user = null
     let totalScore = 0
+    console.log(quizID, courseRef, batchID)
     try {
       user = await findUser({ id: req.decoded.id })
       for (var i = 0; i < result.length; i++) {

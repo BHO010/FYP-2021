@@ -1,4 +1,5 @@
-let statsTemplate = {
+let statsTemplate = 
+{
     email: "",
     registered: 0,
     courseCreated: 0,
@@ -14,7 +15,8 @@ let statsTemplate = {
     registration: []
 }
 
-let achievementTemplate = {
+let achievementTemplate = 
+{
     email: "",
     achievements: [
         {
@@ -57,15 +59,6 @@ let achievementTemplate = {
             multiplier: 50,
             nextReq: 50
         },
-        //instructor
-        /* {
-            id: "profileLikes",
-            info: "Number of likes on profile",
-            title: "Learner",
-            level: 0,
-            points: 0,
-            nextReq: 0
-        }, */
         {
             id: "studentsCount",
             info: "Number of Students",

@@ -33,7 +33,7 @@
               dense
             ></v-text-field>
           </div>
-          <!-- Change Email -->
+          <!-- Email, no change allowed-->
           <div class="inputRow">
             <h3 class="size-18">Email:</h3>
             <v-text-field
@@ -41,6 +41,7 @@
               type="email"
               outlined
               dense
+              readonly
             ></v-text-field>
           </div>
           <!-- Change Contact Number -->
@@ -323,6 +324,21 @@ import { mapState } from "vuex"
 import { http } from "@/axios"
 import Avatars from "@dicebear/avatars"
 import sprites from "@dicebear/avatars-avataaars-sprites"
+import {
+  getTags,
+  getTop,
+  getHatColor,
+  getHaircolor,
+  getAccessories,
+  getFacialHair,
+  getFacialHairColor,
+  getClothes,
+  getClothesColor,
+  getEyes,
+  getEyebrown,
+  getMouth,
+  getSkin,
+} from "../../public/js/settings"
 
 export default {
   data() {
@@ -375,115 +391,19 @@ export default {
         { id: 3, name: "Password" },
         { id: 4, name: "Instructor Application" },
       ],
-      tags: [
-        "Business",
-        "Leadership and Management",
-        "Marketing",
-        "Accounting",
-        "Business Strategy",
-        "Arts",
-        "Shopping",
-        "Art",
-        "Finance",
-        "Information Technology",
-        "Economics",
-        "Mechanical Engineering",
-        "Chemistry",
-        "Physics",
-        "Electrical Engineering",
-        "Biology",
-        "Programming",
-        "Computer Science",
-        "Math",
-      ],
-      top: ["longHair", "shortHair", "hat", "hijab", "turban"],
-      hatColor: [
-        "black",
-        "blue",
-        "gray",
-        "heather",
-        "pastel",
-        "pink",
-        "red",
-        "white",
-      ],
-      hairColor: [
-        "auburn",
-        "black",
-        "blonde",
-        "brown",
-        "pastel",
-        "platinum",
-        "red",
-        "gray",
-      ],
-      accessories: [
-        "none",
-        "kurt",
-        "prescription01",
-        "prescription02",
-        "round",
-        "sunglasses",
-        "wayfarers",
-      ],
-      facialHair: ["none", "medium", "light", "majestic", "fancy", "magnum"],
-      facialHairColor: [
-        "auburn",
-        "black",
-        "blonde",
-        "brown",
-        "platinum",
-        "red",
-      ],
-      clothes: ["blazer", "sweater", "shirt", "hoodie", "overall"],
-      clothesColor: [
-        "black",
-        "blue",
-        "gray",
-        "heather",
-        "pastel",
-        "pink",
-        "red",
-        "white",
-      ],
-      eyes: [
-        "close",
-        "cry",
-        "default",
-        "dizzy",
-        "roll",
-        "happy",
-        "hearts",
-        "side",
-        "squint",
-        "surprised",
-        "wink",
-        "winkWacky",
-      ],
-      eyebrow: ["angry", "default", "flat", "raised", "sad", "unibrow", "up"],
-      mouth: [
-        "concerned",
-        "default",
-        "disbelief",
-        "eating",
-        "grimace",
-        "sad",
-        "scream",
-        "serious",
-        "smile",
-        "tongue",
-        "twinkle",
-        "vomit",
-      ],
-      skin: [
-        "tanned",
-        "yellow",
-        "pale",
-        "light",
-        "brown",
-        "darkBrown",
-        "black",
-      ],
+       tags: getTags(),
+      top: getTop(),
+      hatColor: getHatColor(),
+      hairColor: getHaircolor(),
+      accessories: getAccessories(),
+      facialHair: getFacialHair(),
+      facialHairColor: getFacialHairColor(),
+      clothes: getClothes(),
+      clothesColor: getClothesColor(),
+      eyes: getEyes(),
+      eyebrow: getEyebrown(),
+      mouth: getMouth(),
+      skin: getSkin(),
       options: {
         width: "650px",
         height: "450px",

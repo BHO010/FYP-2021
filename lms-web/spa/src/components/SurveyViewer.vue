@@ -198,7 +198,7 @@ export default {
     },
     async onCompleteQuiz() {
       try {
-        this.$store.commit("setLoading", true)
+       //this.$store.commit("setLoading", true)
         let rv = await http.post("/api/me/quiz/completed", {
           courseRef: this.courseRef,
           batchID: this.batchID,
@@ -206,8 +206,8 @@ export default {
           result: this.quiz.content
         })
         if (rv) {
-          this.$store.commit("setLoading", false)
-          this.$router.go().catch((err) => {})
+         // this.$store.commit("setLoading", false)
+         // this.$router.go().catch((err) => {})
         }
       } catch (e) {
 

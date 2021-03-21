@@ -210,7 +210,7 @@ export default {
       quizStatus: "Incomplete",
       quizDialog: false,
       quizEdit: false,
-      quizID: null,
+      quizID: this.block.id,
       latest: {
         author: "No Post",
         date: "",
@@ -219,7 +219,6 @@ export default {
   },
   async mounted() {
     if (this.type != "block") {
-      console.log("DD2",this.block)
       await this.getUser()
       await this.getImage()
     } else {

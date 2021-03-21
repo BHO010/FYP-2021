@@ -307,7 +307,11 @@ export default {
       }
     },
     async getCourses() {
-      const { data } = await http.get("/api/me/courses")
+      const { data } = await http.get("/api/me/courses", {
+        params: {
+          type: "profile"
+        }
+      })
 
       this.courses = data.courses
     },
