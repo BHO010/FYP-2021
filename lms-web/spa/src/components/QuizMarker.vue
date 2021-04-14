@@ -162,7 +162,7 @@ export default {
     async onCompleteMark() {
       this.$store.commit("setLoading", true)
       for (var q of this.quiz.result) {
-        this.totalScore += q.score
+        this.totalScore += Number(q.score)
       }
       this.quiz.score = this.totalScore
       let rv = await http.post("/api/me/quiz/result/marked", {

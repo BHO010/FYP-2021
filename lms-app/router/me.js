@@ -239,13 +239,13 @@ meRoutes
     let courses = null
     try {
       if (category == "Any" && date == "Latest") {
-        courses = await mongo.db.collection('courses').find({}).sort({ "_id": -1 }).skip(0).toArray()
+        courses = await mongo.db.collection('courses').find({active: true}).sort({ "_id": -1 }).skip(0).toArray()
       } else if (category == "Any" && date == "Oldest") {
-        courses = await mongo.db.collection('courses').find({}).sort({ "_id": 1 }).skip(0).toArray()
+        courses = await mongo.db.collection('courses').find({active: true}).sort({ "_id": 1 }).skip(0).toArray()
       } else if (category != "Any" && date == "Latest") {
-        courses = await mongo.db.collection('courses').find({ category: category }).sort({ "_id": -1 }).skip(0).toArray()
+        courses = await mongo.db.collection('courses').find({ category: category, active: true }).sort({ "_id": -1 }).skip(0).toArray()
       } else if (category != "Any" && date == "Oldest") {
-        courses = await mongo.db.collection('courses').find({ category: category }).sort({ "_id": 1 }).skip(0).toArray()
+        courses = await mongo.db.collection('courses').find({ category: category, active: true }).sort({ "_id": 1 }).skip(0).toArray()
       }
       return res.status(200).json({ courses })
     } catch (e) {
@@ -892,28 +892,6 @@ meRoutes
         const session = client.startSession({ defaultTransactionOptions }) // for transactions
         session.startTransaction()
         try {
-          let body = {
-            reference,
-            batchID: batchID,
-            title,
-            description,
-            category,
-            level,
-            venue,
-            startDate,
-            endDate: new Date(endDate),
-            duration,
-            fee,
-            objectives,
-            outlines,
-            trainers,
-            attends,
-            regStart,
-            regEnd,
-            vacancy,
-            uploadedFiles: fileName
-
-          }
           if (newBatch) {
             var array = batchID.split('-')
             array[array.length - 1] = Number(array[array.length - 1]) + 1;
@@ -945,6 +923,28 @@ meRoutes
               quiz: [],
               feedback: []
             }, { session })
+          }
+
+          let body = {
+            reference,
+            batchID: batchID,
+            title,
+            description,
+            category,
+            level,
+            venue,
+            startDate,
+            endDate: new Date(endDate),
+            duration,
+            fee,
+            objectives,
+            outlines,
+            trainers,
+            attends,
+            regStart,
+            regEnd,
+            vacancy,
+            uploadedFiles: fileName
           }
 
           await mongo.db.collection('courses').updateOne(
@@ -1022,7 +1022,6 @@ meRoutes
       let aggregate = []
       //set up aggregate array
       if (r.length > 0) {
-
         for (var [index, q] of survey.survey.entries()) {
           let template = {
             id: null,
@@ -1046,10 +1045,6 @@ meRoutes
           }
         }
       }
-
-
-      //console.log("SETUP", aggregate)
-
       //aggregate result into aggregate array
       if (r) {
         for (var d of r) {
@@ -1136,6 +1131,7 @@ meRoutes
       author: ""
     }
     let { currentPage, pageSize } = req.query
+    console.log("KK", currentPage, pageSize)
     try {
       user = await findUser({ id: req.decoded.id })
       const { email, role } = user
@@ -1167,13 +1163,14 @@ meRoutes
             }
           }
           //registered course
-          let rv1 = await mongo.db.collection('registrations').find({ email: email }, { projection: { courserRef: "", title: "", _id: 1 } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
-          let totalRegCourse = Math.ceil(await mongo.db.collection('registrations').find({ email: email }, { projection: { courserRef: "", title: "", _id: 1 } }).count() / 4)
+          let rv1 = await mongo.db.collection('registrations').find({ email: email }, { projection: { courseRef: "", title: "", _id: 1 } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
+          let totalRegCourse = Math.ceil(await mongo.db.collection('registrations').find({ email: email }, { projection: { courseRef: "", title: "", _id: 1 } }).count() / 4)
+
           if (rv1.length > 0) {
-            for (var i = 0; i < rv.length; i++) {
-              let tCount = await mongo.db.collection('threads').find({ courseRef: rv1[i].courserRef }).count()
-              let mCount = await mongo.db.collection('messages').find({ courseRef: rv1[i].courserRef }).count()
-              let latest = await mongo.db.collection('threads').find({ courseRef: rv1[i].courserRef }).sort({ "_id": -1 }).skip(0).limit(1).toArray()
+            for (var i = 0; i < rv1.length; i++) {
+              let tCount = await mongo.db.collection('threads').find({ courseRef: rv1[i].courseRef }).count()
+              let mCount = await mongo.db.collection('messages').find({ courseRef: rv1[i].courseRef }).count()
+              let latest = await mongo.db.collection('threads').find({ courseRef: rv1[i].courseRef }).sort({ "_id": -1 }).skip(0).limit(1).toArray()
               rv1[i].threads = tCount || 0
               rv1[i].msgs = mCount || 0
               rv1[i].latest = latest[0] || template
@@ -1183,7 +1180,7 @@ meRoutes
           regCourses = rv1
           return res.status(200).json({ courses, totalCourse, regCourses, totalRegCourse })
         } catch (e) {
-          return res.status(500).json({ e })
+          return res.status(500).json({ e: e.toString() })
         }
       }
 
@@ -1391,6 +1388,7 @@ meRoutes
             //update author stats
             await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { discussionPoints: 1 } }, { session })
             await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { upvotes: 1 } }, { session })
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { downvotes: -1 } }, { session })
             await mongo.db.collection('user').updateOne({ email: rv.author }, { $inc: { knowledgePoints: 3 } }, { session })
 
 
@@ -1421,6 +1419,7 @@ meRoutes
             //update author stats
             await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { discussionPoints: -2 } }, { session })
             await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { downvotes: 1 } }, { session })
+            await mongo.db.collection('statistics').updateOne({ email: rv.author }, { $inc: { upvotes: -1 } }, { session })
 
           } else if (rv.downvote.includes(user.name)) {
             var index = rv.downvote.findIndex(p => p == user.name)
@@ -1567,14 +1566,14 @@ meRoutes
     try {
       user = await findUser({ id: req.decoded.id })
       if (user == "user") {
-        let rv = await mongo.db.collection('registrations').find({ email: email, active: true }).sort({ "_id": 1 }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
+        let rv = await mongo.db.collection('registrations').find({ email: user.email, active: true }).sort({ "_id": 1 }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
         return res.status(200).json(rv)
       } else {
         if (type == "registered") {
-          let rv2 = await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
+          let rv2 = await mongo.db.collection('registrations').find({ email: user.email,active: true, endDate: { $gte: new Date() } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
           return res.status(200).json(rv2)
         } else {
-          let rv2 = await mongo.db.collection('registrations').find({ email: email, endDate: { $gte: new Date() } }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
+          let rv2 = await mongo.db.collection('classes').find({ instructor: user.email,active: true }).skip((Number(currentPage) - 1) * pageSize).limit(Number(pageSize)).toArray()
           return res.status(200).json(rv2)
         }
       }
@@ -1590,7 +1589,7 @@ meRoutes
     try {
       user = await findUser({ id: req.decoded.id })
       let rv = await mongo.db.collection('classes').findOne({ courseRef: courseRef, batchID: batchID })
-
+      console.log(createType)
       length = rv[createType].length
 
 
@@ -1804,7 +1803,7 @@ meRoutes
     try {
       user = await findUser({ id: req.decoded.id })
       for (var i = 0; i < result.length; i++) {
-        totalScore += result[i].points
+        totalScore += Number(result[i].points)
       }
       let found = await mongo.db.collection('quizResults').findOne({ courseRef: courseRef, batchID, batchID, quizID: quizID, completedBy: user.email })
       if (found && user) {
@@ -1875,12 +1874,12 @@ meRoutes
           }
 
           if (aggregate.Qstats[index2] == null) {
-            template.points = item2.points
+            template.points = Number(item2.points)
             template.title = item2.title
             aggregate.Qstats.push(template)
           }
 
-          let maxPoints = item2.points
+          let maxPoints = Number(item2.points)
           aggregate.totalPoints += maxPoints
 
           if (item2.score == maxPoints) {

@@ -383,8 +383,6 @@ export default {
         "Marketing",
         "Accounting",
         "Business Strategy",
-        "Arts",
-        "Shopping",
         "Art",
         "Finance",
         "Information Technology",

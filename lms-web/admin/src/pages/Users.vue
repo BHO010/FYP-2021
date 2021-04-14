@@ -10,7 +10,7 @@
     >
     <!-- Top row -->
     <v-flex row xs12 class="tagRow">
-      <h1 class="header">Users</h1>
+      <h1 class="header">Learners</h1>
     </v-flex>
 
     <v-flex row xs12 class="tagRow">
@@ -84,9 +84,54 @@
           <!--  <v-btn icon dark @click="reportDialog = false">
             <v-icon>mdi-close</v-icon>
           </v-btn> -->
-          <v-toolbar-title>Edit Instructor.</v-toolbar-title>
+          <v-toolbar-title>Edit Learner.</v-toolbar-title>
         </v-toolbar>
-        <div id="dialogContent"></div>
+        <div id="dialogBody">
+           <v-form>
+              <div class="inputRow">
+                <h3 class="size-18">Email:</h3>
+                <v-text-field
+                  v-model="selectedUser.email"
+                  type="email"
+                  outlined
+                  dense
+                  readonly
+                ></v-text-field>
+              </div>
+              <div class="inputRow">
+                <h3 class="size-18">Name:</h3>
+                <v-text-field
+                  v-model="selectedUser.name"
+                  type="text"
+                  outlined
+                  dense
+                ></v-text-field>
+              </div>
+              <div class="inputRow">
+                <h3 class="size-18">Password:</h3>
+                <div class="row">
+                  <v-text-field
+                    v-model="updatePassword"
+                    type="text"
+                    outlined
+                    dense
+                    readonly
+                  ></v-text-field>
+                  <v-btn
+                    text
+                    outlined
+                    @click="generatePW"
+                    class="btn"
+                    color="#0078ab"
+                    >Generate</v-btn
+                  >
+                </div>
+              </div>
+              <v-btn class="submitBtn" text outlined @click="updateUser"
+                >Submit</v-btn
+              >
+            </v-form>
+        </div>
       </v-card>
     </v-dialog>
 
@@ -127,6 +172,7 @@
                     type="text"
                     outlined
                     dense
+                    readonly
                   ></v-text-field>
                   <v-btn
                     text
@@ -167,7 +213,11 @@ export default {
       name: null,
       password: null,
       editDialog: false,
-      selectedUser: null,
+      selectedUser: {
+        email: "",
+        name: ""
+      },
+      updatePassword: "",
       users: [],
       total: 0,
       options: {},
@@ -290,6 +340,25 @@ export default {
         }
       } catch (e) {}
     },
+    async updateUser() {
+      try {
+        let rv = await http.post("/api/admin/user/update", {
+          data: this.selectedUser,
+          password: this.updatePassword
+        })
+
+        if(rv) {
+           this.snackbarText = rv.data.msg
+          this.snackbarShow = true
+          setTimeout(() => {
+            this.editDialog = false
+            this.$router.go()
+          },500)
+        }
+      }catch(e) {
+
+      }
+    }
   },
 }
 </script>

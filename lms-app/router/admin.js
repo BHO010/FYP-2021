@@ -188,6 +188,36 @@ adminRoutes
         }
     })
 
+    .post('/course/delete', authUser, authIsAdmin, async (req,res) => {
+        let {reference} = req.body
+        try {
+            let rv = await mongo.db.collection('courses').findOneAndUpdate({reference: reference}, {
+                $set: {
+                    active: false
+                }
+            })
+
+            return res.status(200).json({ success: true, msg: 'Course deleted' }) //success
+        }catch(e) {
+            res.status(500).json({ e: e.toString() })
+        }
+    })
+
+    .post('/course/enable', authUser, authIsAdmin, async (req,res) => {
+        let {reference} = req.body
+        try {
+            let rv = await mongo.db.collection('courses').findOneAndUpdate({reference: reference}, {
+                $set: {
+                    active: true
+                }
+            })
+
+            return res.status(200).json({ success: true, msg: 'Course Enabled' }) //success
+        }catch(e) {
+            res.status(500).json({ e: e.toString() })
+        }
+    })
+
     .get('/applications', authUser, authIsAdmin, async (req, res) => {
         try {
             let results = await mongo.db.collection('applications').find({}).toArray()

@@ -25,7 +25,7 @@
               <div>Average Score</div>
             </v-card-text>
             <v-row justify="center" align="center" class="stats">
-              {{ averageScore }}
+              {{ averagePoints }}
             </v-row>
           </v-card>
         </div>
@@ -69,12 +69,13 @@ export default {
     ...mapState(["error", "loading"]),
   },
   async mounted() {
+    console.log("AA", this.question)
     this.title = this.question.id.split("-")
 
     this.average =
-      (this.question.totalScore / (this.count * this.question.points)) * 100
+      (Number(this.question.totalScore) / (this.count * Number(this.question.points))) * 100
 
-    this.averageScore = this.question.totalScore / this.count
+    this.averagePoints = Number(this.question.totalScore) / this.count
 
     
     this.series[0].data.push(this.question.full)

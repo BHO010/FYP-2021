@@ -89,8 +89,8 @@
           <v-row>
             <h2>Message:</h2>
             <v-textarea
-              v-model="reportContent.reportedMessage"
-              rows="3"
+              v-html="reportContent.reportedMessage"
+              rows="5"
               row-height="40"
               no-resize
               outlined
@@ -148,12 +148,7 @@ export default {
           text: "Discussion Course",
           sortable: false,
           class: "header",
-        },
-        {
-          text: "Manage",
-          sortable: false,
-          class: "header",
-        },
+        }
       ],
     }
   },

@@ -39,11 +39,22 @@ export default {
   computed: {
     ...mapState(["error", "loading"]),
   },
-  mounted() {
+  async mounted() {
     if(this.course.rating) {
       this.rating = this.course.rating
     }else {
       this.rating = this.course.totalRate / this.course.rateCount
+    }
+
+    if(this.type == "registered") {
+      let rv = await http.get('/api/me/course', {
+        params: {
+          courseRef: this.course.courseRef
+        }
+      })
+
+      this.rating = rv.data.totalRate / rv.data.rateCount
+
     }
   },
   methods: {

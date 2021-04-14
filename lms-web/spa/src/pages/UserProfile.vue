@@ -43,7 +43,6 @@
                 <v-row class="statsItem"
                   >Discussion Points: {{ stats.discussionPoints }}</v-row
                 >
-                <v-row class="statsItem">Accounting</v-row>
               </div>
             </v-col>
             <v-col cols="6">
@@ -54,7 +53,6 @@
                 <v-row class="statsItem"
                   >Comment Downvotes: {{ stats.downvotes }}</v-row
                 >
-                <v-row class="statsItem">Accounting</v-row>
               </div>
             </v-col>
           </v-row>
@@ -157,7 +155,7 @@
             <v-col cols="6">
               <div class="leftStats">
                 <v-row class="statsItem"
-                  >Rating: {{ stats.totalRate / stats.rateCount || 0 }}/5</v-row
+                  >Rating: {{ (stats.totalRate / stats.rateCount).toFixed(2) || 0 }}/5</v-row
                 >
                 <v-row class="statsItem"
                   >Comments: {{ stats.discussionPoints }}</v-row

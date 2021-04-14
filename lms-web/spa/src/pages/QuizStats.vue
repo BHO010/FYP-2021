@@ -20,7 +20,7 @@
               <div>Average Percent</div>
             </v-card-text>
             <v-row justify="center" align="center" class="stats">
-              {{ average }}%
+              {{ average || 0 }}%
             </v-row>
           </v-card>
         </div>

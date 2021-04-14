@@ -129,4 +129,28 @@ userRoutes
         }
     })
 
+    .post('/update', authUser, authIsAdmin, async (req, res) => {
+        let { data, password } = req.body
+        let encryptedPassword = null
+        if(password) {
+            encryptedPassword = bcrypt.hashSync(password, SALT_ROUNDS)
+        }else {
+            encryptedPassword = data.password
+        }
+        
+        try {
+            let rv = await mongo.db.collection('user').updateOne({email: data.email}, {
+                $set: {
+                    password: encryptedPassword,
+                    name: data.name
+                }
+            })
+
+            res.status(200).json({ msg: "User edited Successfully" })
+        }catch(e) {
+            res.status(500).json({ e: e.toString() })
+        }
+        
+    })
+
 module.exports = userRoutes

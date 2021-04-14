@@ -8,7 +8,7 @@ Vue.use(Router)
 export default new Router({
   routes: [
     // route level code splitting, components are lazy loaded using import
-    { path: '/', name:'landing', component: () => import('@/pages/Home') },
+    //{ path: '/', name:'landing', component: () => import('@/pages/Home') },
     { path: '/avatar', name:'avatar', component: () => import('@/pages/Avatar') },
     { path: '/login', name:'LogIn', component: () => import('@/pages/Login') },
     { path: '/signup', name:'Signup', component: () => import('@/pages/Signup') },
@@ -37,7 +37,7 @@ export default new Router({
     { path: '/survey/create', name:'SurveyCreate', component: () => import('@/pages/survey/SurveyCreate'),  beforeEnter: AuthGuard},
     { path: '/survey/edit', name:'SurveyEdit', component: () => import('@/pages/survey/SurveyEdit'),  beforeEnter: AuthGuard},
     { path: '/survey/result', name:'SurveyResult', component: () => import('@/pages/survey/SurveyResults'),  beforeEnter: AuthGuard},
-    { path: '*', redirect: '/' }
+    { path: '*', redirect: '/login' }
 
   ],
 

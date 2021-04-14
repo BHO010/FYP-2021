@@ -7,7 +7,7 @@
           class="link"
           :to="{
             path: `/classes`,
-            query: { ref: block.courseRef, batch: block.batchID },
+            query: { ref: block.courseRef, batch: block.batchID, title: course.title },
           }"
           >{{ course.title }}</router-link
         >

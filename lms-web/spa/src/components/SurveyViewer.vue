@@ -179,6 +179,7 @@ export default {
   },
   mounted() {
     console.log(this.type)
+    console.log("AA", this.reviewIndex,this.reference)
   },
   methods: {
     async onComplete() {
@@ -190,7 +191,7 @@ export default {
         })
         if (rv) {
           this.$store.commit("setLoading", false)
-          this.$router.push("/profile").catch((err) => {})
+          this.$router.go().catch((err) => {})
         }
       } catch (e) {
 
@@ -206,8 +207,8 @@ export default {
           result: this.quiz.content
         })
         if (rv) {
-         // this.$store.commit("setLoading", false)
-         // this.$router.go().catch((err) => {})
+          this.$store.commit("setLoading", false)
+          this.$router.go().catch((err) => {})
         }
       } catch (e) {
 

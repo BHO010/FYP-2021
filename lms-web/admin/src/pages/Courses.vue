@@ -53,16 +53,28 @@
             <td>{{ row.item.createdBy }}</td>
             <td>{{ row.item.category }}</td>
             <td>{{ rating(row.item.rateCount, row.item.totalRate) }}/5</td>
-            <td>{{available(row.item.active)}}</td>
+            <td>{{ available(row.item.active) }}</td>
             <td>
-                <v-btn
-                  class="mx-2 btn"
-                  text
-                  outlined
-                  color="blue"
-                >
-                  Delete
-                </v-btn>
+              <v-btn
+                v-if="row.item.active"
+                class="mx-2 btn"
+                text
+                outlined
+                color="blue"
+                @click="deleteCourse(row.item)"
+              >
+                Delete
+              </v-btn>
+              <v-btn
+                v-else
+                class="mx-2 btn"
+                text
+                outlined
+                color="blue"
+                @click="enableCourse(row.item)"
+              >
+                Enable
+              </v-btn>
             </td>
           </tr>
         </template>
@@ -113,12 +125,12 @@ export default {
           sortable: false,
           class: "header",
         },
-         {
+        {
           text: "Status",
           sortable: false,
           value: "active",
           class: "header",
-        }, 
+        },
         {
           text: "Manage",
           sortable: false,
@@ -155,7 +167,7 @@ export default {
       if (count == 0) {
         return 0
       } else {
-        return rate / count
+        return (rate / count).toFixed(2)
       }
     },
     updatePage() {
@@ -175,6 +187,36 @@ export default {
         this.courses = rv.data.results
         this.total = rv.data.total
         this.loading = false
+      } catch (e) {}
+    },
+    async deleteCourse(data) {
+      try {
+        let rv = await http.post("/api/admin/course/delete", {
+          reference: data.reference,
+        })
+
+        if (rv) {
+          this.snackbarText = rv.data.msg
+          this.snackbarShow = true
+          setTimeout(() => {
+            this.$router.go()
+          }, 500)
+        }
+      } catch (e) {}
+    },
+    async enableCourse(data) {
+      try {
+        let rv = await http.post("/api/admin/course/enable", {
+          reference: data.reference,
+        })
+
+        if (rv) {
+          this.snackbarText = rv.data.msg
+          this.snackbarShow = true
+          setTimeout(() => {
+            this.$router.go()
+          }, 500)
+        }
       } catch (e) {}
     },
   },

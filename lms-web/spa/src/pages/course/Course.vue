@@ -125,7 +125,7 @@
                 </tr>
                 <tr>
                   <td>Cat-A-SSG Funded Course<b>¹</b></td>
-                  <td>S${{ this.fee * 0.3 }}</td>
+                  <td>S${{ (this.fee * 0.3).toFixed(1) }}</td>
                 </tr>
                 <tr>
                   <td>Enhanced Training Support for SMEs<b>²</b></td>
@@ -141,15 +141,15 @@
                 </tr>
                 <tr>
                   <td>Group of 3 pax and above</td>
-                  <td>S${{ this.fee * 0.9 }}</td>
+                  <td>S${{ (this.fee * 0.9).toFixed(1) }}</td>
                 </tr>
                 <tr>
                   <td>NTU/NIE Alumni, Staff & Students</td>
-                  <td>S${{ this.fee * 0.8 }}</td>
+                  <td>S${{ (this.fee * 0.8).toFixed(1) }}</td>
                 </tr>
                 <tr>
                   <td>NTUC Member</td>
-                  <td>S${{ this.fee * 0.9 }}</td>
+                  <td>S${{ (this.fee * 0.9).toFixed(1) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -363,7 +363,7 @@ export default {
           this.$store.commit("setLoading", false)
           setTimeout(() => {
             this.$router.go()
-          },500)
+          }, 500)
         } else {
           this.regDialog = false
           this.$store.commit("setLoading", false)
@@ -489,7 +489,6 @@ section p {
 #ratingRow {
   font-family: "DarkerGrotesque-Medium";
   font-size: calc(16px + (26 - 16) * ((100vw - 300px) / (1920 - 300)));
-  position: absolute;
   bottom: 5px;
 }
 
@@ -567,6 +566,7 @@ section p {
 
 #imgCol .imgDiv {
   margin: auto;
+  margin-left: 2%;
 }
 
 #titleCol {

@@ -1,7 +1,7 @@
 <template>
   <div id="main">
     <div id="body">
-      <h1>Ongoing Classes</h1>
+      <h1>{{courseTitle}} Class</h1>
       <p>Information and quiz conducted for your ongoing courses.</p>
       <div v-if="user">
         <div id="content">
@@ -86,7 +86,7 @@
             <div class="row">
               <h1>Discussion</h1>
               <v-spacer></v-spacer>
-              <v-btn class="Btn" text outlined @click="newQuestion()"
+              <v-btn class="Btn" text outlined @click="newQuestion('feedback')"
                 >New Question</v-btn
               >
             </div>
@@ -360,6 +360,7 @@ export default {
       classDetails: [],
       courseRef: this.$route.query.ref,
       batchID: this.$route.query.batch,
+      courseTitle: this.$route.query.title,
       classes: null, //block
       blockClassTotal: 0,
       blockClassPage: 1,
@@ -450,16 +451,16 @@ export default {
   },
   methods: {
     newThread(type) {
-      this.cr8Thread = true
       this.createType = type
+      this.cr8Thread = true
     },
     newQuiz(type) {
       this.cr8Quiz = true
       this.createType = type
     },
     newQuestion(type) {
-      this.cr8Thread = true
       this.createType = type
+      this.cr8Thread = true
     },
     getNotice(data) {
       this.noticePage = 1
@@ -583,13 +584,10 @@ export default {
             type: data,
           }
         })
+        console.log("AA", rv.data)
 
         if(rv) {
-          if(data == "registered") {
-            this.regClasses = rv.data
-          }else {
-            this.courses = rv.data
-          }
+            this.classes = rv.data
         }
       }catch(e) {}
     }

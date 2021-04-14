@@ -1,7 +1,7 @@
 <template>
   <div id="main">
     <div id="body">
-      <h1>Quiz Results Table</h1>
+      <h1>Quiz Submission List</h1>
       <v-data-table :headers="headers" :items="quizList" class="table">
         <template v-slot:item="row">
           <tr class="tableRow" @click="onQuizView(row.item)">
